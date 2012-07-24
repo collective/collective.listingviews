@@ -1,0 +1,26 @@
+*.pyo
+*.pyc
+*.egg
+*.swp
+*.egg-info
+*.mo
+*~
+
+# Project folder
+bin
+include
+lib
+develop-eggs
+downloads
+parts
+prod
+var
+dist
+design
+
+# Application config
+.idea
+.project
+.pydevproject
+projects
+.codeintel
