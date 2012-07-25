@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+
+<layers>
+	<layer name="collective.listingviews"
+		   interface="collective.listingviews.interfaces.ICollectiveListingViewsLayer" />
+</layers>

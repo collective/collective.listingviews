@@ -6,14 +6,16 @@
     i18n_domain="collective.listingviews">
 
   <five:registerPackage package="." initialize=".initialize" />
+  <include package=".browser" />
 
   <genericsetup:registerProfile
       name="default"
-      title="collective.listingviews"
+      title="Pretaweb Listing Views"
       directory="profiles/default"
-      description="Installs the collective.listingviews package"
+      description="Provides a listing view for collection and folder"
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
-  <!-- -*- extra stuff goes here -*- -->
   
+  <!-- -*- extra stuff goes here -*- -->
+ 
 </configure>

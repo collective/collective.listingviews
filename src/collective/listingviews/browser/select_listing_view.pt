@@ -1,0 +1,31 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
+
+  <metal:block fill-slot="top_slot"
+               tal:define="dummy python:request.set('disable_border',1)" />
+
+  <body>
+    <metal:main fill-slot="main">
+
+      <h1 class="documentFirstHeading"
+          i18n:translate="heading_select_default_page">
+          Select default page
+      </h1>
+
+      <div class="documentDescription" i18n:translate="description_select_default_page">
+        Please select item which will be displayed as the default page of the
+        folder.
+      </div>
+      
+      <div id="content-core">
+      </div>
+
+    </metal:main>
+  </body>
+</html>
