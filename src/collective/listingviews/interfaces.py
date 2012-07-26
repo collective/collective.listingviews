@@ -1,5 +1,5 @@
 from zope.interface import Interface
 
 
-class ICollectiveListingViewsLayer(Interface):
+class IListingViews(Interface):
     pass

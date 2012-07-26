@@ -1,41 +1,8 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:five="http://namespaces.zope.org/five"
-    xmlns:i18n="http://namespaces.zope.org/i18n"
-    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:browser="http://namespaces.zope.org/browser"
-    i18n_domain="collective.listingviews">
+    i18n_domain="collective.plonetruegallery">
 
-  <include package="plone.app.contentmenu" />
-
-  <browser:page
-    for="Products.ATContentTypes.interface.IATFolder"
-    name="select_listing_view"
-    layer="..interfaces.ICollectiveListingViewsLayer"
-    template="select_listing_view.pt"
-    permission="zope2.View" />
-
-  <browser:menuItem
-    for="Products.ATContentTypes.interface.IATFolder"
-	  menu="plone_displayviews"
-	  layer="..interfaces.ICollectiveListingViewsLayer"
-	  title="Change listing views as..."
-	  action="select_listing_view"
-	  description="A custom listing view for folder and collection" />
-
-  <browser:page
-    for="Products.ATContentTypes.interface.IATTopic"
-    name="select_listing_view"
-    layer="..interfaces.ICollectiveListingViewsLayer"
-    template="select_listing_view.pt"
-    permission="zope2.View" />
-
-  <browser:menuItem
-    for="Products.ATContentTypes.interface.IATTopic"
-    menu="plone_displayviews"
-    layer="..interfaces.ICollectiveListingViewsLayer"
-    title="Change listing views as..."
-    action="select_listing_view"
-    description="A custom listing view for folder and collection" />
+    <include package=".views" />
 
 </configure>

@@ -1,0 +1,23 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="collective.listingviews">
+
+    <genericsetup:registerProfile
+        name="default"
+        title="Listing Views"
+        directory="profiles/default"
+        description='Extension profile for the "collective.listingviews" Plone product.'
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+    
+    <genericsetup:registerProfile
+        name="uninstall"
+        title="collective.listingviews Uninstall Profile"
+        directory="profiles/uninstall"
+        description="Removes collective.listingviews."
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
+        
+</configure>
