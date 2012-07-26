@@ -4,7 +4,7 @@
 
     <action-provider name="portal_actions">
 
-        <action title="Listing View Settings" action_id="listing_view_settings" category="object"
+        <action title="Listing Settings" action_id="listing_view_settings" category="object"
             condition_expr="object/@@listing_util/enabled"
             url_expr="string:${object_url}/@@listing-settings" visible="True"
             i18n:attributes="title"
