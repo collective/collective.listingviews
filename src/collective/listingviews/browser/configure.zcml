@@ -1,8 +1,20 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
-    i18n_domain="collective.plonetruegallery">
+    i18n_domain="collective.listingviews">
 
     <include package=".views" />
+
+    <browser:page
+        name="listing_util"
+        for="*"
+        permission="zope2.View"
+        class=".util.LVUtility"
+        allowed_interface=".interfaces.ILVUtility"
+        />
+    <!-- We need to make the request annotatable for this to work -->
+    <class class="ZPublisher.BaseRequest.BaseRequest">
+        <implements interface="zope.annotation.interfaces.IAttributeAnnotatable" />
+    </class>
 
 </configure>
