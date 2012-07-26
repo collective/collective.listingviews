@@ -14,8 +14,6 @@ class LVUtility(BrowserView):
 
     @memoize
     def enabled(self):
-        import pdb
-        pdb.set_trace()
         utils = getToolByName(self.context, 'plone_utils')
         try:
             return utils.browserDefault(self.context)[1][0] == "listing_views"
