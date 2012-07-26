@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<import-steps>
+    <import-step id="collective.listingviews.install" version="2"
+        handler="collective.listingviews.exportimport.install"
+        title="Installing step for collective.listingviews">
+    </import-step>
+</import-steps>
