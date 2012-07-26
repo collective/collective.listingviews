@@ -8,6 +8,13 @@
   <include package="plone.app.contentmenu" />
 
   <browser:page
+    name="listing-settings"
+    for="collective.listingviews.interfaces.IListingViews"
+    class=".settings.ListingSettingsView"
+    permission="zope2.View"
+  />
+
+  <browser:page
       for="collective.listingviews.interfaces.IListingViews"
       name="listing_views"
       class=".listing_view.ListingView"

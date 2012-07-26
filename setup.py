@@ -36,6 +36,7 @@ setup(name='collective.listingviews',
       install_requires=[
           'setuptools',
           # -*- Extra requirements: -*-
+          'plone.app.z3cform',
       ],
       extras_require={'test': ['plone.app.testing']},
       entry_points="""
