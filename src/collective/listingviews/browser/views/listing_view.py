@@ -2,7 +2,8 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five import BrowserView
 from zope.interface import implements
 from collective.listingviews.interfaces import IListingViews
-
+from collective.listingviews.settings import ListingSettings
+from collective.listingviews.vocabularies import fields
 
 class ListingView(BrowserView):
     """
@@ -11,6 +12,9 @@ class ListingView(BrowserView):
     implements(IListingViews)
     select_listing_view = ViewPageTemplateFile("templates/layout.pt")
 
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
+    def __call__(self):
+        self.settings = ListingSettings(self.context)
+        print self.settings
+        return self.index()
+
+    

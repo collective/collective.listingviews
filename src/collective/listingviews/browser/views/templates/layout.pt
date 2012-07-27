@@ -9,7 +9,16 @@
   <body>
     <metal:core fill-slot="content-core">
       <tal:core-macro metal:define-macro="content-core">
-        <p>Dummy note.</p>
+          <div class="nolisting" tal:condition="python:not view.settings.listing_choice">
+              <p class="discreet" i18n:translate="label_no_listing">
+                  Please choose your view in listing settings.
+              </p>
+          </div>
+          <div class="listing" tal:condition="python: view.settings.listing_choice">
+              <p class="discreet" i18n:translate="label_listing">
+                  Dummy note.
+              </p>
+          </div>
       </tal:core-macro>
     </metal:core>
   </body>
