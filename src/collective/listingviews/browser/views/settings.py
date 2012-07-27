@@ -1,63 +1,55 @@
-from collective.listingviews import LVMessageFactory as _
-from zope.interface import Interface
-from zope.schema import TextLine
-from plone.z3cform.fieldsets import group as plonegroup
-from z3c.form import form, field, group, button, interfaces
+from zope import interface, schema
+from z3c.form import form, field, button
 from plone.app.z3cform.layout import wrap_form
+from collective.listingviews.interfaces import IListingSettings
+from collective.listingviews.settings import ListingSettings
+from collective.listingviews import LVMessageFactory as _
 import zope.i18n
-from zope import schema
-from plone.directives import form
-from five import grok
-from z3c.form import button
 
-from Products.CMFCore.interfaces import ISiteRoot
-from Products.statusmessages.interfaces import IStatusMessage
 
-class IPerson(form.Schema):
+class MySchema(interface.Interface):
+    age = schema.Int(title=u"Age")
+    country = schema.Choice(title=(u"Country"), vocabulary="getpaid.countries", required=False, default=None)
 
-    firstname = schema.TextLine(
-        title=u"Firstname",
-        required=True)
 
-    lastname = schema.TextLine(
-        title=u"Lastname",
-        required=True)
+class ListingSettingsForm(form.EditForm):
+    fields = field.Fields(IListingSettings)
 
-    email = schema.TextLine(
-        title=u"E-mail")
+    label = _(u'heading_listing_settings_form', default=u'Listing Views Setting')
+    description = _(u'description_listing_settings_form',
+        default=u'Configure the parameters for this listing view.')
 
-    address = schema.Text(
-        title=u"Address")
-
-class RegisterForm(form.SchemaForm):
-    grok.name('register')
-    grok.require('zope2.View')
-    grok.context(ISiteRoot)
-
-    schema = IPerson
-    ignoreContext = True
-
-    label = u"Register"
-    description = u"After you will receive email to confirm registrations."
+    successMessage = _(u'successMessage_listing_settings_form',
+        default=u'Listing Settings Saved.')
+    noChangesMessage = _(u'noChangesMessage_listing_settings_form',
+        default=u'There are no changes in the Listing settings.')
 
     def update(self):
-        self.request.get('disable_border', True)
-        super(RegisterForm, self).update()
+        super(ListingSettingsForm, self).update()
 
-    @button.buttonAndHandler(u"Register")
-    def handleRegister(self, action):
+    def set_status_message(self, settings, has_changes):
+        msg = has_changes and self.successMessage or self.noChangesMessage
+        msg = zope.i18n.translate(msg)
+
+        self.status = msg
+
+    @button.buttonAndHandler(_('Apply'), name='apply')
+    def handleApply(self, action):
         data, errors = self.extractData()
         if errors:
-            self.status = self.formErorrsMessage
+            self.status = self.formErrorsMessage
             return
+        changes = self.applyChanges(data)
+        settings = ListingSettings(self.context)
 
-        self.context['Members'].invokeFactory('Person', **data)
+        has_changes = False
+        if changes:
+            settings = ListingSettings(self.context)
+            settings.last_cooked_time_in_seconds = 0
+            has_changes = True
 
-        IStatusMessage(self.request).addStatusMessage(
-            "Registered! Soon you will receive email.",
-            'info')
-
-        self.request.response.redirect(self.context.absolute_url())
+        self.set_status_message(settings, has_changes)
+        return self.request.response.redirect(self.context.absolute_url())
 
 
-ListingSettingsView = wrap_form(RegisterForm)
+ListingSettingsView = wrap_form(ListingSettingsForm)

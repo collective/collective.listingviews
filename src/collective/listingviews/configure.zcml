@@ -29,5 +29,11 @@
          zcml:condition="installed plone.app.collection">
       <implements interface=".interfaces.IListingViews" />
   </class>
+
+  <utility
+        provides="zope.schema.interfaces.IVocabularyFactory"
+        component=".vocabularies.ListingViewVocabulary"
+        name="collective.listingviews.ListingViewVocabulary"
+        />
  
 </configure>

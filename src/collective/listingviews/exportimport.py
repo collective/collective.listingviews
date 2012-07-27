@@ -1,8 +1,10 @@
 from Products.CMFCore.utils import getToolByName
 import json
-from collective.plonetruegallery.settings import GallerySettings
-from collective.plonetruegallery.settings import ANNOTATION_KEY
+from collective.listingviews.settings import ListingSettings
+from collective.listingviews.settings import ANNOTATION_KEY
 from zope.annotation.interfaces import IAnnotations
+
+SETTINGS_FILENAME = 'listingsettings.json'
 
 
 def install(context):
@@ -10,6 +12,12 @@ def install(context):
         return
 
     site = context.getSite()
+    default_settings = context.readDataFile(SETTINGS_FILENAME)
+    if default_settings:
+        default_settings = json.loads(default_settings)
+        settings = ListingSettings(site)
+        for key, value in default_settings.items():
+            setattr(settings, key, value)
 
     types = getToolByName(site, 'portal_types')
     if 'Collection' in types.objectIds():
@@ -20,9 +28,14 @@ def install(context):
 
 
 def export(context):
-    import pdb
-    pdb.set_trace()
-    #pass
+    site = context.getSite()
+    annotations = IAnnotations(site)
+
+    settings = annotations.get(ANNOTATION_KEY, None)
+    if settings is not None:
+        context.writeDataFile(SETTINGS_FILENAME,
+                              json.dumps(dict(settings), indent=4),
+                              'application/json')
 
 
 def uninstall(context):
@@ -30,6 +43,13 @@ def uninstall(context):
         return
 
     portal = context.getSite()
+    portal_actions = getToolByName(portal, 'portal_actions')
+    object_buttons = portal_actions.object
+
+    actions_to_remove = ('gallery_settings')
+    for action in actions_to_remove:
+        if action in object_buttons.objectIds():
+            object_buttons.manage_delObjects([action])
 
     #remove view
     types_to_remove = ('Folder', 'Topic', 'Collection')

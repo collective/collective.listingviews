@@ -14,6 +14,11 @@
     permission="zope2.View"
   />
 
+  <adapter
+    for="collective.listingviews.interfaces.IListingViews"
+    provides="collective.listingviews.interfaces.IListingSettings"
+    factory="collective.listingviews.settings.ListingSettings" />
+
   <browser:page
       for="collective.listingviews.interfaces.IListingViews"
       name="listing_views"
