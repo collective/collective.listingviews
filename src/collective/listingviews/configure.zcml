@@ -10,6 +10,7 @@
   <five:registerPackage package="." initialize=".initialize" />
   <include package="plone.app.z3cform" />
   <include package=".browser" />
+  <include package=".adapters" />
   <include file="profiles.zcml" />
 
   <!-- -*- extra stuff goes here -*- -->

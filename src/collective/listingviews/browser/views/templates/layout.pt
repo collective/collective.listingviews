@@ -18,6 +18,15 @@
               <p class="discreet" i18n:translate="label_listing">
                   Dummy note.
               </p>
+              <div class="noimages" tal:condition="python: len(view.adapter.retrieve_images()) == 0">
+                  <p>Zero (Folder)</p>
+              </div>
+              <div class="noimages" tal:condition="python: len(view.adapter.retrieve_images()) == 1">
+                  <p>One (old Collection)</p>
+              </div>
+              <div class="noimages" tal:condition="python: len(view.adapter.retrieve_images()) == 2">
+                  <p>Two (New Collection)</p>
+              </div>
           </div>
       </tal:core-macro>
     </metal:core>
