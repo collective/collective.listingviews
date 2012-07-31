@@ -59,7 +59,6 @@ class BaseListingInformationRetriever(object):
         self.listing_adapter = listing_adapter
 
     def assemble_listing_information(self, brain):
-        import pdb; pdb.set_trace()
         listing_fields = self.listing_adapter.listing_fields
         item = brain.getObject()
         current = []
