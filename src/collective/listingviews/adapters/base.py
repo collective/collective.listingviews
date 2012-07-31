@@ -1,6 +1,6 @@
 import time
 import random
-
+from DateTime import DateTime
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter, IListingViews
 from collective.listingviews.settings import ListingSettings
@@ -57,3 +57,34 @@ class BaseListingInformationRetriever(object):
         self.pm = getToolByName(context, 'portal_membership')
         self.context = context
         self.listing_adapter = listing_adapter
+
+    def assemble_listing_information(self, brain):
+        import pdb; pdb.set_trace()
+        listing_fields = self.listing_adapter.listing_fields
+        item = brain.getObject()
+        current = []
+        for field in listing_fields:
+            try:
+                if field.lower() == 'path':
+                    attr_value = getattr(item, 'getPhysicalPath', None)
+                else:
+                    attr_value = getattr(item, field, None)
+
+                if not attr_value:
+                    continue
+
+                value = attr_value()
+                if isinstance(value, basestring):
+                    value = value.decode("utf-8")
+                elif isinstance(value, DateTime):
+                    plone = getMultiAdapter((self.context, self.listing_adapter.request), name="plone")
+                    value = plone.toLocalizedTime(value, long_format=1)
+                elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
+                    value = "/".join(value)
+
+                current.append({'title': field, 'value': value})
+            except KeyError:
+                # deal with missing keys
+                pass
+
+        return current

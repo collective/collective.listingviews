@@ -1,3 +1,4 @@
+from DateTime import DateTime
 from collective.listingviews.interfaces import IBasicAdapter,\
     IBasicListingSettings, IListingInformationRetriever, IListingAdapter
 from Products.CMFCore.utils import getToolByName
@@ -27,12 +28,12 @@ class BasicAdapter(BaseAdapter):
 
     @property
     def listing_fields(self):
-        return ['Title', 'Description', 'Path']
+        return ['Title', 'Description', 'Path', 'modified']
 
     def retrieve_items(self):
         adapter = getMultiAdapter((self.listing, self),
             IListingInformationRetriever)
-        return adapter.getListingItems(self.listing_fields)
+        return adapter.getListingItems()
 
     @property
     def number_of_items(self):
@@ -43,48 +44,37 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
     implements(IListingInformationRetriever)
     adapts(IBaseFolder, IBasicAdapter)
 
-    def getListingItems(self, listing_fields):
+    def getListingItems(self):
         """
         A catalog search should be faster especially when there
         are a large number of images in the gallery. No need
         to wake up all the image objects.
         """
-        import pdb; pdb.set_trace()
-        items = []
         path = self.context.getPhysicalPath()
         path = "/".join(path)
-        brains = self.context.portal_catalog(path={"query" : path, "depth" : 1})
-        for brain in brains:
-            item = brain.getObject()
-            current = []
-            for field in listing_fields:
-                try:
-                    if field.lower() == 'path':
-                        attr_value = getattr(item, 'getPhysicalPath', None)
-                    else:
-                        attr_value = getattr(item, field, None)
+        items = self.context.portal_catalog(path={"query" : path, "depth" : 1})
+        return map(self.assemble_listing_information, items)
 
-                    if not attr_value:
-                        continue
 
-                    value = attr_value()
-                    if isinstance(value, basestring):
-                        value = value.decode("utf-8")
-                    elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
-                        value = "/".join(value)
-                    current.append({'title': field, 'value': value})
-                except KeyError:
-                    # deal with missing keys
-                    pass
-            if current:
-                items.append(current)
-        return items
 
 
 class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
     implements(IListingInformationRetriever)
     adapts(IATTopic, IBasicAdapter)
 
-    def getListingItems(self, listing_fields):
-        import pdb; pdb.set_trace()
-        return ['one']
+    def getListingItems(self):
+        query = self.context.buildQuery()
+        if query is not None:
+            should_limit = self.context.getLimitNumber()
+            limit = self.context.getItemCount()
+            if not limit:  # also make sure we have more than 0 items
+                should_limit = False
+            if should_limit:
+                query['sort_limit'] = limit
+            catalog = getToolByName(self.context, 'portal_catalog')
+            items = catalog(query)
+            if should_limit:
+                items = items[:limit]
+            return map(self.assemble_listing_information, items)
+        else:
+            return []

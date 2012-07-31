@@ -12,6 +12,12 @@ class BasicCollectionListingInformationRetriever(
                             BasicTopicListingInformationRetriever):
     adapts(ICollection, IBasicAdapter)
 
-    def getListingItems(self, listing_fields):
-        import pdb; pdb.set_trace()
-        return ['one', 'Two']
+    def getListingItems(self):
+        limit = self.context.limit
+        query = queryparser.parseFormquery(self.context,
+            self.context.getRawQuery())
+        query['sort_limit'] = limit
+        catalog = getToolByName(self.context, 'portal_catalog')
+        items = catalog(query)
+        items = items[:limit]
+        return map(self.assemble_listing_information, items)
