@@ -12,6 +12,6 @@ class BasicCollectionListingInformationRetriever(
                             BasicTopicListingInformationRetriever):
     adapts(ICollection, IBasicAdapter)
 
-    def getListingInformation(self):
-        #import pdb; pdb.set_trace()
+    def getListingItems(self, listing_fields):
+        import pdb; pdb.set_trace()
         return ['one', 'Two']

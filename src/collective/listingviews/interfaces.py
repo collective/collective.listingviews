@@ -34,12 +34,12 @@ class IListingAdapter(Interface):
         when working with picasa or flickr apis...
         """
 
-    def retrieve_images(self):
+    def retrieve_items(self):
         """
         This method retrieves all the images to be cooked
         """
 
-    def number_of_images(self):
+    def number_of_items(self):
         """"""
 
 
@@ -63,7 +63,7 @@ class IListingInformationRetriever(Interface):
     This interface is interesting for everybody who wants to filter
     the items to be shown in a gallery view
     """
-    def getListingInformation(self, size):
+    def getListingItems(self, listing_fields):
         """
         Return a list of Information relevant for gallery display for each
         image.

@@ -43,11 +43,11 @@ class BaseAdapter(object):
             "%s adapter, gallery is %s\n%s\n%s\n%s" %
             (self.name, str(self.listing), msg, ex, inst))
 
-    def retrieve_images(self):
+    def retrieve_items(self):
         raise Exception("Not implemented")
 
     @property
-    def number_of_images(self):
+    def number_of_items(self):
         return 0
 
 

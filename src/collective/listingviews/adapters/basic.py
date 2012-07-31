@@ -21,31 +21,70 @@ class BasicAdapter(BaseAdapter):
         default=u"Use Plone To Manage Images")
     schema = IBasicListingSettings
 
-    def retrieve_images(self):
-        import pdb; pdb.set_trace()
+    @property
+    def listing_name(self):
+        return self.settings.listing_choice
+
+    @property
+    def listing_fields(self):
+        return ['Title', 'Description', 'Path']
+
+    def retrieve_items(self):
         adapter = getMultiAdapter((self.listing, self),
             IListingInformationRetriever)
-        return adapter.getListingInformation()
+        return adapter.getListingItems(self.listing_fields)
+
+    @property
+    def number_of_items(self):
+        return len(self.retrieve_items())
 
 
 class BasicListingInformationRetriever(BaseListingInformationRetriever):
     implements(IListingInformationRetriever)
     adapts(IBaseFolder, IBasicAdapter)
 
-    def getListingInformation(self):
+    def getListingItems(self, listing_fields):
         """
         A catalog search should be faster especially when there
         are a large number of images in the gallery. No need
         to wake up all the image objects.
         """
-        #import pdb; pdb.set_trace()
-        return []
+        import pdb; pdb.set_trace()
+        items = []
+        path = self.context.getPhysicalPath()
+        path = "/".join(path)
+        brains = self.context.portal_catalog(path={"query" : path, "depth" : 1})
+        for brain in brains:
+            item = brain.getObject()
+            current = []
+            for field in listing_fields:
+                try:
+                    if field.lower() == 'path':
+                        attr_value = getattr(item, 'getPhysicalPath', None)
+                    else:
+                        attr_value = getattr(item, field, None)
+
+                    if not attr_value:
+                        continue
+
+                    value = attr_value()
+                    if isinstance(value, basestring):
+                        value = value.decode("utf-8")
+                    elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
+                        value = "/".join(value)
+                    current.append({'title': field, 'value': value})
+                except KeyError:
+                    # deal with missing keys
+                    pass
+            if current:
+                items.append(current)
+        return items
 
 
 class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
     implements(IListingInformationRetriever)
     adapts(IATTopic, IBasicAdapter)
 
-    def getListingInformation(self):
-        #import pdb; pdb.set_trace()
+    def getListingItems(self, listing_fields):
+        import pdb; pdb.set_trace()
         return ['one']
