@@ -12,7 +12,7 @@ try:
     from plone.folder.interfaces import IFolder as IBaseFolder
 except ImportError:
     from Products.Archetypes.interfaces import IBaseFolder
-
+from collective.listingviews.vocabularies import GLOBAL_FIELDS
 
 class BasicAdapter(BaseAdapter):
     implements(IBasicAdapter, IListingAdapter)
@@ -28,7 +28,11 @@ class BasicAdapter(BaseAdapter):
 
     @property
     def listing_fields(self):
-        return ['Title', 'Description', 'Path', 'modified']
+        fields = []
+        if self.settings.listing_choice in GLOBAL_FIELDS:
+            fields = GLOBAL_FIELDS[self.settings.listing_choice]
+        print fields
+        return fields
 
     def retrieve_items(self):
         adapter = getMultiAdapter((self.listing, self),

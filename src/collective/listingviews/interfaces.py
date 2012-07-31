@@ -63,7 +63,7 @@ class IListingInformationRetriever(Interface):
     This interface is interesting for everybody who wants to filter
     the items to be shown in a gallery view
     """
-    def getListingItems(self, listing_fields):
+    def getListingItems(self):
         """
         Return a list of Information relevant for gallery display for each
         image.

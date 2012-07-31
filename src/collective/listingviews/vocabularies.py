@@ -47,7 +47,16 @@ list_views = [{'name':'view1', 'description':'listing view1'},
     {'name':'view6', 'description':'listing view6'},
     {'name':'view7', 'description':'listing view7'},
     {'name':'view8', 'description':'listing view8'}]
-fields = [{'view1': ['title']}, {'view2': ['title', 'description']}]
+GLOBAL_FIELDS = {
+    'view1': ['Title'],
+    'view2': ['Title', 'Description'],
+    'view3': ['Title', 'Path'],
+    'view4': ['Title', 'modified'],
+    'view5': ['Title', 'Path', 'modified'],
+    'view6': ['Title', 'Description', 'modified'],
+    'view7': ['Title', 'Description', 'Path'],
+    'view8': ['Title', 'Description', 'Path', 'modified']
+    }
 
 
 def ListingViewVocabulary(context):

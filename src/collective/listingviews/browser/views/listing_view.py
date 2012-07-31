@@ -3,7 +3,6 @@ from Products.Five import BrowserView
 from zope.interface import implements
 from collective.listingviews.interfaces import IListingViews
 from collective.listingviews.settings import ListingSettings
-from collective.listingviews.vocabularies import fields
 from collective.listingviews.adapters import BasicAdapter
 from collective.listingviews.utils import getListingAdapter
 
@@ -17,5 +16,4 @@ class ListingView(BrowserView):
     def __call__(self):
         self.adapter = BasicAdapter(self.context, self.request)
         self.settings = ListingSettings(self.context, interfaces=[self.adapter.schema])
-        print self.settings
         return self.index()
