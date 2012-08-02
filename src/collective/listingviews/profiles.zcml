@@ -3,6 +3,8 @@
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     i18n_domain="collective.listingviews">
 
+    <include package="plone.app.registry" />
+
     <genericsetup:registerProfile
         name="default"
         title="Listing Views"

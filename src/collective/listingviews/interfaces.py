@@ -20,6 +20,22 @@ class IListingSettings(Interface):
         default="view1")
 
 
+class IListingControlPanel(IListingSettings):
+    akismet_key = schema.TextLine(title=_(u"Akismet (Wordpress) Key"),
+                                  description=_(u"help_akismet_key",
+                                                default=u"Enter in your Wordpress key here to "
+                                                         "use Akismet to check for spam in comments."),
+                                  required=False,
+                                  default=u'',)
+
+    akismet_key_site = schema.TextLine(title=_(u"Site URL"),
+                                  description=_(u"help_akismet_key_site",
+                                                default=u"Enter the URL to this site as per your "
+                                                         "Akismet settings."),
+                                  required=False,
+                                  default=u'',)
+
+
 class IListingAdapter(Interface):
     sizes = Attribute("image size mappings for the gallery type")
     schema = Attribute("Schema of gallery specific")

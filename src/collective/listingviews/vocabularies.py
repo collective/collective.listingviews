@@ -1,12 +1,5 @@
-from zope.component import getUtilitiesFor
 from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
 from collective.listingviews.interfaces import IListingSettings
-from collective.plonetruegallery.interfaces import IDisplayType
-from plone.app.vocabularies.catalog import SearchableTextSourceBinder
-from plone.app.vocabularies.catalog import SearchableTextSource
-from plone.app.vocabularies.catalog import parse_query
-from collective.plonetruegallery.interfaces import IGallery
-from Products.CMFCore.utils import getToolByName
 
 
 class LVVocabulary(SimpleVocabulary):

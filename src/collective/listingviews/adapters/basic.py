@@ -1,4 +1,3 @@
-from DateTime import DateTime
 from collective.listingviews.interfaces import IBasicAdapter,\
     IBasicListingSettings, IListingInformationRetriever, IListingAdapter
 from Products.CMFCore.utils import getToolByName
@@ -8,11 +7,13 @@ from zope.component import adapts
 from base import BaseAdapter, BaseListingInformationRetriever
 from collective.listingviews import LVMessageFactory as _
 from Products.ATContentTypes.interface import IATTopic
+
 try:
     from plone.folder.interfaces import IFolder as IBaseFolder
 except ImportError:
     from Products.Archetypes.interfaces import IBaseFolder
 from collective.listingviews.vocabularies import GLOBAL_FIELDS
+
 
 class BasicAdapter(BaseAdapter):
     implements(IBasicAdapter, IListingAdapter)
@@ -56,10 +57,8 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         """
         path = self.context.getPhysicalPath()
         path = "/".join(path)
-        items = self.context.portal_catalog(path={"query" : path, "depth" : 1})
+        items = self.context.portal_catalog(path={"query": path, "depth": 1})
         return map(self.assemble_listing_information, items)
-
-
 
 
 class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):

@@ -1,9 +1,7 @@
 from zope.interface import implements
 from plone.memoize.view import memoize
-
 from Products.CMFCore.utils import getToolByName
 from Products.Five.browser import BrowserView
-
 from interfaces import ILVUtility
 
 

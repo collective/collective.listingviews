@@ -6,6 +6,16 @@
     i18n_domain="collective.listingviews">
 
   <include package="plone.app.contentmenu" />
+  <include package="Products.CMFCore" />
+  <include package="plone.app.registry" />
+
+  <!-- Control panel -->
+  <browser:page
+       name="listingviews_controlpanel"
+       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+       class=".controlpanel.ListingControlPanelView"
+       permission="cmf.ManagePortal"
+       />
 
   <browser:page
     name="listing-settings"

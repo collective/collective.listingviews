@@ -1,23 +1,12 @@
-import time
-import random
 from DateTime import DateTime
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter, IListingViews
 from collective.listingviews.settings import ListingSettings
-
 from zLOG import LOG, INFO
-
 from zope.interface import implements
 from zope.component import adapts, getMultiAdapter
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
-
 from Products.CMFCore.utils import getToolByName
-from plone.memoize.instance import memoize
-try:
-    from plone.uuid.interfaces import IUUID
-except:
-    def IUUID(_, _2=None):
-        return None
 
 
 class BaseAdapter(object):
