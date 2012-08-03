@@ -1,5 +1,8 @@
 from zope.interface import Interface, Attribute
 from zope import schema
+from zope.interface import implements
+from z3c.form.object import registerFactoryAdapter
+from plone.registry.field import PersistentField
 from collective.listingviews import LVMessageFactory as _
 
 
@@ -11,6 +14,21 @@ class IListingViews(Interface):
     pass
 
 
+class PersistentObject(PersistentField, schema.Object):
+    pass
+
+
+class IListingDefinition(Interface):
+    name = schema.ASCIILine(title=_(u"Facet Name"), required=True)
+    description = schema.ASCIILine(title=_(u"Description"), required=False)
+
+
+class ListingDefinition(object):
+    implements(IListingDefinition)
+
+registerFactoryAdapter(IListingDefinition, ListingDefinition)
+
+
 class IListingSettings(Interface):
     listing_choice = schema.Choice(
         title=_(u"label_listing_choice", default=u"Listing views"),
@@ -20,20 +38,19 @@ class IListingSettings(Interface):
         default="view1")
 
 
-class IListingControlPanel(IListingSettings):
-    akismet_key = schema.TextLine(title=_(u"Akismet (Wordpress) Key"),
-                                  description=_(u"help_akismet_key",
-                                                default=u"Enter in your Wordpress key here to "
-                                                         "use Akismet to check for spam in comments."),
-                                  required=False,
-                                  default=u'',)
+class IListingControlSettings(Interface):
+    pass
 
-    akismet_key_site = schema.TextLine(title=_(u"Site URL"),
-                                  description=_(u"help_akismet_key_site",
-                                                default=u"Enter the URL to this site as per your "
-                                                         "Akismet settings."),
-                                  required=False,
-                                  default=u'',)
+
+class IListingControlPanel(Interface):
+    views = schema.Tuple(
+            title=_(u'Custom listing view'),
+            description=(u"Names of custom listing view"),
+            value_type=PersistentObject(IListingDefinition, title=_(u"Listing Definition")),
+            required=False,
+            default=(),
+            missing_value=(),
+    )
 
 
 class IListingAdapter(Interface):

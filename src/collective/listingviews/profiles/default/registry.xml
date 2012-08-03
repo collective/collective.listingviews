@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
 <registry>
-	<records interface="collective.listingviews.interfaces.IListingControlPanel" />
+	<records 
+		interface="collective.listingviews.interfaces.IListingControlPanel" 
+		delete="True" />
 </registry>

@@ -5,7 +5,7 @@
     purge="False">
 	
 	<configlet 
-		title="Listing view settings" 
+		title="Listing View Settings" 
 		action_id="listingviews" 
 		appId="collective.listingviews"
     	category="Products" 

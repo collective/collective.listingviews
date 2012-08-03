@@ -67,7 +67,6 @@ class ListingSettings(object):
             self.default_settings = None
 
     def __setattr__(self, name, value):
-        print "{0}: {1}".format(name, value)
         if name in ('context', '_metadata', '_interfaces', 'defaults',
                     'storage', 'default_settings'):
             self.__dict__[name] = value
@@ -93,5 +92,4 @@ class ListingSettings(object):
         #    default = getattr(self.default_settings, name)
 
         value = self.storage.get(name, default)
-        print "{0}: {1}".format(name, value)
         return value

@@ -1,5 +1,7 @@
-from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
-from collective.listingviews.interfaces import IListingSettings
+from zope.schema.vocabulary import SimpleVocabulary
+from collective.listingviews.interfaces import IListingDefinition
+from zope.component import queryUtility
+from plone.registry.interfaces import IRegistry
 
 
 class LVVocabulary(SimpleVocabulary):
@@ -41,21 +43,29 @@ list_views = [{'name':'view1', 'description':'listing view1'},
     {'name':'view7', 'description':'listing view7'},
     {'name':'view8', 'description':'listing view8'}]
 GLOBAL_FIELDS = {
-    'view1': ['Title'],
+    'view0': ['Title'],
+    'view1': ['Title', 'Description', 'Path', 'modified'],
     'view2': ['Title', 'Description'],
     'view3': ['Title', 'Path'],
     'view4': ['Title', 'modified'],
     'view5': ['Title', 'Path', 'modified'],
     'view6': ['Title', 'Description', 'modified'],
     'view7': ['Title', 'Description', 'Path'],
-    'view8': ['Title', 'Description', 'Path', 'modified']
+    'view8': ['Path']
     }
 
 
 def ListingViewVocabulary(context):
-    items = []
-    for t in list_views:
-        items.append(SimpleTerm(t['name'], t['name'], t['description']))
+    terms = []
+    #for t in list_views:
+    #    terms.append(SimpleTerm(t['name'], t['name'], t['description']))
 
-    return LVVocabulary(items,
-                default=IListingSettings['listing_choice'].default)
+    #return LVVocabulary(terms,
+    #            default=IListingSettings['listing_choice'].default)
+    registry = queryUtility(IRegistry)
+    if registry is not None:
+        facets = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
+        for view, fields in facets:
+            name = getattr(fields, 'name', '')
+            terms.append(SimpleVocabulary.createTerm(view, view, name))
+    return SimpleVocabulary(terms)

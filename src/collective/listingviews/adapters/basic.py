@@ -32,7 +32,6 @@ class BasicAdapter(BaseAdapter):
         fields = []
         if self.settings.listing_choice in GLOBAL_FIELDS:
             fields = GLOBAL_FIELDS[self.settings.listing_choice]
-        print fields
         return fields
 
     def retrieve_items(self):
