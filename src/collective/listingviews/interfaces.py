@@ -22,6 +22,16 @@ class IListingDefinition(Interface):
     name = schema.ASCIILine(title=_(u"Facet Name"), required=True)
     description = schema.ASCIILine(title=_(u"Description"), required=False)
 
+    # Contains lists of values from Choice list using special "get_field_list" vocabulary
+    # We also give a plone.form.directives hint to render this as
+    # multiple checbox choices
+    # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
+    metadata_list = schema.List(title=u"Available headers and animations",
+                               description=u"Headers and animations uploaded here",
+                               required=False, default=[],
+                               value_type=schema.Choice(vocabulary="collective.listingviews.MetadataVocabulary"),
+                               )
+
 
 class ListingDefinition(object):
     implements(IListingDefinition)

@@ -41,11 +41,11 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
 
         # remove any remaining fields
         for i in range(len(facets) - 1, len(data['views']) - 1, -1):
-            facet = facets['view' + str(i)]
-            name = facet.name
-            if type(name) == type(u''):
-                name = name.encode('utf-8')
-            self.removeField(name)
+            #facet = facets['view' + str(i)]
+            #name = facet.name
+            #if type(name) == type(u''):
+            #    name = name.encode('utf-8')
+            #self.removeField(name)
             del facets['view' + str(i)]
 
 

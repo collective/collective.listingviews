@@ -2,6 +2,8 @@ from zope.schema.vocabulary import SimpleVocabulary
 from collective.listingviews.interfaces import IListingDefinition
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.utils import getToolByName
+from zope.app.component.hooks import getSite
 
 
 class LVVocabulary(SimpleVocabulary):
@@ -68,4 +70,14 @@ def ListingViewVocabulary(context):
         for view, fields in facets:
             name = getattr(fields, 'name', '')
             terms.append(SimpleVocabulary.createTerm(view, view, name))
+    return SimpleVocabulary(terms)
+
+
+def MetadataVocabulary(context):
+    terms = []
+    portal = getSite()
+    catalog = getToolByName(portal, 'portal_catalog')
+    # should use schema or indexes
+    for name in catalog.schema():
+        terms.append(SimpleVocabulary.createTerm(name, name, name))
     return SimpleVocabulary(terms)
