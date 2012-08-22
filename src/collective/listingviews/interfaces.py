@@ -26,8 +26,8 @@ class IListingDefinition(Interface):
     # We also give a plone.form.directives hint to render this as
     # multiple checbox choices
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
-    metadata_list = schema.List(title=u"Available headers and animations",
-                               description=u"Headers and animations uploaded here",
+    metadata_list = schema.List(title=u"Available fields",
+                               description=u"Select list fields here",
                                required=False, default=[],
                                value_type=schema.Choice(vocabulary="collective.listingviews.MetadataVocabulary"),
                                )

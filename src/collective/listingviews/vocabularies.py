@@ -35,27 +35,6 @@ class LVVocabulary(SimpleVocabulary):
         except:
             raise LookupError(value)
 
-#Temp object
-list_views = [{'name':'view1', 'description':'listing view1'},
-    {'name':'view2', 'description':'listing view2'},
-    {'name':'view3', 'description':'listing view3'},
-    {'name':'view4', 'description':'listing view4'},
-    {'name':'view5', 'description':'listing view5'},
-    {'name':'view6', 'description':'listing view6'},
-    {'name':'view7', 'description':'listing view7'},
-    {'name':'view8', 'description':'listing view8'}]
-GLOBAL_FIELDS = {
-    'view0': ['Title'],
-    'view1': ['Title', 'Description', 'Path', 'modified'],
-    'view2': ['Title', 'Description'],
-    'view3': ['Title', 'Path'],
-    'view4': ['Title', 'modified'],
-    'view5': ['Title', 'Path', 'modified'],
-    'view6': ['Title', 'Description', 'modified'],
-    'view7': ['Title', 'Description', 'Path'],
-    'view8': ['Path']
-    }
-
 
 def ListingViewVocabulary(context):
     terms = []

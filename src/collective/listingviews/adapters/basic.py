@@ -1,5 +1,6 @@
 from collective.listingviews.interfaces import IBasicAdapter,\
-    IBasicListingSettings, IListingInformationRetriever, IListingAdapter
+    IBasicListingSettings, IListingInformationRetriever,\
+    IListingAdapter, IListingDefinition
 from Products.CMFCore.utils import getToolByName
 from zope.interface import implements
 from zope.component import getMultiAdapter
@@ -7,12 +8,13 @@ from zope.component import adapts
 from base import BaseAdapter, BaseListingInformationRetriever
 from collective.listingviews import LVMessageFactory as _
 from Products.ATContentTypes.interface import IATTopic
+from zope.component import queryUtility
+from plone.registry.interfaces import IRegistry
 
 try:
     from plone.folder.interfaces import IFolder as IBaseFolder
 except ImportError:
     from Products.Archetypes.interfaces import IBaseFolder
-from collective.listingviews.vocabularies import GLOBAL_FIELDS
 
 
 class BasicAdapter(BaseAdapter):
@@ -30,8 +32,13 @@ class BasicAdapter(BaseAdapter):
     @property
     def listing_fields(self):
         fields = []
-        if self.settings.listing_choice in GLOBAL_FIELDS:
-            fields = GLOBAL_FIELDS[self.settings.listing_choice]
+        registry = queryUtility(IRegistry)
+        if registry is not None:
+            facets = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
+            for name, records in facets:
+                if name == self.settings.listing_choice:
+                    fields = getattr(records, 'metadata_list', [])
+                    break
         return fields
 
     def retrieve_items(self):
