@@ -9,22 +9,25 @@
   <body>
     <metal:core fill-slot="content-core">
       <tal:core-macro metal:define-macro="content-core">
+        <div class="listingviews">
           <div class="noimages" tal:condition="python: view.adapter.number_of_items == 0">
               <p class="discreet" i18n:translate="label_no_listing">
                   Please choose your view in listing settings.
               </p>
           </div>
-          <div class="listings" tal:condition="python: view.adapter.number_of_items > 0">
-              <ul>
-                  <li class="listing" tal:repeat="item_object python:view.adapter.retrieve_items()">
+          <div class="listing_collection" tal:define="class_name python:view.adapter.listing_style_class" tal:condition="python: view.adapter.number_of_items > 0" tal:attributes="class string:${class_name} listings">
+              <ul class="listing_items">
+                  <li class="listing_item" tal:repeat="item_object python:view.adapter.retrieve_items()">
                       <dl>
-                          <div class="each_field" tal:repeat="field item_object">
+                          <div class="each_field" tal:repeat="field item_object" tal:attributes="class string:each_field f_${field/title} ">
                               <dt tal:content="string: ${field/title}"></dt>
                               <dd tal:content="string: ${field/value}"></dd>
+                              <div class="visualClear"></div>
                           </div>
                       </dl>
                   </li>
               </ul>
+            </div>
           </div>
       </tal:core-macro>
     </metal:core>

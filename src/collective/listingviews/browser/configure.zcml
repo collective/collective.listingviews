@@ -18,4 +18,9 @@
         <implements interface="zope.annotation.interfaces.IAttributeAnnotatable" />
     </class>
 
+    <browser:resourceDirectory
+        name="listingviews.resources"
+        directory="files"
+    />
+
 </configure>

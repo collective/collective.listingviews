@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<object name="portal_css">
+
+    <stylesheet 
+        title="" 
+        cacheable="True" 
+        compression="safe" 
+        cookable="True"
+        enabled="True" 
+        expression="here/@@listing_util/enabled" 
+        id="++resource++listingviews.resources/style.css" 
+        media="screen" 
+        rel="stylesheet" 
+        rendering="import"
+    />
+
+</object>
