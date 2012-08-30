@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-import os
 
 version = '1.0'
 
@@ -26,10 +25,10 @@ setup(name='collective.listingviews',
       keywords='Plone Python',
       author='Pretaweb',
       author_email='support@pretaweb.com',
-      url='http://svn.plone.org/svn/collective/',
+      url='http://github.com/collective/collective.listingviews',
       license='gpl',
       packages=find_packages('src'),
-      package_dir = {'': 'src'},
+      package_dir={'': 'src'},
       namespace_packages=['collective', ],
       include_package_data=True,
       zip_safe=False,
