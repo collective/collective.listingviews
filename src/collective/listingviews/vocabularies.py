@@ -1,5 +1,5 @@
 from zope.schema.vocabulary import SimpleVocabulary
-from collective.listingviews.interfaces import IListingDefinition
+from collective.listingviews.interfaces import IListingDefinition, ICustomFieldDefinition
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
@@ -54,5 +54,14 @@ def MetadataVocabulary(context):
     catalog = getToolByName(portal, 'portal_catalog')
     # should use schema or indexes
     for name in catalog.schema():
-        terms.append(SimpleVocabulary.createTerm(name, name, name))
+        terms.append(SimpleVocabulary.createTerm('f_' + name, None, name))
+
+    # custom field
+    registry = queryUtility(IRegistry)
+    if registry is not None:
+        facets = sorted(registry.collectionOfInterface(ICustomFieldDefinition,
+            prefix='collective.listingviews.customfield').items())
+        for key_name, value_label in facets:
+            name = getattr(value_label, 'name', '')
+            terms.append(SimpleVocabulary.createTerm('c_' + key_name, None, name + " (Custom)"))
     return SimpleVocabulary(terms)

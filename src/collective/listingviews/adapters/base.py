@@ -52,24 +52,33 @@ class BaseListingInformationRetriever(object):
         current = []
         for field in listing_fields:
             try:
-                if field.lower() == 'path':
-                    attr_value = getattr(item, 'getPhysicalPath', None)
+                if field[:2] == 'f_':
+                    # default field
+                    print "Default field"
+                    field = field[2:]
+                    if field.lower() == 'path':
+                        attr_value = getattr(item, 'getPhysicalPath', None)
+                    else:
+                        attr_value = getattr(item, field, None)
+
+                    if not attr_value:
+                        continue
+
+                    value = attr_value()
+                    if isinstance(value, basestring):
+                        value = value.decode("utf-8")
+                    elif isinstance(value, DateTime):
+                        plone = getMultiAdapter((self.context, self.listing_adapter.request), name="plone")
+                        value = plone.toLocalizedTime(value, long_format=1)
+                    elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
+                        value = "/".join(value)
+
+                    current.append({'title': field, 'value': value})
+                elif field[:2] == 'c_':
+                    #custom field
+                    print "Custom field"
                 else:
-                    attr_value = getattr(item, field, None)
-
-                if not attr_value:
-                    continue
-
-                value = attr_value()
-                if isinstance(value, basestring):
-                    value = value.decode("utf-8")
-                elif isinstance(value, DateTime):
-                    plone = getMultiAdapter((self.context, self.listing_adapter.request), name="plone")
-                    value = plone.toLocalizedTime(value, long_format=1)
-                elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
-                    value = "/".join(value)
-
-                current.append({'title': field, 'value': value})
+                    print "No valid field"
             except KeyError:
                 # deal with missing keys
                 pass

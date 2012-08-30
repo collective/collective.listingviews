@@ -37,8 +37,12 @@ class BasicAdapter(BaseAdapter):
             facets = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
             for name, records in facets:
                 if name == self.settings.listing_choice:
+                    print "Got it."
                     fields = getattr(records, 'metadata_list', [])
+                    print fields
                     break
+                else:
+                    print "No"
         return fields
 
     @property
@@ -48,8 +52,11 @@ class BasicAdapter(BaseAdapter):
         if registry is not None:
             facets = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
             for name, records in facets:
+                print "{0}: {1}".format(name, records)
                 if name == self.settings.listing_choice:
+                    print "Got it."
                     style_class = getattr(records, 'css_class', "")
+                    print style_class
                     break
         return style_class
 

@@ -15,11 +15,11 @@
                   Please choose your view in listing settings.
               </p>
           </div>
-          <div class="listing_collection" tal:define="class_name python:view.adapter.listing_style_class" tal:condition="python: view.adapter.number_of_items > 0" tal:attributes="class string:${class_name} listings">
-              <ul class="listing_items">
-                  <li class="listing_item" tal:repeat="item_object python:view.adapter.retrieve_items()">
+          <div class="listing-collection" tal:define="class_name python:view.adapter.listing_style_class" tal:condition="python: view.adapter.number_of_items > 0" tal:attributes="class string:${class_name} listing-collection">
+              <ul class="listing-items">
+                  <li class="listing-item" tal:repeat="item_object python:view.adapter.retrieve_items()">
                       <dl>
-                          <div class="each_field" tal:repeat="field item_object" tal:attributes="class string:each_field f_${field/title} ">
+                          <div class="each-field" tal:repeat="field item_object" tal:attributes="class string:each-field f_${field/title} ">
                               <dt tal:content="string: ${field/title}"></dt>
                               <dd tal:content="string: ${field/value}"></dd>
                               <div class="visualClear"></div>

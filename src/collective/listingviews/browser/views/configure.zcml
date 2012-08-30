@@ -18,6 +18,13 @@
        />
 
   <browser:page
+       name="listingviewfields_controlpanel"
+       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+       class=".controlpanel.ListingCustomFieldControlPanelView"
+       permission="cmf.ManagePortal"
+       />
+
+  <browser:page
     name="listing-settings"
     for="collective.listingviews.interfaces.IListingViews"
     class=".settings.ListingSettingsView"

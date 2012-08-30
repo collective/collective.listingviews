@@ -39,6 +39,19 @@ class ListingDefinition(object):
 registerFactoryAdapter(IListingDefinition, ListingDefinition)
 
 
+class ICustomFieldDefinition(Interface):
+    name = schema.ASCIILine(title=_(u"Field Name"), required=True)
+    description = schema.ASCIILine(title=_(u"Description"), required=False)
+    css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=False)
+    tal_statement = schema.ASCIILine(title=_(u"TAL statement"), required=True)
+
+
+class CustomFieldDefinition(object):
+    implements(ICustomFieldDefinition)
+
+registerFactoryAdapter(ICustomFieldDefinition, CustomFieldDefinition)
+
+
 class IListingSettings(Interface):
     listing_choice = schema.Choice(
         title=_(u"label_listing_choice", default=u"Listing views"),
@@ -58,6 +71,18 @@ class IListingControlPanel(Interface):
             description=(u"Names of custom listing view"),
             value_type=PersistentObject(IListingDefinition,
                 title=_(u"Listing Definition")),
+            required=False,
+            default=(),
+            missing_value=(),
+    )
+
+
+class IListingCustomFieldControlPanel(Interface):
+    fields = schema.Tuple(
+            title=_(u'Manage Custom Listing Fields'),
+            description=(u"Names of custom listing fields"),
+            value_type=PersistentObject(ICustomFieldDefinition,
+                title=_(u"Custom Field Definition")),
             required=False,
             default=(),
             missing_value=(),
