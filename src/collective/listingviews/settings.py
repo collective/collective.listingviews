@@ -34,14 +34,6 @@ class ListingSettings(object):
     """
     implements(IListingSettings)
 
-    # these are settings for defaults that are not listed
-    # in the interface because I don't want them to show up
-    # in the schema
-    defaults = {
-        'last_cooked_time_in_seconds': 0,
-        'cooked_images': []
-    }
-
     def __init__(self, context, interfaces=[IListingSettings]):
         """
         The interfaces argument allows you to customize which
@@ -67,7 +59,7 @@ class ListingSettings(object):
             self.default_settings = None
 
     def __setattr__(self, name, value):
-        if name in ('context', '_metadata', '_interfaces', 'defaults',
+        if name in ('context', '_metadata', '_interfaces',
                     'storage', 'default_settings'):
             self.__dict__[name] = value
         else:
@@ -80,16 +72,5 @@ class ListingSettings(object):
         default values here.
         """
         default = None
-
-        #if name in self.defaults:
-        #    default = self.defaults[name]
-
-        #if self.default_settings is None:
-        #    for iface in self._interfaces:
-        #        if name in iface.names():
-        #            default = iface[name].default
-        #else:
-        #    default = getattr(self.default_settings, name)
-
         value = self.storage.get(name, default)
         return value

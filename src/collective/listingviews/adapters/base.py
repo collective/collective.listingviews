@@ -18,9 +18,8 @@ class BaseAdapter(object):
     settings = None
     schema = None
     name = u"base"
-    description = _(u"label_base_gallery_type",
-        default=u"base: this isn't actually a gallery type.  "
-                u"Think abstract class here...")
+    description = _(u"label_base_listing_view",
+        default=u"Think abstract class here...")
 
     def __init__(self, listing, request):
         self.listing = listing
@@ -28,8 +27,8 @@ class BaseAdapter(object):
         self.settings = ListingSettings(self.listing, interfaces=[self.schema])
 
     def log_error(self, ex='', inst='', msg=""):
-        LOG('collective.plonetruegallery', INFO,
-            "%s adapter, gallery is %s\n%s\n%s\n%s" %
+        LOG('collective.listingviews', INFO,
+            "%s adapter, listing view is %s\n%s\n%s\n%s" %
             (self.name, str(self.listing), msg, ex, inst))
 
     def retrieve_items(self):

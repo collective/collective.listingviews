@@ -10,8 +10,8 @@ class LVVocabulary(SimpleVocabulary):
     """
     Don't error out if you can't find it right away
     and default to the default value...
-    This prevents any issues if a gallery or display
-    type is removed and the user had it selected.
+    This prevents any issues if a field
+    is removed and the user had it selected.
     """
 
     def __init__(self, terms, *interfaces, **config):
@@ -38,14 +38,10 @@ class LVVocabulary(SimpleVocabulary):
 
 def ListingViewVocabulary(context):
     terms = []
-    #for t in list_views:
-    #    terms.append(SimpleTerm(t['name'], t['name'], t['description']))
-
-    #return LVVocabulary(terms,
-    #            default=IListingSettings['listing_choice'].default)
     registry = queryUtility(IRegistry)
     if registry is not None:
-        facets = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
+        facets = sorted(registry.collectionOfInterface(IListingDefinition,
+            prefix='collective.listingviews.view').items())
         for view, fields in facets:
             name = getattr(fields, 'name', '')
             terms.append(SimpleVocabulary.createTerm(view, view, name))

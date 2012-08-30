@@ -18,7 +18,6 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
 
     def getContent(self):
         readonly = ListingControlPanel()
-        #reg = getUtility(IRegistry)
         reg = queryUtility(IRegistry)
         if reg is not None:
             # copy non-collection settings
@@ -31,13 +30,12 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
         return readonly
 
     def applyChanges(self, data):
-        #reg = getUtility(IRegistry)
         reg = queryUtility(IRegistry)
         if reg is not None:
             facets = reg.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view')
 
             # remove indexes for unused fields
-            #finally set the data in the registry
+            # finally set the data in the registry
             i = 0
             for facet in data['views']:
                 facets['view' + str(i)] = facet
@@ -45,11 +43,6 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
 
             # remove any remaining fields
             for i in range(len(facets) - 1, len(data['views']) - 1, -1):
-                #facet = facets['view' + str(i)]
-                #name = facet.name
-                #if type(name) == type(u''):
-                #    name = name.encode('utf-8')
-                #self.removeField(name)
                 del facets['view' + str(i)]
 
 

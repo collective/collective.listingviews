@@ -21,8 +21,8 @@ class BasicAdapter(BaseAdapter):
     implements(IBasicAdapter, IListingAdapter)
 
     name = u"basic"
-    description = _(u"label_default_gallery_type",
-        default=u"Use Plone To Manage Images")
+    description = _(u"label_default_listing_view",
+        default=u"Use Plone To Manage Listing Views")
     schema = IBasicListingSettings
 
     @property
@@ -41,6 +41,18 @@ class BasicAdapter(BaseAdapter):
                     break
         return fields
 
+    @property
+    def listing_style_class(self):
+        style_class = ""
+        registry = queryUtility(IRegistry)
+        if registry is not None:
+            facets = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
+            for name, records in facets:
+                if name == self.settings.listing_choice:
+                    style_class = getattr(records, 'css_class', "")
+                    break
+        return style_class
+
     def retrieve_items(self):
         adapter = getMultiAdapter((self.listing, self),
             IListingInformationRetriever)
@@ -58,8 +70,8 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
     def getListingItems(self):
         """
         A catalog search should be faster especially when there
-        are a large number of images in the gallery. No need
-        to wake up all the image objects.
+        are a large number of fields in the view. No need
+        to wake up all the objects.
         """
         path = self.context.getPhysicalPath()
         path = "/".join(path)

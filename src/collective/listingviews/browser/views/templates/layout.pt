@@ -17,11 +17,12 @@
           <div class="listings" tal:condition="python: view.adapter.number_of_items > 0">
               <ul>
                   <li class="listing" tal:repeat="item_object python:view.adapter.retrieve_items()">
-                      <ul>
-                          <li class="listing" tal:repeat="field item_object">
-                              <p><span tal:content="string: ${field/title}"></span>: <span tal:content="string: ${field/value}"></span></p>
-                          </li>
-                      </ul>
+                      <dl>
+                          <div class="each_field" tal:repeat="field item_object">
+                              <dt tal:content="string: ${field/title}"></dt>
+                              <dd tal:content="string: ${field/value}"></dd>
+                          </div>
+                      </dl>
                   </li>
               </ul>
           </div>

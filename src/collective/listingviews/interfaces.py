@@ -24,12 +24,13 @@ class IListingDefinition(Interface):
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
     metadata_list = schema.List(title=u"Available fields",
-                               description=u"Select list fields here",
-                               required=True, default=[],
-                               value_type=schema.Choice(vocabulary="collective.listingviews.MetadataVocabulary"),
-                               )
+                                description=u"Select list fields here",
+                                required=True, default=[],
+                                value_type=schema.Choice(
+                                    vocabulary="collective.listingviews.MetadataVocabulary"),
+                                )
 
-    date_format = schema.ASCIILine(title=_(u"Date format in TAL expression"), required=False)
+    css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=False)
 
 
 class ListingDefinition(object):
@@ -55,7 +56,8 @@ class IListingControlPanel(Interface):
     views = schema.Tuple(
             title=_(u'Custom listing view'),
             description=(u"Names of custom listing view"),
-            value_type=PersistentObject(IListingDefinition, title=_(u"Listing Definition")),
+            value_type=PersistentObject(IListingDefinition,
+                title=_(u"Listing Definition")),
             required=False,
             default=(),
             missing_value=(),
@@ -63,22 +65,20 @@ class IListingControlPanel(Interface):
 
 
 class IListingAdapter(Interface):
-    sizes = Attribute("image size mappings for the gallery type")
-    schema = Attribute("Schema of gallery specific")
-    name = Attribute("Name of the gallery")
-    description = Attribute("Description of gallery type")
+    sizes = Attribute("size of the fields")
+    schema = Attribute("Schema of listing view")
+    name = Attribute("Name of the listing view")
+    description = Attribute("Description of listing view")
 
     def log_error(self):
         """
-        provides an easy way to log errors in gallery adapters.
+        provides an easy way to log errors in adapters.
         we don't want an adapter to prevent a page from loading...
-        Who knows what kind of odd behavior some adapters may run into
-        when working with picasa or flickr apis...
         """
 
     def retrieve_items(self):
         """
-        This method retrieves all the images to be cooked
+        This method retrieves all the fields
         """
 
     def number_of_items(self):
@@ -87,7 +87,7 @@ class IListingAdapter(Interface):
 
 class IBasicAdapter(IListingAdapter):
     """
-    Use plone to manage images for the gallery.
+    Use plone to manage listing.
     """
     pass
 
@@ -103,29 +103,17 @@ class IBasicListingSettings(IBaseSettings):
 class IListingInformationRetriever(Interface):
     """
     This interface is interesting for everybody who wants to filter
-    the items to be shown in a gallery view
+    the items to be shown in a listing view
     """
     def getListingItems(self):
         """
-        Return a list of Information relevant for gallery display for each
-        image.
-        Size should be a hint of the image size to use, in string format.
-        The standard implementations support the following sizes, which
-        map to the given size of the archetypes Image size:
-
-            small -> mini
-            medium -> preview
-            large -> large
+        Return a list of Information relevant for the view for each
+        fields.
+        Size should be a hint of the fields size.
 
         This information returned consists of:
-        image_url
-            The URL to the image itself
-        thumb_url
-            The URL to a thumbnail version of the image
-        link
-            The Link to which an image must point to
         title
-            The image title
+            The view title
         description
-            The image description
+            The view description
         """

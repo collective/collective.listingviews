@@ -1,15 +1,9 @@
-from zope import interface, schema
 from z3c.form import form, field, button
 from plone.app.z3cform.layout import wrap_form
 from collective.listingviews.interfaces import IListingSettings
 from collective.listingviews.settings import ListingSettings
 from collective.listingviews import LVMessageFactory as _
 import zope.i18n
-
-
-class MySchema(interface.Interface):
-    age = schema.Int(title=u"Age")
-    country = schema.Choice(title=(u"Country"), vocabulary="getpaid.countries", required=False, default=None)
 
 
 class ListingSettingsForm(form.EditForm):
