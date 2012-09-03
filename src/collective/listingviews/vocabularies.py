@@ -51,17 +51,16 @@ def ListingViewVocabulary(context):
 def MetadataVocabulary(context):
     terms = []
     portal = getSite()
-    catalog = getToolByName(portal, 'portal_catalog')
-    # should use schema or indexes
-    for name in catalog.schema():
-        terms.append(SimpleVocabulary.createTerm('f_' + name, None, name))
+    metadataDisplay = getToolByName(portal, 'portal_atct').getMetadataDisplay()
+    for name, display_name in metadataDisplay.items():
+        terms.append(SimpleVocabulary.createTerm('f_' + name, None, display_name))
 
     # custom field
     registry = queryUtility(IRegistry)
     if registry is not None:
         facets = sorted(registry.collectionOfInterface(ICustomFieldDefinition,
             prefix='collective.listingviews.customfield').items())
-        for key_name, value_label in facets:
-            name = getattr(value_label, 'name', '')
-            terms.append(SimpleVocabulary.createTerm('c_' + key_name, None, name + " (Custom)"))
+        for metadata, fields in facets:
+            name = getattr(fields, 'name', '')
+            terms.append(SimpleVocabulary.createTerm('c_' + metadata, None, name + " (Custom)"))
     return SimpleVocabulary(terms)
