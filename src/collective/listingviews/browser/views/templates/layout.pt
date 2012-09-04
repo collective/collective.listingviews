@@ -19,9 +19,9 @@
               <ul class="listing-items">
                   <li class="listing-item" tal:repeat="item_object python:view.adapter.retrieve_items()">
                       <dl>
-                          <div class="each-field" tal:repeat="field item_object" tal:attributes="class string:each-field f_${field/title} ">
+                          <div class="each-field" tal:repeat="field item_object" tal:attributes="class string:each-field f_${field/css_class} ">
                               <dt tal:content="string: ${field/title}"></dt>
-                              <dd tal:content="string: ${field/value}"></dd>
+                              <dd tal:content="structure field/value"></dd>
                               <div class="visualClear"></div>
                           </div>
                       </dl>

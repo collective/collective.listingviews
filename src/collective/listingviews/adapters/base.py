@@ -88,13 +88,17 @@ class BaseListingInformationRetriever(object):
                         attr_value = plone.toLocalizedTime(attr_value, long_format=1)
                     elif isinstance(attr_value, basestring):
                         attr_value = attr_value.decode("utf-8")
-                    elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
-                        attr_value = "/".join(attr_value)
 
+                    # metadata does not have path
+                    #elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
+                    #    attr_value = "/".join(attr_value)
+
+                    css_class = field
                     if field in self.metadata_display:
                         field = self.metadata_display[field]
 
-                    current.append({'title': field, 'value': attr_value})
+                    print "title: {0}, value: {1}".format(field, attr_value)
+                    current.append({'title': field, 'css_class': css_class, 'value': attr_value})
                 elif field[:2] == 'c_':
                     #custom field
                     print "Custom field"
@@ -107,39 +111,15 @@ class BaseListingInformationRetriever(object):
                         css_class = getattr(fields, 'css_class', '')
                         tal_statement = getattr(fields, 'tal_statement', '')
 
-                        try:
-                            expression = Expression(tal_statement)
-                            expression_context = getExprContext(self.context, item)
-                            #import pdb; pdb.set_trace()
-
-                            # Evaluate expression by calling
-                            # Expression.__call__(). This
-                            # will return whatever value expression evaluation gives
-                            value = expression(expression_context)
-                        except KeyError:
-                            value = '{KeyError}'
-                        except AttributeError:
-                            value = '{AttributeError}'
-                        except NameError:
-                            value = '{NameError}'
-
-                        try:
-                            if value.strip() == "":
-                                # Usually empty expression field means that
-                                # expression should be True
-                                value = True
-                        except AttributeError:
-                            value = ""
-
-                        if value:
-                                # Expression succeeded
-                                pass
-                        else:
-                                pass
-
+                        # example tal statement
+                        # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
+                        expression = Expression(tal_statement)
+                        expression_context = getExprContext(self.context, item)
+                        attr_value = expression(expression_context)
                         break
 
-                    current.append({'title': name, 'css_class': css_class, 'value': value})
+                    print "title: {0}, value: {1}".format(name, attr_value)
+                    current.append({'title': name, 'css_class': css_class, 'value': attr_value})
 
                 else:
                     print "No valid field"
