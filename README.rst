@@ -17,7 +17,6 @@ In addition a fieldset can have the following defined:
 - portlet batch size
 - portlet read more text
 
-
 You can then use field sets inside plone content as follows:
 
 To customise the listing view of a folder or a collection, pick "Listing View" from the "Display" menu. Your collection
@@ -52,7 +51,7 @@ Most of this can be achieved using diazo and css.
 To include publication date with the custom format in the news listing
 
 1. Go to site setup > Custom Listing Fields > Add new
-2. Name it "Local Publication date" and enter TAL expression #TODO and then Save.
+2. Name it "Local Publication date" and enter TAL expression ``object.getObject().modified().strftime("%d/%m/%Y")`` and then Save.
 3. Go to site setup > Listing Views > Add new
 4. Name it "News with publication", add url, title, description and "Local Publication Date" fields.
 5. Specify a view batch size of 10 and a portlet batch size of 5.
