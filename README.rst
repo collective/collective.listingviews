@@ -35,10 +35,69 @@ Like a collection portlet you can limit the list to just the top options and inc
 of a specific object, when combined with diazo to customise a content items default view to include additional metadata
 of that object in its content view.
 
-Example: Adding publication date news listing and news items
-============================================================
+Example: Adding publication date news listing
+=============================================
+
+Let's say have a design that demands that has a news folder that displays the publication date for each news item.
+e.g.
+
+.. image:: docs/listingtop.png
+
+with some extra changes to the batching
+
+.. image:: docs/listingbottom.png
+
+Most of this can be achieved using diazo and css.
+
+To include publication date with the custom format in the news listing
+
+1. Go to site setup > Custom Listing Fields > Add new
+2. Name it "Local Publication date" and enter TAL expression #TODO and then Save.
+3. Go to site setup > Listing Views > Add new
+4. Name it "News with publication", add url, title, description and "Local Publication Date" fields.
+5. Specify a view batch size of 10 and a portlet batch size of 5.
+6. Go to your news folder and create a collection normally which displays your news sorted by reverse publication date
+7. Select Display > Listing View.
+8. Click on "Listing View settings", then select "News with publication" and then save.
+
+You will now have a listing that contains all the information you need but doesn't look very nice. It will look
+like this
 
 #TODO
+
+with html like this
+
+#TODO
+
+Next you will need to use diazo rules like the following to turn the bare lising view into the final result
+
+#TODO
+
+Example: Adding publication date to a news item
+===============================================
+
+Next you'd like to use this same publication date on your news item itself.
+
+.. image:: docs/newsitemtop.png
+
+1. Go to site setup > Listing Views > Add new
+2. Name it "News Item Info", add just "Local Publication Date" fields.
+3. Specify a view batch size of 1 and a portlet batch size of 1.
+4. Go to Site setup > Types > News Item > "Manage portlets assigned to this content type".
+5. Add a "ListingView" portlet to the left side.
+6. Select "relative path" and use "." as the path.
+7. Select "News Item Info" as the listingview.
+8. Opt not to have a border or header, then click save.
+
+Now whenever you view a news item you will get a portlet on the left hand side that contains the following html
+
+#TODO
+
+Using the following diazo mockup and rules.xml
+
+#TODO
+
+we end up with the desired design.
 
 
 possible future directions
@@ -50,3 +109,5 @@ possible future directions
 - allow get requests so list can be filtered by custom urls
 - support grouping
 - support hierachical listing
+- support ajax batching
+- support infinite lists (auto load next when scrolled down)
