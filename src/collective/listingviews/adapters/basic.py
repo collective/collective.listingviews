@@ -10,6 +10,7 @@ from collective.listingviews import LVMessageFactory as _
 from Products.ATContentTypes.interface import IATTopic
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
+from plone.memoize.instance import memoize
 
 try:
     from plone.folder.interfaces import IFolder as IBaseFolder
@@ -24,6 +25,17 @@ class BasicAdapter(BaseAdapter):
     description = _(u"label_default_listing_view",
         default=u"Use Plone To Manage Listing Views")
     schema = IBasicListingSettings
+    view_setting = None
+
+    def __init__(self, listing, request):
+        super(BasicAdapter, self).__init__(listing, request)
+        registry = queryUtility(IRegistry)
+        if registry is not None:
+            listing_definition = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
+            for name, records in listing_definition:
+                if name == self.settings.listing_choice:
+                    self.view_setting = records
+                    break
 
     @property
     def listing_name(self):
@@ -32,42 +44,37 @@ class BasicAdapter(BaseAdapter):
     @property
     def listing_fields(self):
         fields = []
-        registry = queryUtility(IRegistry)
-        if registry is not None:
-            facets = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
-            for name, records in facets:
-                if name == self.settings.listing_choice:
-                    print "Got it."
-                    fields = getattr(records, 'metadata_list', [])
-                    print fields
-                    break
-                else:
-                    print "No"
+        if self.view_setting:
+            fields = getattr(self.view_setting, 'metadata_list', [])
         return fields
 
     @property
     def listing_style_class(self):
         style_class = ""
-        registry = queryUtility(IRegistry)
-        if registry is not None:
-            facets = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
-            for name, records in facets:
-                print "{0}: {1}".format(name, records)
-                if name == self.settings.listing_choice:
-                    print "Got it."
-                    style_class = getattr(records, 'css_class', "")
-                    print style_class
-                    break
+        if self.view_setting:
+            style_class = getattr(self.view_setting, 'css_class', "")
         return style_class
 
-    def retrieve_items(self):
+    @property
+    def listing_view_batch_size(self):
+        batch_size = 0
+        if self.view_setting:
+            batch_size = getattr(self.view_setting, 'batch_size', 0)
+        return batch_size
+
+    def process_items(self):
         adapter = getMultiAdapter((self.listing, self),
             IListingInformationRetriever)
         return adapter.getListingItems()
 
     @property
+    @memoize
+    def retrieve_items(self):
+        return self.process_items()
+
+    @property
     def number_of_items(self):
-        return len(self.retrieve_items())
+        return len(self.retrieve_items)
 
 
 class BasicListingInformationRetriever(BaseListingInformationRetriever):

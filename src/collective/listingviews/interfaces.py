@@ -32,6 +32,15 @@ class IListingDefinition(Interface):
 
     css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=False)
 
+    batch_size = schema.Int(
+        title=_(u"label_batch_size", default=u"View Batch Size"),
+        description=_(u"description_batch_size",
+            default=u"The amount of items shown in one page. "
+                    u"Enter zero if you want to disable view batching."
+        ),
+        default=10,
+        required=True)
+
 
 class ListingDefinition(object):
     implements(IListingDefinition)
@@ -142,3 +151,9 @@ class IListingInformationRetriever(Interface):
         description
             The view description
         """
+
+
+class IBatchingDisplayType(Interface):
+
+    b_start = Attribute("")
+    batch = Attribute("")
