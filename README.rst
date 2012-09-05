@@ -11,6 +11,13 @@ Custom fields can also be created using a TAL Expression. The TAL expression can
 of the content object in order to expose more data about the object. Each field and field set can have custom css classes
 associated with them so they can be uniquely styled.
 
+In addition a fieldset can have the following defined:
+
+- view batch size
+- portlet batch size
+- portlet read more text
+
+
 You can then use field sets inside plone content as follows:
 
 To customise the listing view of a folder or a collection, pick "Listing View" from the "Display" menu. Your collection
