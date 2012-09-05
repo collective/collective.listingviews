@@ -40,7 +40,7 @@ Example: Adding publication date news listing
 Let's say have a design that demands that has a news folder that displays the publication date for each news item.
 e.g.
 
-.. image:: docs/listingtop.png
+.. image:: ./docs/listingtop.png
 
 with some extra changes to the batching
 
