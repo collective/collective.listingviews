@@ -19,12 +19,20 @@ Your content will be displayed as an unordered list (<ul>) of definition terms (
 each field name and field value. This can be transformed using diazo and css to the style you need.
 
 The ListingView portlet allows you either to 
+
 - select a specific collection, folder or content object, 
 - show the contents of the current parent folder or collection, 
 - or it can show information about the current object. 
+
 Like a collection portlet you can limit the list to just the top options and include read more link. Showing fields
 of a specific object, when combined with diazo to customise a content items default view to include additional metadata
 of that object in its content view.
+
+Example: Adding publication date news listing and news items
+============================================================
+
+#TODO
+
 
 possible future directions
 ==========================
