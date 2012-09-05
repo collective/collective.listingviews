@@ -18,11 +18,11 @@ or folder will then have a "ListingView Settings" tab. In settings you can pick 
 Your content will be displayed as an unordered list (<ul>) of definition terms (<dt>) and definition data (<dd>) for 
 each field name and field value. This can be transformed using diazo and css to the style you need.
 
-The ListingView portlet allows you either to 
+The ListingView portlet allows you list information about another item. It can work in one of two modes
 
-- select a specific collection, folder or content object, 
-- show the contents of the current parent folder or collection, 
-- or it can show information about the current object. 
+- absolute: you select a specific collection, folder or content object, 
+- or relative: show the contents of the current parent folder or collection (e.g. ".."),
+- or relative: it can show information about the current object.(e.g. ".")
 
 Like a collection portlet you can limit the list to just the top options and include read more link. Showing fields
 of a specific object, when combined with diazo to customise a content items default view to include additional metadata
