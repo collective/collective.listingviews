@@ -40,11 +40,11 @@ Example: Adding publication date news listing
 Let's say have a design that demands that has a news folder that displays the publication date for each news item.
 e.g.
 
-.. image:: ./docs/listingtop.png
+.. image:: https://github.com/collective/collective.listingviews/docs/listingtop.png
 
 with some extra changes to the batching
 
-.. image:: docs/listingbottom.png
+.. image:: https://github.com/collective/collective.listingviews/docs/listingbottom.png
 
 Most of this can be achieved using diazo and css.
 
