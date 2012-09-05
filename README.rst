@@ -77,7 +77,7 @@ Example: Adding publication date to a news item
 
 Next you'd like to use this same publication date on your news item itself.
 
-.. image:: docs/newsitemtop.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/newsitemtop.png
 
 1. Go to site setup > Listing Views > Add new
 2. Name it "News Item Info", add just "Local Publication Date" fields.
