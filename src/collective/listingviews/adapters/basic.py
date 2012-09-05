@@ -47,13 +47,17 @@ class BasicAdapter(BaseAdapter):
         fields = []
         if self.view_setting:
             fields = getattr(self.view_setting, 'metadata_list', [])
+        if fields is None:
+            fields = []
         return fields
 
     @property
     def listing_style_class(self):
         style_class = ""
         if self.view_setting:
-            style_class = getattr(self.view_setting, 'css_class', "")
+            style_class = getattr(self.view_setting, 'css_class', '')
+        if style_class is None:
+            style_class = ""
         return style_class
 
     @property
@@ -61,6 +65,8 @@ class BasicAdapter(BaseAdapter):
         batch_size = 0
         if self.view_setting:
             batch_size = getattr(self.view_setting, 'batch_size', 0)
+        if batch_size is None:
+            batch_size = 0
         return batch_size
 
     def process_items(self):
