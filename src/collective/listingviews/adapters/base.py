@@ -10,7 +10,7 @@ from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from Products.CMFCore.utils import getToolByName
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
-from collective.listingviews.interfaces import IListingDefinition, ICustomFieldDefinition
+from collective.listingviews.interfaces import ICustomFieldDefinition
 from Products.CMFCore.Expression import Expression, getExprContext
 from zope.app.component.hooks import getSite
 

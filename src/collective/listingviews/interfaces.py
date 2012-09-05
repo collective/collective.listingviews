@@ -151,9 +151,3 @@ class IListingInformationRetriever(Interface):
         description
             The view description
         """
-
-
-class IBatchingDisplayType(Interface):
-
-    b_start = Attribute("")
-    batch = Attribute("")

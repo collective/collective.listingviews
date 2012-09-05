@@ -11,6 +11,7 @@ from Products.ATContentTypes.interface import IATTopic
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
 from plone.memoize.instance import memoize
+from Products.CMFPlone.PloneBatch import Batch
 
 try:
     from plone.folder.interfaces import IFolder as IBaseFolder
@@ -70,7 +71,13 @@ class BasicAdapter(BaseAdapter):
     @property
     @memoize
     def retrieve_items(self):
-        return self.process_items()
+        items = self.process_items()
+        if self.listing_view_batch_size:
+            items = Batch(items,
+                self.listing_view_batch_size,
+                int(self.request.get('b_start', 0)),
+                orphan=1)
+        return items
 
     @property
     def number_of_items(self):
