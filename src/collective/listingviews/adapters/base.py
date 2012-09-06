@@ -69,10 +69,14 @@ class BaseListingInformationRetriever(object):
                     # default field
                     print "Default field"
                     field = field[2:]
-                    #if field.lower() == 'path':
-                    #    attr_value = getattr(item, 'getPath', None)()
-                    #else:
-                    attr_value = getattr(item, field, None)
+
+                    # metadata does not have location
+                    if field == 'location':
+                        attr_value = getattr(item, 'getURL', None)
+                        if attr_value:
+                            attr_value = attr_value()
+                    else:
+                        attr_value = getattr(item, field, None)
 
                     if attr_value == None or attr_value == Missing.Value:
                         continue
@@ -88,10 +92,6 @@ class BaseListingInformationRetriever(object):
                         attr_value = plone.toLocalizedTime(attr_value, long_format=1)
                     elif isinstance(attr_value, basestring):
                         attr_value = attr_value.decode("utf-8")
-
-                    # metadata does not have path
-                    #elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
-                    #    attr_value = "/".join(attr_value)
 
                     css_class = field
                     if field in self.metadata_display:
