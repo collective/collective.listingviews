@@ -67,7 +67,6 @@ class BaseListingInformationRetriever(object):
             try:
                 if field[:2] == 'f_':
                     # default field
-                    print "Default field"
                     field = field[2:]
 
                     # metadata does not have location
@@ -97,11 +96,9 @@ class BaseListingInformationRetriever(object):
                     if field in self.metadata_display:
                         field = self.metadata_display[field]
 
-                    print "title: {0}, value: {1}".format(field, attr_value)
                     current.append({'title': field, 'css_class': css_class, 'value': attr_value})
                 elif field[:2] == 'c_':
                     #custom field
-                    print "Custom field"
                     field = field[2:]
                     for metadata, fields in self.metadata_list:
                         if metadata != field:
@@ -113,12 +110,13 @@ class BaseListingInformationRetriever(object):
 
                         # example tal statement
                         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
+                        # python:'{0}'.format(object.getObject().modified().strftime("%d/%m/%Y"))
+                        # python:object.getObject().folder_full_view_item()
                         expression = Expression(tal_statement)
                         expression_context = getExprContext(self.context, item)
                         attr_value = expression(expression_context)
                         break
 
-                    print "title: {0}, value: {1}".format(name, attr_value)
                     current.append({'title': name, 'css_class': css_class, 'value': attr_value})
 
                 else:

@@ -51,7 +51,7 @@ registerFactoryAdapter(IListingDefinition, ListingDefinition)
 class ICustomFieldDefinition(Interface):
     name = schema.ASCIILine(title=_(u"Field Name"), required=True)
     description = schema.ASCIILine(title=_(u"Description"), required=False)
-    css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=False)
+    css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=True)
     tal_statement = schema.ASCIILine(title=_(u"TAL statement"), required=True)
 
 
