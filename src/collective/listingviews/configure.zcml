@@ -8,10 +8,14 @@
     i18n_domain="collective.listingviews">
 
   <five:registerPackage package="." initialize=".initialize" />
+  
   <include package="plone.app.z3cform" />
   <include package="plone.app.registry" />
+  
   <include package=".browser" />
   <include package=".adapters" />
+
+  <include file="portlets.zcml" />
   <include file="profiles.zcml" />
 
   <!-- -*- extra stuff goes here -*- -->

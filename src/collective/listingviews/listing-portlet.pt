@@ -1,0 +1,18 @@
+<dl tal:attributes="class string:portlet portletStaticText ${view/css_class}"
+    i18n:domain="plone">
+
+    <dt class="portletHeader">
+        <span class="portletTopLeft"></span>
+        <span>
+           <a class="tile"
+              tal:content="view/data/header"
+              />
+        </span>
+        <span class="portletTopRight"></span>
+    </dt>
+
+    <dd class="portletItem odd">
+        <div tal:content="view/transformed" />
+    </dd>
+
+</dl>
