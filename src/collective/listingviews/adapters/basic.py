@@ -28,8 +28,8 @@ class BasicAdapter(BaseAdapter):
     schema = IBasicListingSettings
     view_setting = None
 
-    def __init__(self, listing, request):
-        super(BasicAdapter, self).__init__(listing, request)
+    def __init__(self, listing, request, portlet_settings=None):
+        super(BasicAdapter, self).__init__(listing, request, portlet_settings)
         registry = queryUtility(IRegistry)
         if registry is not None:
             listing_definition = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
@@ -77,6 +77,7 @@ class BasicAdapter(BaseAdapter):
     @property
     @memoize
     def retrieve_items(self):
+        import pdb; pdb.set_trace()
         items = self.process_items()
         if self.listing_view_batch_size:
             items = Batch(items,

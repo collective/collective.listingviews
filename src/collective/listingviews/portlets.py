@@ -15,6 +15,11 @@ from Acquisition import aq_inner
 from plone.app.vocabularies.catalog import SearchableTextSourceBinder
 from collective.listingviews.settings import ListingSettings
 from collective.listingviews.adapters import BasicAdapter
+from collective.listingviews.utils import getListingAdapter
+from zope.component import queryUtility
+from plone.registry.interfaces import IRegistry
+from collective.listingviews.interfaces import IListingDefinition
+from collective.listingviews.adapters.base import BaseListingInformationRetriever
 
 logger = logging.getLogger('collective.listingviews.listingbox')
 
@@ -64,7 +69,6 @@ class ListingAssignment(base.Assignment):
     This is what is actually managed through the portlets UI and associated
     with columns.
     """
-
     implements(IListingPortlet)
 
     header = _(u"title_static_portlet", default=u"Static text portlet")
@@ -84,6 +88,30 @@ class ListingAssignment(base.Assignment):
         "manage portlets" screen. Here, we use the title that the user gave.
         """
         return self.header
+
+
+class PortletListingAdapter(object):
+
+    def __init__(self, content, request, data):
+        import pdb; pdb.set_trace()
+        self.content = content
+        self.request = request
+        self.data = data
+        adapter = BasicAdapter(content, request, data)
+        retriever = BaseListingInformationRetriever(content, adapter)
+        self.listing_information = retriever.assemble_listing_information(content)
+
+    @property
+    def is_container(self):
+        return self.data.root
+
+    @property
+    def listing_information(self):
+        import pdb; pdb.set_trace()
+        result = self.listing_information
+        return result
+
+
 
 
 class ListingRenderer(base.Renderer):
@@ -109,27 +137,72 @@ class ListingRenderer(base.Renderer):
 
         plone_tools = getMultiAdapter((context, self.request), name=u'plone_tools')
         self.catalog = plone_tools.catalog()
+        self.listing_information = []
+        if self.data.root:
+            import pdb; pdb.set_trace()
+            portal_state = getMultiAdapter((self.context, self.request),
+                                           name=u'plone_portal_state')
+            portal = portal_state.portal()
+            path = self.data.root
+            if path and path.startswith('/'):
+                # https://github.com/plone/plone.portlet.static
+                path = path[1:]
+
+            meme = portal.restrictedTraverse(path, default=False)
+
+            print "meme {0}".format(meme)
+
+            adapter = BasicAdapter(meme, self.request, self.data)
+
+            print "adapter {0}".format(adapter)
+
+        else:
+            adapter = BasicAdapter(context, self.request, self.data)
+            retriever = BaseListingInformationRetriever(context, adapter)
+            self.listing_information = retriever.assemble_listing_information(context)
 
     def css_class(self):
         """Generate a CSS class from the portlet header
         """
         header = self.data.header
         normalizer = getUtility(IIDNormalizer)
-        return "portlet-static-%s" % normalizer.normalize(header)
+        return "portlet-listing-%s" % normalizer.normalize(header)
+
+    @property
+    @memoize
+    def is_container(self):
+        return self.data.root
+
+    @property
+    @memoize
+    def gallery(self):
+        try:
+            import pdb; pdb.set_trace()
+            portal_state = getMultiAdapter((self.context, self.request),
+                                           name=u'plone_portal_state')
+            portal = portal_state.portal()
+            path = self.data.root
+            if path and path.startswith('/'):
+                # https://github.com/plone/plone.portlet.static
+                path = path[1:]
+
+            return portal.restrictedTraverse(path, default=False)
+        except:
+            return False
 
     def transformed(self):
         """Main function that do everything.
         """
-        #import pdb; pdb.set_trace()
-
+        
         # Get content
-        content = self.context
-        if self.data.root:
-            pass
+        
+        return self.listing_information
 
-        #adapter = BasicAdapter(content, self.request)
-        #settings = ListingSettings(content, interfaces=[self.adapter.schema])
-        return self._data()
+    @property
+    def portlet_adapter(self):
+        import pdb; pdb.set_trace()
+        result = PortletListingAdapter(self.context, self.request, self.data)
+        return result
 
     @memoize
     def _data(self):

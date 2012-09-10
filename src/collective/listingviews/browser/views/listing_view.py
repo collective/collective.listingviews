@@ -3,6 +3,7 @@ from Products.Five import BrowserView
 from zope.interface import implements
 from collective.listingviews.interfaces import IListingViews
 from collective.listingviews.settings import ListingSettings
+#from collective.listingviews.utils import getListingAdapter
 from collective.listingviews.adapters import BasicAdapter
 
 

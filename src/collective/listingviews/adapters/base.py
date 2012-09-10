@@ -27,10 +27,13 @@ class BaseAdapter(object):
     description = _(u"label_base_listing_view",
         default=u"Think abstract class here...")
 
-    def __init__(self, listing, request):
+    def __init__(self, listing, request, portlet_settings=None):
         self.listing = listing
         self.request = request
-        self.settings = ListingSettings(self.listing, interfaces=[self.schema])
+        if portlet_settings:
+            self.settings = portlet_settings
+        else:
+            self.settings = ListingSettings(self.listing, interfaces=[self.schema])
 
     def log_error(self, ex='', inst='', msg=""):
         LOG('collective.listingviews', INFO,
