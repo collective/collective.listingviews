@@ -27,9 +27,12 @@ class BasicAdapter(BaseAdapter):
         default=u"Use Plone To Manage Listing Views")
     schema = IBasicListingSettings
     view_setting = None
+    is_portlet = False
 
     def __init__(self, listing, request, portlet_settings=None):
         super(BasicAdapter, self).__init__(listing, request, portlet_settings)
+        if portlet_settings:
+            self.is_portlet = True
         registry = queryUtility(IRegistry)
         if registry is not None:
             listing_definition = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
@@ -69,6 +72,15 @@ class BasicAdapter(BaseAdapter):
             batch_size = 0
         return batch_size
 
+    @property
+    def listing_portlet_more_text(self):
+        portlet_more_text = 'More'
+        if self.is_portlet and self.view_setting:
+            portlet_more_text = getattr(self.view_setting, 'portlet_more_text', '')
+        if portlet_more_text is None:
+            portlet_more_text = 'More'
+        return portlet_more_text
+
     def process_items(self):
         adapter = getMultiAdapter((self.listing, self),
             IListingInformationRetriever)
@@ -77,9 +89,8 @@ class BasicAdapter(BaseAdapter):
     @property
     @memoize
     def retrieve_items(self):
-        import pdb; pdb.set_trace()
         items = self.process_items()
-        if self.listing_view_batch_size:
+        if not self.is_portlet and self.listing_view_batch_size:
             items = Batch(items,
                 self.listing_view_batch_size,
                 int(self.request.get('b_start', 0)),

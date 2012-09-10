@@ -41,6 +41,8 @@ class IListingDefinition(Interface):
         default=10,
         required=True)
 
+    portlet_more_text = schema.ASCIILine(title=_(u"Portlet Read More Text"), required=False)
+
 
 class ListingDefinition(object):
     implements(IListingDefinition)

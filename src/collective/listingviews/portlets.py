@@ -89,31 +89,6 @@ class ListingAssignment(base.Assignment):
         """
         return self.header
 
-
-class PortletListingAdapter(object):
-
-    def __init__(self, content, request, data):
-        import pdb; pdb.set_trace()
-        self.content = content
-        self.request = request
-        self.data = data
-        adapter = BasicAdapter(content, request, data)
-        retriever = BaseListingInformationRetriever(content, adapter)
-        self.listing_information = retriever.assemble_listing_information(content)
-
-    @property
-    def is_container(self):
-        return self.data.root
-
-    @property
-    def listing_information(self):
-        import pdb; pdb.set_trace()
-        result = self.listing_information
-        return result
-
-
-
-
 class ListingRenderer(base.Renderer):
     """Portlet renderer.
 
@@ -137,26 +112,21 @@ class ListingRenderer(base.Renderer):
 
         plone_tools = getMultiAdapter((context, self.request), name=u'plone_tools')
         self.catalog = plone_tools.catalog()
+        
+        self.more_url = ""
+        self.more_text = ""
         self.listing_information = []
         if self.data.root:
-            import pdb; pdb.set_trace()
-            portal_state = getMultiAdapter((self.context, self.request),
-                                           name=u'plone_portal_state')
-            portal = portal_state.portal()
-            path = self.data.root
-            if path and path.startswith('/'):
-                # https://github.com/plone/plone.portlet.static
-                path = path[1:]
-
-            meme = portal.restrictedTraverse(path, default=False)
-
-            print "meme {0}".format(meme)
-
-            adapter = BasicAdapter(meme, self.request, self.data)
-
-            print "adapter {0}".format(adapter)
-
+            container = self._container()
+            if container:
+                adapter = BasicAdapter(container, self.request, self.data)
+                this_url = getattr(container, 'getPhysicalPath', None)
+                if this_url:
+                    self.more_url = "/".join(this_url())
+                self.more_text = adapter.listing_portlet_more_text
+                self.listing_information = adapter.retrieve_items
         else:
+            # current context don't have footer and more url
             adapter = BasicAdapter(context, self.request, self.data)
             retriever = BaseListingInformationRetriever(context, adapter)
             self.listing_information = retriever.assemble_listing_information(context)
@@ -168,16 +138,23 @@ class ListingRenderer(base.Renderer):
         normalizer = getUtility(IIDNormalizer)
         return "portlet-listing-%s" % normalizer.normalize(header)
 
-    @property
-    @memoize
-    def is_container(self):
-        return self.data.root
+    def has_link(self):
+        return bool(self.more_url)
 
-    @property
-    @memoize
-    def gallery(self):
+    def has_footer(self):
+        return bool(self.data.root)
+
+    def more_url(self):
+        return self.more_url
+
+    def more_text(self):
+        return self.more_text
+
+    def is_container(self):
+        return bool(self.data.root)
+
+    def _container(self):
         try:
-            import pdb; pdb.set_trace()
             portal_state = getMultiAdapter((self.context, self.request),
                                            name=u'plone_portal_state')
             portal = portal_state.portal()
@@ -190,23 +167,10 @@ class ListingRenderer(base.Renderer):
         except:
             return False
 
-    def transformed(self):
+    def portlet_items(self):
         """Main function that do everything.
         """
-        
-        # Get content
-        
         return self.listing_information
-
-    @property
-    def portlet_adapter(self):
-        import pdb; pdb.set_trace()
-        result = PortletListingAdapter(self.context, self.request, self.data)
-        return result
-
-    @memoize
-    def _data(self):
-        return self.data.listing_choice
 
 
 class ListingAddForm(base.AddForm):
