@@ -6,20 +6,28 @@ from zope.formlib import form
 from zope.interface import implements
 from plone.app.portlets.portlets import base
 from plone.portlets.interfaces import IPortletDataProvider
-from plone.memoize.instance import memoize
+#from plone.memoize.instance import memoize
 from collective.listingviews import LVMessageFactory as _
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from zope.component import getUtility
 from Acquisition import aq_inner
 from plone.app.vocabularies.catalog import SearchableTextSourceBinder
-from collective.listingviews.settings import ListingSettings
+#from collective.listingviews.settings import ListingSettings
 from collective.listingviews.adapters import BasicAdapter
-from collective.listingviews.utils import getListingAdapter
-from zope.component import queryUtility
-from plone.registry.interfaces import IRegistry
-from collective.listingviews.interfaces import IListingDefinition
+#from collective.listingviews.utils import getListingAdapter
+#from zope.component import queryUtility
+#from plone.registry.interfaces import IRegistry
+#from collective.listingviews.interfaces import IListingDefinition
 from collective.listingviews.adapters.base import BaseListingInformationRetriever
+from Products.CMFCore.utils import getToolByName
+from Products.ATContentTypes.interface import IATTopic
+from plone.app.collection.interfaces import ICollection
+try:
+    from plone.folder.interfaces import IFolder as IBaseFolder
+except ImportError:
+    from Products.Archetypes.interfaces import IBaseFolder
+
 
 logger = logging.getLogger('collective.listingviews.listingbox')
 
@@ -52,7 +60,7 @@ class IListingPortlet(IPortletDataProvider):
                                     "to act as the root of the navigation tree. "
                                     "Leave blank to use the Plone site root."),
             required=False,
-            source=SearchableTextSourceBinder({'is_folderish': True},
+            source=SearchableTextSourceBinder({},
                                               default_query='path:'))
 
     omit_border = schema.Bool(
@@ -112,19 +120,27 @@ class ListingRenderer(base.Renderer):
 
         plone_tools = getMultiAdapter((context, self.request), name=u'plone_tools')
         self.catalog = plone_tools.catalog()
-        
-        self.more_url = ""
-        self.more_text = ""
+
+        self.data_more_url = ""
+        self.data_more_text = ""
         self.listing_information = []
+        self._is_container = False
         if self.data.root:
             container = self._container()
             if container:
-                adapter = BasicAdapter(container, self.request, self.data)
-                this_url = getattr(container, 'getPhysicalPath', None)
-                if this_url:
-                    self.more_url = "/".join(this_url())
-                self.more_text = adapter.listing_portlet_more_text
-                self.listing_information = adapter.retrieve_items
+                if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or ICollection.providedBy(container):
+                    self._is_container = True
+                    adapter = BasicAdapter(container, self.request, self.data)
+                    this_url = getattr(container, 'getPhysicalPath', None)
+                    if this_url:
+                        self.data_more_url = "/".join(this_url())
+                    self.data_more_text = adapter.listing_portlet_more_text
+                    self.listing_information = adapter.retrieve_items
+                else:
+                    # single content
+                    adapter = BasicAdapter(container, self.request, self.data)
+                    retriever = BaseListingInformationRetriever(container, adapter)
+                    self.listing_information = retriever.assemble_listing_information(container)
         else:
             # current context don't have footer and more url
             adapter = BasicAdapter(context, self.request, self.data)
@@ -139,19 +155,19 @@ class ListingRenderer(base.Renderer):
         return "portlet-listing-%s" % normalizer.normalize(header)
 
     def has_link(self):
-        return bool(self.more_url)
+        return bool(self.data_more_url)
 
     def has_footer(self):
         return bool(self.data.root)
 
     def more_url(self):
-        return self.more_url
+        return self.data_more_url
 
     def more_text(self):
-        return self.more_text
+        return self.data_more_text
 
     def is_container(self):
-        return bool(self.data.root)
+        return self._is_container
 
     def _container(self):
         try:
