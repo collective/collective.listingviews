@@ -20,14 +20,19 @@ from collective.listingviews.adapters import BasicAdapter
 #from plone.registry.interfaces import IRegistry
 #from collective.listingviews.interfaces import IListingDefinition
 from collective.listingviews.adapters.base import BaseListingInformationRetriever
-from Products.CMFCore.utils import getToolByName
+#from Products.CMFCore.utils import getToolByName
 from Products.ATContentTypes.interface import IATTopic
-from plone.app.collection.interfaces import ICollection
+
 try:
     from plone.folder.interfaces import IFolder as IBaseFolder
 except ImportError:
     from Products.Archetypes.interfaces import IBaseFolder
 
+PLONE_42 = True
+try:
+    from plone.app.collection.interfaces import ICollection
+except ImportError:
+    PLONE_42 = False
 
 logger = logging.getLogger('collective.listingviews.listingbox')
 
@@ -97,6 +102,7 @@ class ListingAssignment(base.Assignment):
         """
         return self.header
 
+
 class ListingRenderer(base.Renderer):
     """Portlet renderer.
 
@@ -128,7 +134,7 @@ class ListingRenderer(base.Renderer):
         if self.data.root:
             container = self._container()
             if container:
-                if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or ICollection.providedBy(container):
+                if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
                     self._is_container = True
                     adapter = BasicAdapter(container, self.request, self.data)
                     this_url = getattr(container, 'getPhysicalPath', None)

@@ -15,7 +15,6 @@
   <include package=".browser" />
   <include package=".adapters" />
 
-  <include file="portlets.zcml" />
   <include file="profiles.zcml" />
 
   <!-- -*- extra stuff goes here -*- -->
