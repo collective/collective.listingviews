@@ -17,7 +17,6 @@ In addition a fieldset can have the following defined:
 - portlet batch size
 - portlet read more text
 
-
 You can then use field sets inside plone content as follows:
 
 To customise the listing view of a folder or a collection, pick "Listing View" from the "Display" menu. Your collection
@@ -41,18 +40,18 @@ Example: Adding publication date news listing
 Let's say have a design that demands that has a news folder that displays the publication date for each news item.
 e.g.
 
-.. image:: docs/listingtop.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingtop.png
 
 with some extra changes to the batching
 
-.. image:: docs/listingbottom.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingbottom.png
 
 Most of this can be achieved using diazo and css.
 
 To include publication date with the custom format in the news listing
 
 1. Go to site setup > Custom Listing Fields > Add new
-2. Name it "Local Publication date" and enter TAL expression #TODO and then Save.
+2. Name it "Local Publication date" and enter TAL expression ``object.getObject().modified().strftime("%d/%m/%Y")`` and then Save.
 3. Go to site setup > Listing Views > Add new
 4. Name it "News with publication", add url, title, description and "Local Publication Date" fields.
 5. Specify a view batch size of 10 and a portlet batch size of 5.
@@ -78,7 +77,7 @@ Example: Adding publication date to a news item
 
 Next you'd like to use this same publication date on your news item itself.
 
-.. image:: docs/newsitemtop.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/newsitemtop.png
 
 1. Go to site setup > Listing Views > Add new
 2. Name it "News Item Info", add just "Local Publication Date" fields.

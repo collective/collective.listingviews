@@ -10,7 +10,7 @@ from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from Products.CMFCore.utils import getToolByName
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
-from collective.listingviews.interfaces import IListingDefinition, ICustomFieldDefinition
+from collective.listingviews.interfaces import ICustomFieldDefinition
 from Products.CMFCore.Expression import Expression, getExprContext
 from zope.app.component.hooks import getSite
 
@@ -27,10 +27,13 @@ class BaseAdapter(object):
     description = _(u"label_base_listing_view",
         default=u"Think abstract class here...")
 
-    def __init__(self, listing, request):
+    def __init__(self, listing, request, portlet_settings=None):
         self.listing = listing
         self.request = request
-        self.settings = ListingSettings(self.listing, interfaces=[self.schema])
+        if portlet_settings:
+            self.settings = portlet_settings
+        else:
+            self.settings = ListingSettings(self.listing, interfaces=[self.schema])
 
     def log_error(self, ex='', inst='', msg=""):
         LOG('collective.listingviews', INFO,
@@ -67,12 +70,15 @@ class BaseListingInformationRetriever(object):
             try:
                 if field[:2] == 'f_':
                     # default field
-                    print "Default field"
                     field = field[2:]
-                    #if field.lower() == 'path':
-                    #    attr_value = getattr(item, 'getPath', None)()
-                    #else:
-                    attr_value = getattr(item, field, None)
+
+                    # metadata does not have location
+                    if field == 'location':
+                        attr_value = getattr(item, 'getURL', None)
+                        if attr_value:
+                            attr_value = attr_value()
+                    else:
+                        attr_value = getattr(item, field, None)
 
                     if attr_value == None or attr_value == Missing.Value:
                         continue
@@ -89,19 +95,13 @@ class BaseListingInformationRetriever(object):
                     elif isinstance(attr_value, basestring):
                         attr_value = attr_value.decode("utf-8")
 
-                    # metadata does not have path
-                    #elif field.lower() == 'path' or field.lower() == 'getphysicalpath':
-                    #    attr_value = "/".join(attr_value)
-
                     css_class = field
                     if field in self.metadata_display:
                         field = self.metadata_display[field]
 
-                    print "title: {0}, value: {1}".format(field, attr_value)
                     current.append({'title': field, 'css_class': css_class, 'value': attr_value})
                 elif field[:2] == 'c_':
                     #custom field
-                    print "Custom field"
                     field = field[2:]
                     for metadata, fields in self.metadata_list:
                         if metadata != field:
@@ -113,12 +113,13 @@ class BaseListingInformationRetriever(object):
 
                         # example tal statement
                         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
+                        # python:'{0}'.format(object.getObject().modified().strftime("%d/%m/%Y"))
+                        # python:object.getObject().folder_full_view_item()
                         expression = Expression(tal_statement)
                         expression_context = getExprContext(self.context, item)
                         attr_value = expression(expression_context)
                         break
 
-                    print "title: {0}, value: {1}".format(name, attr_value)
                     current.append({'title': name, 'css_class': css_class, 'value': attr_value})
 
                 else:

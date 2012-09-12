@@ -15,18 +15,29 @@
                   Please choose your view in listing settings.
               </p>
           </div>
-          <div class="listing-collection" tal:define="class_name python:view.adapter.listing_style_class" tal:condition="python: view.adapter.number_of_items > 0" tal:attributes="class string:${class_name} listing-collection">
+          <div class="listing-collection" 
+            tal:define="class_name python:view.adapter.listing_style_class;
+                        batch python:view.adapter.retrieve_items" 
+            tal:condition="python: view.adapter.number_of_items > 0" 
+            tal:attributes="class string:${class_name} listing-collection">
+            
               <ul class="listing-items">
-                  <li class="listing-item" tal:repeat="item_object python:view.adapter.retrieve_items()">
-                      <dl>
-                          <div class="each-field" tal:repeat="field item_object" tal:attributes="class string:each-field f_${field/css_class} ">
-                              <dt tal:content="string: ${field/title}"></dt>
-                              <dd tal:content="structure field/value"></dd>
-                              <div class="visualClear"></div>
-                          </div>
+                  <li class="listing-item" tal:repeat="item_object batch">
+                      <dl class="listing-fields">
+                          <tal:fields tal:repeat="field item_object">
+                              <tal:def tal:define="fieldclass string:each-field f_${field/css_class}"> 
+                                <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
+                                <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
+                              </tal:def>
+                          </tal:fields>
                       </dl>
                   </li>
               </ul>
+              <div class="listing-navigation" tal:condition="view/adapter/listing_view_batch_size">
+                <div metal:use-macro="view/context/batch_macros/macros/navigation"> 
+                  Navigation
+                </div>
+              </div>
             </div>
           </div>
       </tal:core-macro>

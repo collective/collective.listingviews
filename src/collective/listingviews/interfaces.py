@@ -32,6 +32,17 @@ class IListingDefinition(Interface):
 
     css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=False)
 
+    batch_size = schema.Int(
+        title=_(u"label_batch_size", default=u"View Batch Size"),
+        description=_(u"description_batch_size",
+            default=u"The amount of items shown in one page. "
+                    u"Enter zero if you want to disable view batching."
+        ),
+        default=10,
+        required=True)
+
+    portlet_more_text = schema.ASCIILine(title=_(u"Portlet Read More Text"), required=False)
+
 
 class ListingDefinition(object):
     implements(IListingDefinition)
@@ -42,7 +53,7 @@ registerFactoryAdapter(IListingDefinition, ListingDefinition)
 class ICustomFieldDefinition(Interface):
     name = schema.ASCIILine(title=_(u"Field Name"), required=True)
     description = schema.ASCIILine(title=_(u"Description"), required=False)
-    css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=False)
+    css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=True)
     tal_statement = schema.ASCIILine(title=_(u"TAL statement"), required=True)
 
 

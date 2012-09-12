@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<portlets>
+
+    <!-- Portlet type registrations -->
+    <portlet
+        addview="collective.listingviews.listingbox"
+        title="Plone Custom Listing Portlet"
+        description="A portlet shows custom listing."
+        remove="True"
+    />
+
+</portlets>

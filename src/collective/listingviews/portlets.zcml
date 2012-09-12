@@ -1,0 +1,17 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="collective.listingviews">
+
+    <include package="plone.app.portlets"/>
+
+    <plone:portlet
+        name="collective.listingviews.listingbox"
+        interface=".portlets.IListingPortlet"
+        assignment=".portlets.ListingAssignment"
+        renderer=".portlets.ListingRenderer"
+        addview=".portlets.ListingAddForm"
+        editview=".portlets.ListingEditForm"
+    />
+
+</configure>

@@ -1,29 +1,12 @@
+#content .listingviews {
+    margin-top: 1em;
+}
+
 #content .listingviews ul {
     list-style-type: none;
+    margin-left: 0;
 }
 
 #content .listingviews dl { 
-    border: 1px solid #ccc; 
-    padding: 0.5em;
+    border-bottom: 1px solid #ccc; 
 } 
-
-#content .listingviews dt { 
-    float: left; 
-    clear: both; 
-    width: 100px; 
-    text-align: right; 
-    font-weight: bold; 
-} 
-
-#content .listingviews dt:after { 
-    content: ":"; 
-} 
-
-#content .listingviews dd { 
-    margin: 0 0 0 110px; 
-}
-
-#content .listingviews .visualClear { 
-    clear: both;
-}
-

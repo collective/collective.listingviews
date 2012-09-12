@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<portlets
+  xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+  i18n:domain="plone">
+
+    <!-- Portlet type registrations -->
+    <portlet
+        addview="collective.listingviews.listingbox"
+        title="Listing Portlet"
+        description="A portlet shows custom listing."
+        i18n:attributes="title;
+			description"
+    />
+
+</portlets>
