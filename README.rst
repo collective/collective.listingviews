@@ -102,12 +102,15 @@ we end up with the desired design.
 
 possible future directions
 ==========================
-- make a listingview tile for use in deco or collective.cover. Tile would include querystring to replace collection.
+- make a listingview tile for use in deco or collective.cover. Tile would include querystring to replace collection. If you wanted
+ to instead reference a tile elsewhere we might need a referencebrowser widget that lets us pick tiles not just content?
+- provide a way to make bulk changes in content from one listingview to another listingview. This would allow a new "template" to be
+  created and tested and then switched in production.
 - implement safe html filtering
 - support customisation of batching settings
 - support old style collections
 - allow get requests so list can be filtered by custom urls
 - support grouping
-- support hierachical listing
+- support hierarchical listing
 - support ajax batching
 - support infinite lists (auto load next when scrolled down)
