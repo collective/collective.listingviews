@@ -6,7 +6,7 @@
 <div tal:condition="view/data/omit_border"
      tal:attributes="class string:portletListing ${view/css_class}">
   <div class="listingBody">
-    <ul class="listing-items" tal:condition="view/is_container">
+    <ul class="listing-items">
       <li class="listing-item" tal:repeat="item_object view/portlet_items">
           <dl class="listing-fields">
               <tal:fields tal:repeat="field item_object">
@@ -17,18 +17,6 @@
               </tal:fields>
           </dl>
       </li>
-    </ul>
-    <ul class="listing-items" tal:condition="not:view/is_container">
-        <li class="listing-item">
-            <dl class="listing-fields">
-                <tal:fields tal:repeat="field view/portlet_items">
-                    <tal:def tal:define="fieldclass string:each-field f_${field/css_class}"> 
-                      <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
-                      <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
-                    </tal:def>
-                </tal:fields>
-            </dl>
-        </li>
     </ul>
   </div>
   <div class="listingFooter" tal:condition="view/has_footer">
@@ -57,7 +45,7 @@
     </dt>
 
     <dd class="portletItem odd">
-      <ul class="listing-items" tal:condition="view/is_container">
+      <ul class="listing-items">
         <li class="listing-item" tal:repeat="item_object view/portlet_items">
             <dl class="listing-fields">
                 <tal:fields tal:repeat="field item_object">
@@ -68,18 +56,6 @@
                 </tal:fields>
             </dl>
         </li>
-      </ul>
-      <ul class="listing-items" tal:condition="not:view/is_container">
-          <li class="listing-item">
-              <dl class="listing-fields">
-                  <tal:fields tal:repeat="field view/portlet_items">
-                      <tal:def tal:define="fieldclass string:each-field f_${field/css_class}"> 
-                        <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
-                        <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
-                      </tal:def>
-                  </tal:fields>
-              </dl>
-          </li>
       </ul>
     </dd>
 

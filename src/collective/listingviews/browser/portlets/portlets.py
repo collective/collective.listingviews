@@ -20,7 +20,7 @@ from collective.listingviews.adapters import BasicAdapter
 #from plone.registry.interfaces import IRegistry
 #from collective.listingviews.interfaces import IListingDefinition
 from collective.listingviews.adapters.base import BaseListingInformationRetriever
-#from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import getToolByName
 from Products.ATContentTypes.interface import IATTopic
 
 try:
@@ -144,14 +144,18 @@ class ListingRenderer(base.Renderer):
                     self.listing_information = adapter.retrieve_items
                 else:
                     # single content
+                    uid = container.UID()
+                    brain = self.catalog.searchResults({'UID': uid})
                     adapter = BasicAdapter(container, self.request, self.data)
                     retriever = BaseListingInformationRetriever(container, adapter)
-                    self.listing_information = retriever.assemble_listing_information(container)
+                    self.listing_information = map(retriever.assemble_listing_information, brain)
         else:
             # current context don't have footer and more url
+            uid = context.UID()
+            brain = self.catalog.searchResults({'UID': uid})
             adapter = BasicAdapter(context, self.request, self.data)
             retriever = BaseListingInformationRetriever(context, adapter)
-            self.listing_information = retriever.assemble_listing_information(context)
+            self.listing_information = map(retriever.assemble_listing_information, brain)
 
     def css_class(self):
         """Generate a CSS class from the portlet header
