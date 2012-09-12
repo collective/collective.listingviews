@@ -105,7 +105,7 @@ class ListingRenderer(base.Renderer):
     of this class. Other methods can be added and referenced in the template.
     """
 
-    render = ViewPageTemplateFile('listing-portlet.pt')
+    render = ViewPageTemplateFile('templates/listing-portlet.pt')
 
     def __init__(self, *args):
         base.Renderer.__init__(self, *args)

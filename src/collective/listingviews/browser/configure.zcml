@@ -4,6 +4,7 @@
     i18n_domain="collective.listingviews">
 
     <include package=".views" />
+    <include package=".portlets" />
 
     <browser:page
         name="listing_util"
