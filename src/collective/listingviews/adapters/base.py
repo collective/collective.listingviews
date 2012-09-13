@@ -99,7 +99,7 @@ class BaseListingInformationRetriever(object):
                     if field in self.metadata_display:
                         field = self.metadata_display[field]
 
-                    current.append({'title': field, 'css_class': css_class, 'value': attr_value})
+                    current.append({'title': field, 'css_class': css_class, 'value': attr_value, 'is_custom': False})
                 elif field[:2] == 'c_':
                     #custom field
                     field = field[2:]
@@ -120,7 +120,7 @@ class BaseListingInformationRetriever(object):
                         attr_value = expression(expression_context)
                         break
 
-                    current.append({'title': name, 'css_class': css_class, 'value': attr_value})
+                    current.append({'title': name, 'css_class': css_class, 'value': attr_value, 'is_custom': True})
 
                 else:
                     print "No valid field"

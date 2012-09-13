@@ -10,9 +10,16 @@
       <li class="listing-item" tal:repeat="item_object view/portlet_items">
           <dl class="listing-fields">
               <tal:fields tal:repeat="field item_object">
-                  <tal:def tal:define="fieldclass string:each-field f_${field/css_class}"> 
-                    <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
-                    <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
+                  <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
+                    customfieldclass string:listing-field ${field/css_class}"> 
+                    <tal:listingfield tal:condition="not:field/is_custom">
+                      <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
+                      <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
+                    </tal:listingfield>
+                    <tal:listingfield tal:condition="field/is_custom">
+                      <dt tal:content="string: ${field/title}" tal:attributes="class customfieldclass"></dt>
+                      <dd tal:content="structure field/value" tal:attributes="class customfieldclass"></dd>
+                    </tal:listingfield>
                   </tal:def>
               </tal:fields>
           </dl>
@@ -49,10 +56,17 @@
         <li class="listing-item" tal:repeat="item_object view/portlet_items">
             <dl class="listing-fields">
                 <tal:fields tal:repeat="field item_object">
-                    <tal:def tal:define="fieldclass string:each-field f_${field/css_class}"> 
+                    <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
+                    customfieldclass string:listing-field ${field/css_class}"> 
+                    <tal:listingfield tal:condition="not:field/is_custom">
                       <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
                       <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
-                    </tal:def>
+                    </tal:listingfield>
+                    <tal:listingfield tal:condition="field/is_custom">
+                      <dt tal:content="string: ${field/title}" tal:attributes="class customfieldclass"></dt>
+                      <dd tal:content="structure field/value" tal:attributes="class customfieldclass"></dd>
+                    </tal:listingfield>
+                  </tal:def>
                 </tal:fields>
             </dl>
         </li>
