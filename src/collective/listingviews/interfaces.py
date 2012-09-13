@@ -54,7 +54,7 @@ class ICustomFieldDefinition(Interface):
     name = schema.ASCIILine(title=_(u"Field Name"), required=True)
     description = schema.ASCIILine(title=_(u"Description"), required=False)
     css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=True)
-    tal_statement = schema.ASCIILine(title=_(u"TAL statement"), required=True)
+    tal_statement = schema.ASCIILine(title=_(u"TAL expression"), required=True)
 
 
 class CustomFieldDefinition(object):
@@ -78,8 +78,8 @@ class IListingControlSettings(Interface):
 
 class IListingControlPanel(Interface):
     views = schema.Tuple(
-            title=_(u'Custom listing view'),
-            description=(u"Names of custom listing view"),
+            title=_(u'Custom listing views'),
+            description=(u"Create and manage your custom listing views which can be used in collections, folders, portlets and tiles"),
             value_type=PersistentObject(IListingDefinition,
                 title=_(u"Listing Definition")),
             required=False,
@@ -90,8 +90,8 @@ class IListingControlPanel(Interface):
 
 class IListingCustomFieldControlPanel(Interface):
     fields = schema.Tuple(
-            title=_(u'Manage Custom Listing Fields'),
-            description=(u"Names of custom listing fields"),
+            title=_(u'Names of custom listing fields'),
+            description=(u"Create new fields to insert into your Listing Views based on existing fields of data from your content"),
             value_type=PersistentObject(ICustomFieldDefinition,
                 title=_(u"Custom Field Definition")),
             required=False,

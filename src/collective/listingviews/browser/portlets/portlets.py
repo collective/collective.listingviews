@@ -20,7 +20,7 @@ from collective.listingviews.adapters import BasicAdapter
 #from plone.registry.interfaces import IRegistry
 #from collective.listingviews.interfaces import IListingDefinition
 from collective.listingviews.adapters.base import BaseListingInformationRetriever
-from Products.CMFCore.utils import getToolByName
+#from Products.CMFCore.utils import getToolByName
 from Products.ATContentTypes.interface import IATTopic
 
 try:
@@ -38,7 +38,7 @@ logger = logging.getLogger('collective.listingviews.listingbox')
 
 
 class IListingPortlet(IPortletDataProvider):
-    """A portlet which renders predefined static HTML.
+    """A portlet which renders listing view.
 
     It inherits from IPortletDataProvider because for this portlet, the
     data that is being rendered and the portlet assignment itself are the
@@ -59,11 +59,11 @@ class IListingPortlet(IPortletDataProvider):
         required=True)
 
     root = schema.Choice(
-            title=_(u"label_navigation_root_path", default=u"Root node"),
-            description=_(u'help_navigation_root',
+            title=_(u"label_listing_root_path", default=u"Root path"),
+            description=_(u'help_listing_root',
                           default=u"You may search for and choose a folder "
-                                    "to act as the root of the navigation tree. "
-                                    "Leave blank to use the Plone site root."),
+                                    "to act as the root of the listing view. "
+                                    "Leave blank to use this current path."),
             required=False,
             source=SearchableTextSourceBinder({},
                                               default_query='path:'))
@@ -84,7 +84,7 @@ class ListingAssignment(base.Assignment):
     """
     implements(IListingPortlet)
 
-    header = _(u"title_static_portlet", default=u"Static text portlet")
+    header = _(u"title_listing_portlet", default=u"Listing view portlet")
     listing_choice = u""
     root = u""
     omit_border = False
@@ -207,9 +207,9 @@ class ListingAddForm(base.AddForm):
     constructs the assignment that is being added.
     """
     form_fields = form.Fields(IListingPortlet)
-    label = _(u"title_add_static_portlet", default=u"Add static text portlet")
-    description = _(u"description_static_portlet",
-        default=u"A portlet which can display static HTML text.")
+    label = _(u"title_add_listing_portlet", default=u"Add listing view portlet")
+    description = _(u"description_listing_portlet",
+        default=u"A portlet which can listing custom fields.")
 
     def create(self, data):
         return ListingAssignment(
@@ -226,6 +226,6 @@ class ListingEditForm(base.EditForm):
     zope.formlib which fields to display.
     """
     form_fields = form.Fields(IListingPortlet)
-    label = _(u"title_edit_static_portlet", default=u"Edit static text portlet")
-    description = _(u"description_static_portlet",
-        default=u"A portlet which can display static HTML text.")
+    label = _(u"title_edit_listing_portlet", default=u"Edit listing view portlet")
+    description = _(u"description_listing_portlet",
+        default=u"A portlet which can listing custom fields.")
