@@ -200,8 +200,7 @@ Using the diazo mockup and rules.xml to change the final design::
 
 possible future directions
 ==========================
-- make a listingview tile for use in deco or collective.cover. Tile would include querystring to replace collection. If you wanted
- to instead reference a tile elsewhere we might need a referencebrowser widget that lets us pick tiles not just content?
+- make a listingview tile for use in deco or collective.cover. Tile would include querystring to replace collection. If you wanted to instead reference a tile elsewhere we might need a referencebrowser widget that lets us pick tiles not just content?
 - provide a way to make bulk changes in content from one listingview to another listingview. This would allow a new "template" to be
   created and tested and then switched in production.
 - implement safe html filtering
