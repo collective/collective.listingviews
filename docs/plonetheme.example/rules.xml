@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules
+    xmlns="http://namespaces.plone.org/diazo"
+    xmlns:css="http://namespaces.plone.org/diazo/css"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+    <!-- Note:
+
+        This is an example theme only. It is reasonably complete, but not
+        perfect, and not tested in all browsers. It is intended only to show
+        how a reasonably complete theme can be constructed.
+
+        See ``theme.html`` for the page layout and placeholders, ``theme.css``
+        and ``bootstrap.css`` for the basic theme CSS (based on Twitter
+        Bootstrap), and ``ploneui.css``, which contains CSS stolen from Plone's
+        default Sunburst theme to style Plone-specific elements.
+
+        -->
+
+    <rules css:if-content="#visual-portal-wrapper">
+
+        <theme href="theme.html" />
+
+        <!-- Head elements -->
+        <replace css:theme="html head title" css:content="html head title" />
+        <after css:theme-children="html head" css:content="html head base" />
+        <after css:theme-children="html head" css:content="html head script" />
+
+        <!-- Copy over the id/class attributes on the body tag.
+             This is important for per-section styling -->
+        <merge attributes="class" css:content="body" css:theme="body" />
+        <copy attributes="id dir" css:content="body" css:theme="body" />
+
+        <!-- Logo -->
+        <copy attributes="href" css:theme="#brand" css:content="#portal-logo" />
+
+        <!-- Tabs -->
+        <replace css:theme-children="#tabs" css:content-children="#portal-globalnav" />
+        <drop css:content="ul.submenu" />
+
+        <!-- Personal tools -->
+        <replace css:theme="#account-info" css:content="#portal-personaltools" />
+
+        <!-- Search -->
+        <copy attributes="action" css:theme="#searchbox" css:content="#portal-searchbox form" />
+        <copy attributes="name" css:theme="#searchbox .search-query" css:content="#portal-searchbox form .searchField" />
+
+        <!-- Edit bar -->
+        <before css:theme-children="#content" css:content="#edit-bar" />
+
+        <!-- Portal messages -->
+
+        <!-- Main columns -->
+        <replace css:content="#portal-breadcrumbs" css:theme-children="#breadcrumbs" />
+        <replace css:content-children="#content" css:theme-children="#content" />
+        <replace css:content-children="#portal-column-one" css:theme-children="#left-column" />
+        <replace css:content-children="#portal-column-two" css:theme-children="#right-column" />
+
+        <!-- Footer -->
+        <replace css:theme-children="#footer" css:content-children="#portal-footer" />
+        <after css:theme-children="#footer" css:content="#portal-siteactions" />
+
+        <!-- Listing view -->
+        <replace css:content="ul.listing-items-view">
+            <xsl:for-each select="./li[contains(@class, 'listing-item')]">
+                <div class="span8">
+                    <div class="headline">
+                        <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                            <xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]"/>
+                        </xsl:element>
+                    </div>
+                    <div id="publishedDets1" class="publishDate">Published <xsl:value-of select="./dl/dd[contains(@class, 'custom-date')]"/></div>
+                    <div class="description"><xsl:value-of select="./dl/dd[contains(@class, 'field-Description')]"/></div>
+                    <div class="newsLink">
+                        <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                            <xsl:text>Read Full Article</xsl:text>
+                        </xsl:element>
+                    </div>
+                </div>
+            </xsl:for-each>
+        </replace>
+        <replace css:content="div.listingBar">
+            <xsl:for-each css:select="div.listingBar span">
+                <xsl:choose>
+                    <xsl:when test="./@class='previous'">
+                        <xsl:element name="span">
+                            <xsl:attribute name="class"><xsl:value-of select="./@class"/> prev-news-link</xsl:attribute>
+                            <xsl:element name="a">
+                                <xsl:attribute name="href"><xsl:value-of select="./a/@href"/></xsl:attribute>
+                                &lt;&lt; Prev News
+                            </xsl:element>
+                        </xsl:element>
+                    </xsl:when>
+                    <xsl:when test="./@class='next'">
+                        <xsl:element name="span">
+                            <xsl:attribute name="class"><xsl:value-of select="./@class"/> more-news-link</xsl:attribute>
+                            <xsl:element name="a">
+                                <xsl:attribute name="href"><xsl:value-of select="./a/@href"/></xsl:attribute>
+                                More News &gt;&gt;
+                            </xsl:element>
+                        </xsl:element>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:for-each>
+        </replace>
+
+        <!-- Listing portlet -->
+        <drop css:content="dl.portletNavigationTree" if-path="news-items" />
+
+        <drop content-children="//dl[contains(@class, 'portlet-listing-news-item')]" />
+        <replace css:content="#parent-fieldname-title" if-content="//dl[contains(@class, 'portlet-listing-news-item')]" >
+            <xsl:copy-of select="." />
+            <div id="publishedDets" class="publishDate">Published <xsl:value-of select="//dl[contains(@class, 'portlet-listing-news-item')]//dd[contains(@class, 'custom-date')]"/></div>
+        </replace>
+
+        <drop content-children="//div[contains(@class, 'portlet-listing-news-item')]" />
+        <replace css:content="#parent-fieldname-title" if-content="//div[contains(@class, 'portlet-listing-news-item')]" >
+            <xsl:copy-of select="." />
+            <div id="publishedDets" class="publishDate">Published <xsl:value-of select="//div[contains(@class, 'portlet-listing-news-item')]//dd[contains(@class, 'custom-date')]"/></div>
+        </replace>
+
+    </rules>
+
+</rules>
