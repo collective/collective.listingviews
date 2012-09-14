@@ -65,7 +65,7 @@ To include publication date with the custom format in the news listing
 7. Select ``Display > Listing View``.
 8. Click on ``Listing Settings``, then select ``News with publication`` and then ``Apply``.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-setting.png
 
 You will now have a listing that contains all the information you need but doesn't look very nice. It will look
 like this
