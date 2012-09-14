@@ -14,21 +14,21 @@ associated with them so they can be uniquely styled.
 In addition a fieldset can have the following defined:
 
 - view batch size
-- portlet batch size
+- portlet batch size (#TODO)
 - portlet read more text
 
 You can then use field sets inside plone content as follows:
 
-To customise the listing view of a folder or a collection, pick "Listing View" from the "Display" menu. Your collection
-or folder will then have a "Listing Settings" tab. In settings you can pick which field set you'd like to display.
-Your content will be displayed as an unordered list (<ul>) of definition terms (<dt>) and definition data (<dd>) for 
+To customise the listing view of a folder or a collection, pick ``Listing View`` from the ``Display`` menu. Your collection
+or folder will then have a ``Listing Settings`` tab. In settings you can pick which field set you'd like to display.
+Your content will be displayed as an unordered list (*<ul>*) of definition terms (*<dt>*) and definition data (*<dd>*) for 
 each field name and field value. This can be transformed using diazo and css to the style you need.
 
 The ListingView portlet allows you list information about another item. It can work in one of two modes
 
 - absolute: you select a specific collection, folder or content object, 
-- or relative: show the contents of the current parent folder or collection (e.g. ".."),
-- or relative: it can show information about the current object.(e.g. ".")
+- or relative: show the contents of the current parent folder or collection (e.g. ".."), (#TODO)
+- or relative: it can show information about the current object.(e.g. ".") (#TODO)
 
 Like a collection portlet you can limit the list to just the top options and include read more link. Showing fields
 of a specific object, when combined with diazo to customise a content items default view to include additional metadata
@@ -40,63 +40,163 @@ Example: Adding publication date news listing
 Let's say have a design that demands that has a news folder that displays the publication date for each news item.
 e.g.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingtop.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-top.png
 
 with some extra changes to the batching
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingbottom.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-bottom.png
 
 Most of this can be achieved using diazo and css.
 
 To include publication date with the custom format in the news listing
 
-1. Go to Site Setup > Listing Custom Fields Settings > Add
-2. Name it ``Local Publication Date``, enter ``custom-date`` for style class in CSS and enter TAL expression ``object.getObject().modified().strftime("%d/%m/%Y")`` and then Save.
-3. Go to Site Setup > Listing View Settings > Add
-4. Name it "News with publication", add Location, Title, Description, Local Publication Date fields.
-5. Specify a View Batch Size of 10 and a Portlet Batch Size of 5.
+1. Go to ``Site Setup > Listing Custom Fields Settings > Add``
+2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter ``object.getObject().modified().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
+
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
+
+3. Go to ``Site Setup > Listing View Settings > Add``
+4. Name it "News with publication", add Title, Description, Location, Local Publication Date fields.
+5. Specify a ``View Batch Size`` of 3 and then ``Save``.
+
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
+
 6. Go to your news folder and create a collection normally which displays your news sorted by reverse publication date
-7. Select Display > Listing View.
-8. Click on "Listing Settings", then select "News with publication" and then save.
+7. Select ``Display > Listing View``.
+8. Click on ``Listing Settings``, then select ``News with publication`` and then ``Apply``.
+
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
 
 You will now have a listing that contains all the information you need but doesn't look very nice. It will look
 like this
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingraw.png
 
-with html like this
+with html like this::
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingtop.png
+    <div class="listingviews">
+        <div class=" listing-collection-view">
+            <ul class="listing-items-view">
+                <li class="listing-item">
+                    <dl class="listing-fields">
+                        <dt class="listing-field field-Title"> Title</dt>
+                        <dd class="listing-field field-Title">Bravery awards for Marysville fire</dd>
+                        <dt class="listing-field field-Description"> Description</dt>
+                        <dd class="listing-field field-Description">Five SES volunteers from Healesville and Marysville were honoured with bravery awards from the Royal Humane Society of Australasia in Melbourne on Friday, 17 February 2012.</dd>
+                        <dt class="listing-field field-location"> Location</dt>
+                        <dd class="listing-field field-location">http://127.0.0.1:8080/Plone/media/news/news-items/bravery-awards-for-marysville-fire</dd>
+                        <dt class="listing-field custom-date"> Local Publication Date</dt>
+                        <dd class="listing-field custom-date">12/09/2012</dd>
+                    </dl>
+                </li>
+                ...
+            </ul>
+        </div>
+    </div>
 
-Next you will need to use diazo rules like the following to turn the bare lising view into the final result
+Next you will need to use diazo rules like the following to turn the bare lising view into the final result::
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingtop.png
+    <replace css:content="ul.listing-items-view">
+        <xsl:for-each select="./li[contains(@class, 'listing-item')]">
+            <div class="span8">
+                <div class="headline">
+                    <xsl:element name="a">
+                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                        <xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]"/>
+                    </xsl:element>
+                </div>
+                <div id="publishedDets1" class="publishDate">Published <xsl:value-of select="./dl/dd[contains(@class, 'custom-date')]"/></div>
+                <div class="description"><xsl:value-of select="./dl/dd[contains(@class, 'field-Description')]"/></div>
+                <div class="newsLink">
+                    <xsl:element name="a">
+                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                        <xsl:text>Read Full Article</xsl:text>
+                    </xsl:element>
+                </div>
+            </div>
+        </xsl:for-each>
+    </replace>
+
+If you want to change the batching as well, there is an example::
+
+    <replace css:content="div.listingBar">
+        <xsl:for-each css:select="div.listingBar span">
+            <xsl:choose>
+                <xsl:when test="./@class='previous'">
+                    <xsl:element name="span">
+                        <xsl:attribute name="class"><xsl:value-of select="./@class"/> prev-news-link</xsl:attribute>
+                        <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="./a/@href"/></xsl:attribute>
+                            &lt;&lt; Prev News
+                        </xsl:element>
+                    </xsl:element>
+                </xsl:when>
+                <xsl:when test="./@class='next'">
+                    <xsl:element name="span">
+                        <xsl:attribute name="class"><xsl:value-of select="./@class"/> more-news-link</xsl:attribute>
+                        <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="./a/@href"/></xsl:attribute>
+                            More News &gt;&gt;
+                        </xsl:element>
+                    </xsl:element>
+                </xsl:when>
+            </xsl:choose>
+        </xsl:for-each>
+    </replace>
 
 Example: Adding publication date to a news item
 ===============================================
 
 Next you'd like to use this same publication date on your news item itself.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/newsitemtop.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/news-item-top.png
 
-1. Go to Site Setup > Listing View Settings > Add
-2. Name it "News Item Info", add just "Local Publication Date" fields.
+1. Go to ``Site Setup > Listing View Settings > Add``
+2. Name it ``News Item Info``, add just ``Local Publication Date`` fields.
+
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-view.png
+
 3. Go to your news folder where all the news items located.
-5. Add a "Listing Portlet" portlet to the left side using ``Manage porlets``.
-6. Select "news-item" as the portlet header.
-7. Select "News Item Info" as the listingview.
-7. Left it black for the root path.
-8. Opt not to have a border or header, then click save.
+5. Add a ``Listing Portlet`` portlet to the left side using ``Manage porlets``.
+6. Enter ``news-item`` as the Portlet header.
+. Select ``News Item Info`` as the ``Listing views``.
+7. Left it black for the ``Root path``, then click ``Save``.
 
-Now whenever you view a news item you will get a portlet on the left hand side that contains the following html
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-setting.png
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingportlet.png
+Now whenever you view a news item you will get a portlet on the left hand side
 
-Using the diazo mockup and rules.xml to change the final design.
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-raw.png
 
-we end up with the desired design.
+with html like this::
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listinghtml.png
+    <dl class="portlet portletListing portlet-listing-news-item">
+        <dt class="portletHeader">
+            <span class="portletTopLeft"></span>
+            <span>
+               news-item
+            </span>
+            <span class="portletTopRight"></span>
+        </dt>
+        <dd class="portletItem odd">
+          <ul class="listing-items-portlet">
+            <li class="listing-item">
+                <dl class="listing-fields">
+                    <dt class="listing-field custom-date"> Local Publication Date</dt>
+                    <dd class="listing-field custom-date">12/09/2012</dd>
+                </dl>
+            </li>
+          </ul>
+        </dd>
+      </dl>
+
+Using the diazo mockup and rules.xml to change the final design::
+
+    <drop content-children="//dl[contains(@class, 'portlet-listing-news-item')]" />
+    <replace css:content="#parent-fieldname-title" if-content="//dl[contains(@class, 'portlet-listing-news-item')]" >
+        <xsl:copy-of select="." />
+        <div id="publishedDets" class="publishDate">Published <xsl:value-of select="//dl[contains(@class, 'portlet-listing-news-item')]//dd[contains(@class, 'custom-date')]"/></div>
+    </replace>
 
 possible future directions
 ==========================
