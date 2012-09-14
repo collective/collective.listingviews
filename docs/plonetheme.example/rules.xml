@@ -61,7 +61,7 @@
         <after css:theme-children="#footer" css:content="#portal-siteactions" />
 
         <!-- Listing view -->
-        <replace css:content="ul.listing-items-view">
+        <replace css:content=".listing-list-view ul.listing-items-view">
             <xsl:for-each select="./li[contains(@class, 'listing-item')]">
                 <div class="span8">
                     <div class="headline">
@@ -81,7 +81,7 @@
                 </div>
             </xsl:for-each>
         </replace>
-        <replace css:content="div.listingBar">
+        <replace css:content=".listing-list-view div.listingBar">
             <xsl:for-each css:select="div.listingBar span">
                 <xsl:choose>
                     <xsl:when test="./@class='previous'">
@@ -104,7 +104,35 @@
                     </xsl:when>
                 </xsl:choose>
             </xsl:for-each>
+        </replace> -->
+
+        <!-- Listing view table -->
+        <replace css:content=".listing-table-view ul.listing-items-view">
+            <table>
+                <tr>
+                    <th><xsl:value-of select="./li[contains(@class, 'listing-item')][1]/dl/dt[contains(@class, 'field-Title')]"/></th>
+                    <th><xsl:value-of select="./li[contains(@class, 'listing-item')][1]/dl/dt[contains(@class, 'custom-date')]"/></th>
+                    <th><xsl:value-of select="./li[contains(@class, 'listing-item')][1]/dl/dt[contains(@class, 'field-Description')]"/></th>
+                </tr>
+                <xsl:for-each select="./li[contains(@class, 'listing-item')]">
+                    <tr>
+                        <td>
+                            <xsl:element name="a">
+                                <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                                <xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]"/>
+                            </xsl:element>
+                        </td>
+                        <td>
+                            <p id="publishedDets1" class="publishDate">Published <xsl:value-of select="./dl/dd[contains(@class, 'custom-date')]"/></p>
+                        </td>
+                        <td>
+                            <p class="description"><xsl:value-of select="./dl/dd[contains(@class, 'field-Description')]"/></p>
+                        </td>
+                    </tr>
+                </xsl:for-each>
+            </table>
         </replace>
+
 
         <!-- Listing portlet -->
         <drop css:content="dl.portletNavigationTree" if-path="news-items" />

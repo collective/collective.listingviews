@@ -198,6 +198,43 @@ Using the diazo mockup and rules.xml to change the final design::
         <div id="publishedDets" class="publishDate">Published <xsl:value-of select="//dl[contains(@class, 'portlet-listing-news-item')]//dd[contains(@class, 'custom-date')]"/></div>
     </replace>
 
+Example: News listing in table view
+===============================================
+
+Let's say have a design that demands that has a news folder that displays the publication date for each news item in table form.
+e.g.
+
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-table-view.png
+
+Using the diazo mockup and rules.xml to change the final design::
+
+    <replace css:content="ul.listing-items-view">
+        <table>
+            <tr>
+                <th><xsl:value-of select="./li[contains(@class, 'listing-item')][1]/dl/dt[contains(@class, 'field-Title')]"/></th>
+                <th><xsl:value-of select="./li[contains(@class, 'listing-item')][1]/dl/dt[contains(@class, 'custom-date')]"/></th>
+                <th><xsl:value-of select="./li[contains(@class, 'listing-item')][1]/dl/dt[contains(@class, 'field-Description')]"/></th>
+            </tr>
+            <xsl:for-each select="./li[contains(@class, 'listing-item')]">
+                <tr>
+                    <td>
+                        <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                            <xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]"/>
+                        </xsl:element>
+                    </td>
+                    <td>
+                        <p id="publishedDets1" class="publishDate">Published <xsl:value-of select="./dl/dd[contains(@class, 'custom-date')]"/></p>
+                    </td>
+                    <td>
+                        <p class="description"><xsl:value-of select="./dl/dd[contains(@class, 'field-Description')]"/></p>
+                    </td>
+                </tr>
+            </xsl:for-each>
+        </table>
+    </replace>
+
+
 possible future directions
 ==========================
 - make a listingview tile for use in deco or collective.cover. Tile would include querystring to replace collection. If you wanted to instead reference a tile elsewhere we might need a referencebrowser widget that lets us pick tiles not just content?
