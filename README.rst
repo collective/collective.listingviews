@@ -19,10 +19,11 @@ Let's say have a design that demands that has a news folder that displays the pu
 
 e.g.
 
-.. sidebar:: Mockup: News listing with Publication Date
-  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-top.png
-  with some extra changes to the batching
-  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-bottom.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-top.png
+
+with some extra changes to the batching
+
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-bottom.png
 
 Most of this can be achieved using diazo and css however the publication date isn't in any of Plone's default listing
 views.
@@ -40,22 +41,19 @@ To include publication date with the custom format in the news listing
 2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
    ``object.getObject().modified().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
 
-.. sidebar:: Adding a Custom Field
-  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
 
 3. Go to ``Site Setup > Listing View Settings > Add``
 4. Name it "News with publication", add Title, Description, Location, Local Publication Date fields.
 5. Specify a ``View Batch Size`` of 3 and then ``Save``.
 
-.. sidebar:: Adding a Listing View
-  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
 
 6. Go to your news folder and create a collection normally which displays your news sorted by reverse publication date
 7. Select ``Display > Listing View``.
 8. Click on ``Listing Settings``, then select ``News with publication`` and then ``Apply``.
 
-.. sidebar:: Using your ListingView on a collection
-  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-setting.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-setting.png
 
 You will now have a listing that contains all the information you need but doesn't look very nice. It will look
 like this
@@ -146,11 +144,13 @@ Next you'd like to use this same publication date on the view of your news item 
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-view.png
 
-3. Go to your news folder where all the news items located.
-5. Add a ``Listing Portlet`` portlet to the left side using ``Manage porlets``.
-6. Enter ``news-item`` as the Portlet header.
-. Select ``News Item Info`` as the ``Listing views``.
-7. Left it black for the ``Target``, then click ``Save``.
+3. Go to your news folder where all the news items located and Add a ``Listing Portlet`` portlet to the left side using
+  ``Manage porlets``. Alternatively you can go to
+  ``Site Setup > Types > News Item > Manage Portlets assigned to this content type``.
+4. Enter ``news-item`` as the Portlet header.
+5. Select ``News Item Info`` as the ``Listing views``.
+6. Leave ``Target`` target blank as you want it to display the publication date of the current item.
+7. Click ``Save``.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-setting.png
 
@@ -180,7 +180,8 @@ with html like this::
         </dd>
       </dl>
 
-Using the diazo mockup and rules.xml to change the final design::
+Using the diazo mockup and rules.xml to change the final design we can move the publication date below the title
+and remove the portlet completely::
 
     <drop content-children="//dl[contains(@class, 'portlet-listing-news-item')]" />
     <replace css:content="#parent-fieldname-title" if-content="//dl[contains(@class, 'portlet-listing-news-item')]" >
@@ -189,14 +190,14 @@ Using the diazo mockup and rules.xml to change the final design::
     </replace>
 
 Example: News listing in table view
-===============================================
+===================================
 
 Let's say have a design that demands that has a news folder that displays the publication date for each news item in table form.
 e.g.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-table-view.png
 
-Using the diazo mockup and rules.xml to change the final design::
+We just copy our listing view and give it a new class. Add the following to your diazo rules.xml to turn the plain view into a table::
 
     <replace css:content="ul.listing-items-view">
         <table>
@@ -233,7 +234,7 @@ possible future directions
 - implement safe html filtering
 - support customisation of batching settings
 - support old style collections
-- allow get requests so list can be filtered by custom urls
+- allow get requests so list can act as a custom search listing page.
 - support grouping
 - support hierarchical listing
 - support ajax batching
