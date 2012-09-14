@@ -15,13 +15,13 @@
                   Please choose your view in listing settings.
               </p>
           </div>
-          <div class="listing-collection" 
+          <div class="listing-collection-view" 
             tal:define="class_name python:view.adapter.listing_style_class;
                         batch python:view.adapter.retrieve_items" 
             tal:condition="python: view.adapter.number_of_items > 0" 
-            tal:attributes="class string:${class_name} listing-collection">
+            tal:attributes="class string:${class_name} listing-collection-view">
             
-              <ul class="listing-items">
+              <ul class="listing-items-view">
                   <li class="listing-item" tal:repeat="item_object batch">
                       <dl class="listing-fields">
                           <tal:fields tal:repeat="field item_object">

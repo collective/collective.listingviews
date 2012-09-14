@@ -6,7 +6,7 @@
 <div tal:condition="view/data/omit_border"
      tal:attributes="class string:portletListing ${view/css_class}">
   <div class="listingBody">
-    <ul class="listing-items">
+    <ul class="listing-items-portlet">
       <li class="listing-item" tal:repeat="item_object view/portlet_items">
           <dl class="listing-fields">
               <tal:fields tal:repeat="field item_object">
@@ -52,7 +52,7 @@
     </dt>
 
     <dd class="portletItem odd">
-      <ul class="listing-items">
+      <ul class="listing-items-portlet">
         <li class="listing-item" tal:repeat="item_object view/portlet_items">
             <dl class="listing-fields">
                 <tal:fields tal:repeat="field item_object">
