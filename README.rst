@@ -160,7 +160,7 @@ Next you'd like to use this same publication date on your news item itself.
 5. Add a ``Listing Portlet`` portlet to the left side using ``Manage porlets``.
 6. Enter ``news-item`` as the Portlet header.
 . Select ``News Item Info`` as the ``Listing views``.
-7. Left it black for the ``Root path``, then click ``Save``.
+7. Left it black for the ``Target``, then click ``Save``.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-setting.png
 

@@ -59,11 +59,11 @@ class IListingPortlet(IPortletDataProvider):
         required=True)
 
     root = schema.Choice(
-            title=_(u"label_listing_root_path", default=u"Root path"),
+            title=_(u"label_listing_root_path", default=u"Target"),
             description=_(u'help_listing_root',
-                          default=u"You may search for and choose a folder "
-                                    "to act as the root of the listing view. "
-                                    "Leave blank to use this current path."),
+                          default=u"Select an item to show the fields of that item; or "
+                                    "select a folder or collection to list the contents; or "
+                                    "leave blank to use the current item."),
             required=False,
             source=SearchableTextSourceBinder({},
                                               default_query='path:'))
