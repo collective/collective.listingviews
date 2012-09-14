@@ -5,67 +5,57 @@ Introduction
 
 ListingViews aims to replace the need to override templates for collections, folders, collection porlets or content
 views in many situations when used in conjunction with plone.app.theming. 
-It does this by letting you define named field sets of MetaData indexed in the Plone catalog in Plones Site Setup.
-Data such as publication date, number of comments, author, current state, keywords can all be added to a field set. 
-Custom fields can also be created using a TAL expression. The TAL expression can be used to access attributes 
-of the content object in order to expose more data about the object. Each field and field set can have custom css classes
-associated with them so they can be uniquely styled.
-
-In addition a fieldset can have the following defined:
-
-- view batch size
-- portlet batch size (#TODO)
-- portlet read more text
-
-You can then use field sets inside plone content as follows:
-
-To customise the listing view of a folder or a collection, pick ``Listing View`` from the ``Display`` menu. Your collection
-or folder will then have a ``Listing Settings`` tab. In settings you can pick which field set you'd like to display.
-Your content will be displayed as an unordered list (*<ul>*) of definition terms (*<dt>*) and definition data (*<dd>*) for 
-each field name and field value. This can be transformed using diazo and css to the style you need.
-
-The ListingView portlet allows you list information about another item. It can work in one of two modes
-
-- absolute: you select a specific collection, folder or content object, 
-- or relative: show the contents of the current parent folder or collection (e.g. ".."), (#TODO)
-- or relative: it can show information about the current object.(e.g. ".") (#TODO)
-
-Like a collection portlet you can limit the list to just the top options and include read more link. Showing fields
-of a specific object, when combined with diazo to customise a content items default view to include additional metadata
-of that object in its content view.
+It lets you define your ListingViews in Plone Site Setup. A ListingView is definition of what fields you'd like to
+see and in which order. You can pick these view from the ``Display`` menu of any item. For collections and folders it
+will give you a batched list. For a content item, it will give you just information about that item. ListingView portlets
+work the same way. For advanced use you can create custom fields using a TAL expression.
+The html of the listings is designed to to be simple and easy to theme using diazo.
 
 Example: Adding publication date news listing
 =============================================
 
 Let's say have a design that demands that has a news folder that displays the publication date for each news item.
+
+
 e.g.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-top.png
+.. sidebar:: Mockup: News listing with Publication Date
+  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-top.png
+  with some extra changes to the batching
+  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-bottom.png
 
-with some extra changes to the batching
+Most of this can be achieved using diazo and css however the publication date isn't in any of Plone's default listing
+views.
+Previously you would have to dig into Plone's code base, find it's folder template implementation and then
+use ``jbot`` or ``ZCML`` template overrides to customise the folder listing template.
+Not only will you need to learn about TAL, python, packaging and deployment but the end result will make your site
+harder to upgrade. Any future enhancements in Plone's folder template will have to be merged back into your patched
+overriden template.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-bottom.png
-
-Most of this can be achieved using diazo and css.
+Instead here is how you do it using a ListingView.
 
 To include publication date with the custom format in the news listing
 
 1. Go to ``Site Setup > Listing Custom Fields Settings > Add``
-2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter ``object.getObject().modified().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
+2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
+   ``object.getObject().modified().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
+.. sidebar:: Adding a Custom Field
+  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
 
 3. Go to ``Site Setup > Listing View Settings > Add``
 4. Name it "News with publication", add Title, Description, Location, Local Publication Date fields.
 5. Specify a ``View Batch Size`` of 3 and then ``Save``.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
+.. sidebar:: Adding a Listing View
+  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
 
 6. Go to your news folder and create a collection normally which displays your news sorted by reverse publication date
 7. Select ``Display > Listing View``.
 8. Click on ``Listing Settings``, then select ``News with publication`` and then ``Apply``.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-setting.png
+.. sidebar:: Using your ListingView on a collection
+  .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-setting.png
 
 You will now have a listing that contains all the information you need but doesn't look very nice. It will look
 like this
@@ -147,7 +137,7 @@ If you want to change the batching as well, there is an example::
 Example: Adding publication date to a news item
 ===============================================
 
-Next you'd like to use this same publication date on your news item itself.
+Next you'd like to use this same publication date on the view of your news item itself.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/news-item-top.png
 
