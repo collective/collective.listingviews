@@ -70,7 +70,7 @@ To include publication date with the custom format in the news listing
 You will now have a listing that contains all the information you need but doesn't look very nice. It will look
 like this
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listingraw.png
+.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-raw.png
 
 with html like this::
 
