@@ -5,7 +5,8 @@ from collective.listingviews.interfaces import IListingControlSettings, IListing
 from zope.interface import implements
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
-
+from zope.component import adapts, getUtility
+from collective.listingviews.utils import ComplexRecordsProxy
 
 class ListingControlPanel(object):
     implements(IListingControlPanel)
@@ -18,33 +19,10 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
     description = _(u"""""")
 
     def getContent(self):
-        readonly = ListingControlPanel()
-        reg = queryUtility(IRegistry)
-        if reg is not None:
-            # copy non-collection settings
-            data = reg.forInterface(IListingControlSettings, prefix='collective.listingviews')
-            for name in data.__schema__:
-                setattr(readonly, name, getattr(data, name))
-            # switch out facet data for that from the registry
-            facets = sorted(reg.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
-            readonly.views = [facet for _, facet in facets]
-        return readonly
-
-    def applyChanges(self, data):
-        reg = queryUtility(IRegistry)
-        if reg is not None:
-            facets = reg.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view')
-
-            # remove indexes for unused fields
-            # finally set the data in the registry
-            i = 0
-            for facet in data['views']:
-                facets['view' + str(i)] = facet
-                i += 1
-
-            # remove any remaining fields
-            for i in range(len(facets) - 1, len(data['views']) - 1, -1):
-                del facets['view' + str(i)]
+        reg = getUtility(IRegistry)
+        proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
+                                    key_names={'views':'id'})
+        return proxy
 
 
 class ListingCustomFieldControlPanel(object):
@@ -58,33 +36,10 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
     description = _(u"""""")
 
     def getContent(self):
-        readonly = ListingCustomFieldControlPanel()
         reg = queryUtility(IRegistry)
-        if reg is not None:
-            # copy non-collection settings
-            data = reg.forInterface(IListingControlSettings, prefix='collective.listingviews')
-            for name in data.__schema__:
-                setattr(readonly, name, getattr(data, name))
-            # switch out facet data for that from the registry
-            facets = sorted(reg.collectionOfInterface(ICustomFieldDefinition, prefix='collective.listingviews.customfield').items())
-            readonly.fields = [facet for _, facet in facets]
-        return readonly
-
-    def applyChanges(self, data):
-        reg = queryUtility(IRegistry)
-        if reg is not None:
-            facets = reg.collectionOfInterface(ICustomFieldDefinition, prefix='collective.listingviews.customfield')
-
-            # remove indexes for unused fields
-            # finally set the data in the registry
-            i = 0
-            for facet in data['fields']:
-                facets['field' + str(i)] = facet
-                i += 1
-
-            # remove any remaining fields
-            for i in range(len(facets) - 1, len(data['fields']) - 1, -1):
-                del facets['field' + str(i)]
+        return ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
+                                   prefix='collective.listingviews.customfield',
+                                   key_names={'fields':'id'})
 
 
 class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):

@@ -4,6 +4,8 @@ from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from zope.app.component.hooks import getSite
+from utils import ComplexRecordsProxy
+from interfaces import IListingCustomFieldControlPanel, IListingControlPanel
 
 
 class LVVocabulary(SimpleVocabulary):
@@ -38,13 +40,12 @@ class LVVocabulary(SimpleVocabulary):
 
 def ListingViewVocabulary(context):
     terms = []
-    registry = queryUtility(IRegistry)
-    if registry is not None:
-        facets = sorted(registry.collectionOfInterface(IListingDefinition,
-            prefix='collective.listingviews.view').items())
-        for view, fields in facets:
-            name = getattr(fields, 'name', '')
-            terms.append(SimpleVocabulary.createTerm(view, view, name))
+    reg = queryUtility(IRegistry)
+    if reg is not None:
+        proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
+                                key_names={'views':'id'})
+        for view in proxy.views:
+            terms.append(SimpleVocabulary.createTerm(view.id, view.id, view.name))
     return SimpleVocabulary(terms)
 
 
@@ -56,11 +57,12 @@ def MetadataVocabulary(context):
         terms.append(SimpleVocabulary.createTerm('f_' + name, None, display_name))
 
     # custom field
-    registry = queryUtility(IRegistry)
-    if registry is not None:
-        facets = sorted(registry.collectionOfInterface(ICustomFieldDefinition,
-            prefix='collective.listingviews.customfield').items())
-        for metadata, fields in facets:
-            name = getattr(fields, 'name', '')
-            terms.append(SimpleVocabulary.createTerm('c_' + metadata, None, name + " (Custom)"))
+    reg = queryUtility(IRegistry)
+    if reg is not None:
+        proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
+                                    prefix='collective.listingviews.customfield',
+                                   key_names={'fields':'id'})
+        for field in proxy.fields:
+            terms.append(SimpleVocabulary.createTerm('c_' + field.id, None,
+                                                     "%s (Custom)" % field.name))
     return SimpleVocabulary(terms)

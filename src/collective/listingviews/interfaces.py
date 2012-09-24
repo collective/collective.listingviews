@@ -2,7 +2,6 @@ from zope.interface import Interface, Attribute
 from zope import schema
 from zope.interface import implements
 from z3c.form.object import registerFactoryAdapter
-from plone.registry.field import PersistentField
 from collective.listingviews import LVMessageFactory as _
 
 
@@ -14,23 +13,24 @@ class IListingViews(Interface):
     pass
 
 
-class PersistentObject(PersistentField, schema.Object):
-    pass
-
 
 class IListingDefinition(Interface):
-    name = schema.ASCIILine(title=_(u"Facet Name"), required=True)
-    description = schema.ASCIILine(title=_(u"Description"), required=False)
+    id = schema.ASCIILine(title=_(_(u"Id")),
+                          required=True,
+                          description=_(u"Unique id of your listing (will appear as css class)"))
+    name = schema.ASCIILine(title=_(u"Title"),
+                            required=False,
+                            description=_(u"Name as it will appear in the display menu to editors"))
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
-    metadata_list = schema.List(title=u"Available fields",
-                                description=u"Select list fields here",
-                                required=True, default=[],
+    metadata_list = schema.List(title=_(u"Fields"),
+                                description=_(u"Fields in the order you want them to appear in your listing"),
+                                required=True,
+                                default=[],
                                 value_type=schema.Choice(
                                     vocabulary="collective.listingviews.MetadataVocabulary"),
                                 )
 
-    css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=False)
 
     batch_size = schema.Int(
         title=_(u"label_batch_size", default=u"View Batch Size"),
@@ -42,6 +42,7 @@ class IListingDefinition(Interface):
         required=True)
 
     portlet_more_text = schema.ASCIILine(title=_(u"Portlet Read More Text"), required=False)
+    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"), required=False)
 
 
 class ListingDefinition(object):
@@ -51,10 +52,12 @@ registerFactoryAdapter(IListingDefinition, ListingDefinition)
 
 
 class ICustomFieldDefinition(Interface):
-    name = schema.ASCIILine(title=_(u"Field Name"), required=True)
-    description = schema.ASCIILine(title=_(u"Description"), required=False)
-    css_class = schema.ASCIILine(title=_(u"Style class in CSS"), required=True)
-    tal_statement = schema.ASCIILine(title=_(u"TAL expression"), required=True)
+    id = schema.ASCIILine(title=_(u"Id"), required=True)
+    name = schema.ASCIILine(title=_(u"Title"), required=True)
+    tal_statement = schema.ASCIILine(title=_(u"TAL expression"),
+                                     required=True,
+                                     description=_(u'e.g. "python:item.getObject().getBocy()"'))
+    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"), required=False)
 
 
 class CustomFieldDefinition(object):
@@ -77,14 +80,14 @@ class IListingControlSettings(Interface):
 
 
 class IListingControlPanel(Interface):
-    views = schema.Tuple(
+    views = schema.List(
             title=_(u'Custom listing views'),
             description=(u"Create and manage your custom listing views which can be used in collections, folders, portlets and tiles"),
-            value_type=PersistentObject(IListingDefinition,
-                title=_(u"Listing Definition")),
+            value_type=schema.Object(IListingDefinition,
+                title=_(u"Listing View")),
             required=False,
-            default=(),
-            missing_value=(),
+            default=[],
+            missing_value=[],
     )
 
 
@@ -92,7 +95,7 @@ class IListingCustomFieldControlPanel(Interface):
     fields = schema.Tuple(
             title=_(u'Names of custom listing fields'),
             description=(u"Create new fields to insert into your Listing Views based on existing fields of data from your content"),
-            value_type=PersistentObject(ICustomFieldDefinition,
+            value_type=schema.Object(ICustomFieldDefinition,
                 title=_(u"Custom Field Definition")),
             required=False,
             default=(),
