@@ -8,7 +8,7 @@ long_description = (
     'Contributors\n'
     '============\n'
     + '\n' +
-    open('CONTRIBUTORS.txt').read()
+    open('CONTRIBUTING.txt').read()
     + '\n' +
     open('CHANGES.txt').read()
     + '\n')

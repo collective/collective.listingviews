@@ -39,7 +39,7 @@ To include publication date with the custom format in the news listing
 
 1. Go to ``Site Setup > Listing Custom Fields Settings > Add``
 2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
-   ``object.getObject().modified().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
+   ``python:object.getObject().modified().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
 
