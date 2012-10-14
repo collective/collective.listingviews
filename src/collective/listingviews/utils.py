@@ -342,8 +342,9 @@ class RecordsProxyList(ListMixin):
     """A proxy that represents a List of RecordsProxy objects.
         Two storage schemes are supported. A pure listing
         stored as prefix+"/i0001" where the number is the index.
-        Or an OrderedDict format where a field is used to store
-        entries and a list stores the order of these keys.
+        Or an OrderedDict format where a you pass in a key_name
+        and entries are prefix with this key value. Order is still
+        kept in a '.ordereddict_keys' entry.
     """
 
     def __init__(self, registry, schema, check=True, omitted=(), prefix=None, factory=None, key_name=None):
@@ -401,39 +402,3 @@ class RecordsProxyList(ListMixin):
         else:
             return self.keys.value[index]
 
-
-from plone.registry import field
-from plone.registry import Record
-
-class RecordsProxyOrderedDict(ListMixin):
-    """A proxy that represents a List of RecordsProxy objects. Stored using a key
-    """
-
-    def __init__(self, registry, schema, check=True, omitted=(), prefix=None, factory=None):
-        self.map = RecordsProxyCollection(registry, schema, check, omitted, prefix, factory)
-        keys_key = prefix+'._keys'
-        if registry.get(keys_key) is None:
-            registry.records[keys_key] = Record(field.List(title=u""))
-        self.keys = registry.records[keys_key]
-
-    def _get_element(self, i):
-        return self.map[self.keys[i]]
-
-    def _set_element(self, index, value):
-        key = getattr(value, self.key_name)
-        self.keys[index] = key
-        self.map[key] = value
-
-    def __len__(self):
-        return len(self.map)
-
-    def _resize_region(self, start, end, new_size):
-        self.keys = self.map[:start] + [None for i in range(new_size)] + self.map[end:]
-        # remove any additional at the end
-        offset = new_size - (end - start)
-        for i in range(len(self.map)+offset, len(self.map)):
-            del self.map[self.genKey(i)]
-
-    def genKey(self, index):
-        index_prefix = "i"
-        return "%s%05d" %(index_prefix, index)
