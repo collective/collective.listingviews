@@ -7,6 +7,8 @@ from zope.schema import getFieldsInOrder
 from zope.schema.interfaces import RequiredMissing
 from plone.registry.interfaces import IRecordsProxy
 from plone.registry.recordsproxy import RecordsProxy, RecordsProxyCollection
+from plone.registry import field
+from plone.registry.record import Record
 from zope import schema
 import re
 

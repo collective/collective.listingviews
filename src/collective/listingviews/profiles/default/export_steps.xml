@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<export-steps>
-    <export-step id="collective.listingviews.export" version="2"
-        handler="collective.listingviews.exportimport.export"
-        title="Export collective.listingviews default settings">
-    </export-step>
-</export-steps>
