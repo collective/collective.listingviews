@@ -37,13 +37,13 @@ Instead here is how you do it using a ListingView.
 
 To include publication date with the custom format in the news listing
 
-1. Go to ``Site Setup > Listing Custom Fields Settings > Add``
+1. Go to ``Site Setup > Listing Custom Fields > Add``
 2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
    ``python:object.getObject().modified().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
 
-3. Go to ``Site Setup > Listing View Settings > Add``
+3. Go to ``Site Setup > Listing View > Add``
 4. Name it "News with publication", add Title, Description, Location, Local Publication Date fields.
 5. Specify a ``View Batch Size`` of 3 and then ``Save``.
 
@@ -139,7 +139,7 @@ Next you'd like to use this same publication date on the view of your news item 
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/news-item-top.png
 
-1. Go to ``Site Setup > Listing View Settings > Add``
+1. Go to ``Site Setup > Listing View > Add``
 2. Name it ``News Item Info``, add just ``Local Publication Date`` fields.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-view.png

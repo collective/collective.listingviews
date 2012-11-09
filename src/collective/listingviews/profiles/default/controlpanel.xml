@@ -5,7 +5,7 @@
     purge="False">
 	
 	<configlet 
-		title="Listing View Settings" 
+		title="Listing View" 
 		action_id="listingviews" 
 		appId="collective.listingviews"
     	category="Products" 
@@ -17,7 +17,7 @@
  	</configlet>
 
     <configlet 
-        title="Listing Custom Fields Settings" 
+        title="Listing Custom Fields" 
         action_id="listingviewfields" 
         appId="collective.listingviews"
         category="Products" 
