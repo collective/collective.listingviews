@@ -50,11 +50,15 @@ def ListingViewVocabulary(context):
 
 
 def MetadataVocabulary(context):
+    """
+    Metadata name is stored in registry. Format for default name is "fieldname:"
+    and format for custom name is ":customname"
+    """
     terms = []
     portal = getSite()
     metadataDisplay = getToolByName(portal, 'portal_atct').getMetadataDisplay()
     for name, display_name in metadataDisplay.items():
-        terms.append(SimpleVocabulary.createTerm('f_' + name, None, display_name))
+        terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
 
     # custom field
     reg = queryUtility(IRegistry)
@@ -63,6 +67,6 @@ def MetadataVocabulary(context):
                                     prefix='collective.listingviews.customfield',
                                    key_names={'fields':'id'})
         for field in proxy.fields:
-            terms.append(SimpleVocabulary.createTerm('c_' + field.id, None,
+            terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
                                                      "%s (Custom)" % field.name))
     return SimpleVocabulary(terms)

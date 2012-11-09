@@ -60,7 +60,7 @@ class BaseListingInformationRetriever(object):
         registry = queryUtility(IRegistry)
         if registry is not None:
             self.metadata_list = sorted(registry.collectionOfInterface(ICustomFieldDefinition,
-                            prefix='collective.listingviews.customfield').items())
+                            prefix='collective.listingviews.customfield.fields').items())
 
     def assemble_listing_information(self, brain):
         listing_fields = self.listing_adapter.listing_fields
@@ -68,9 +68,19 @@ class BaseListingInformationRetriever(object):
         current = []
         for field in listing_fields:
             try:
-                if field[:2] == 'f_':
-                    # default field
-                    field = field[2:]
+                if ":" not in field:
+                    print "No valid field: %s (No colon)" % field
+                    continue
+
+                subfield = field.split(":")
+
+                if len(subfield) is not 2:
+                    print "No valid field: %s (Too much colon)" % field
+                    continue
+
+                if not subfield[1]:
+                    # default field name in Plone is "defaultname:"
+                    field = subfield[0]
 
                     # metadata does not have location
                     if field == 'location':
@@ -100,9 +110,13 @@ class BaseListingInformationRetriever(object):
                         field = self.metadata_display[field]
 
                     current.append({'title': field, 'css_class': css_class, 'value': attr_value, 'is_custom': False})
-                elif field[:2] == 'c_':
-                    #custom field
-                    field = field[2:]
+                elif not subfield[0]:
+                    # custom field name is ":customname"
+                    field = subfield[1]
+
+                    if not self.metadata_list:
+                        continue
+
                     for metadata, fields in self.metadata_list:
                         if metadata != field:
                             continue
