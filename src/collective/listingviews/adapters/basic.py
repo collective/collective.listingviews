@@ -35,7 +35,7 @@ class BasicAdapter(BaseAdapter):
             self.is_portlet = True
         registry = queryUtility(IRegistry)
         if registry is not None:
-            listing_definition = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.view').items())
+            listing_definition = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.views').items())
             for name, records in listing_definition:
                 if name == self.settings.listing_choice:
                     self.view_setting = records
