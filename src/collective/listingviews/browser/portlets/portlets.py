@@ -103,6 +103,13 @@ class ListingAssignment(base.Assignment):
         return self.header
 
 
+def singleItemInformation(self, context):
+    uid = context.UID()
+    brain = self.catalog.searchResults({'UID': uid})
+    adapter = BasicAdapter(context, self.request, self.data)
+    retriever = BaseListingInformationRetriever(context, adapter)
+    self.listing_information = map(retriever.assemble_listing_information, brain)
+
 class ListingRenderer(base.Renderer):
     """Portlet renderer.
 
@@ -129,33 +136,30 @@ class ListingRenderer(base.Renderer):
 
         self.data_more_url = ""
         self.data_more_text = ""
+        self.listing_view_behavior = "list"
         self.listing_information = []
         self._is_container = False
         if self.data.root:
             container = self._container()
             if container:
                 if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
-                    self._is_container = True
                     adapter = BasicAdapter(container, self.request, self.data)
-                    this_url = getattr(container, 'getPhysicalPath', None)
-                    if this_url:
-                        self.data_more_url = "/".join(this_url())
-                    self.data_more_text = adapter.listing_portlet_more_text
-                    self.listing_information = adapter.retrieve_items
+                    self.listing_view_behavior = adapter.listing_view_behavior
+                    if self.listing_view_behavior == "single":
+                        singleItemInformation(self, container)
+                    else:
+                        self._is_container = True
+                        this_url = getattr(container, 'getPhysicalPath', None)
+                        if this_url:
+                            self.data_more_url = "/".join(this_url())
+                        self.data_more_text = adapter.listing_portlet_more_text
+                        self.listing_information = adapter.retrieve_items
                 else:
                     # single content
-                    uid = container.UID()
-                    brain = self.catalog.searchResults({'UID': uid})
-                    adapter = BasicAdapter(container, self.request, self.data)
-                    retriever = BaseListingInformationRetriever(container, adapter)
-                    self.listing_information = map(retriever.assemble_listing_information, brain)
+                    singleItemInformation(self, container)
         else:
             # current context don't have footer and more url
-            uid = context.UID()
-            brain = self.catalog.searchResults({'UID': uid})
-            adapter = BasicAdapter(context, self.request, self.data)
-            retriever = BaseListingInformationRetriever(context, adapter)
-            self.listing_information = map(retriever.assemble_listing_information, brain)
+            singleItemInformation(self, context)
 
     def css_class(self):
         """Generate a CSS class from the portlet header

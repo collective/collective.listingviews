@@ -81,6 +81,15 @@ class BasicAdapter(BaseAdapter):
             portlet_more_text = 'More'
         return portlet_more_text
 
+    @property
+    def listing_view_behavior(self):
+        behavior_choice = 'list'
+        if self.view_setting:
+            behavior_choice = getattr(self.view_setting, 'behavior_choice', 'list')
+        if behavior_choice is None:
+            behavior_choice = 'list'
+        return behavior_choice
+
     def process_items(self):
         adapter = getMultiAdapter((self.listing, self),
             IListingInformationRetriever)
