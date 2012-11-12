@@ -13,7 +13,6 @@ class IListingViews(Interface):
     pass
 
 
-
 class IListingDefinition(Interface):
     id = schema.ASCIILine(title=_(_(u"Id")),
                           required=True,
@@ -31,6 +30,14 @@ class IListingDefinition(Interface):
                                     vocabulary="collective.listingviews.MetadataVocabulary"),
                                 )
 
+    behavior_choice = schema.Choice(
+        title=_(u"label_behavior_choice", default=u"View Behavior"),
+        description=_(u"description_behavior_choice",
+            default=u"""
+                'Always list' - context of folder, collection or parent.
+                'Show single item' - always show the information of the contenxt regardless folder or collection."""),
+        vocabulary="collective.listingviews.ViewBehaviorVocabulary",
+        default="list")
 
     batch_size = schema.Int(
         title=_(u"label_batch_size", default=u"View Batch Size"),

@@ -46,5 +46,11 @@
         component=".vocabularies.MetadataVocabulary"
         name="collective.listingviews.MetadataVocabulary"
         />
+
+  <utility
+        provides="zope.schema.interfaces.IVocabularyFactory"
+        component=".vocabularies.ViewBehaviorVocabulary"
+        name="collective.listingviews.ViewBehaviorVocabulary"
+        />
   
 </configure>

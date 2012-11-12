@@ -1,11 +1,11 @@
-from zope.schema.vocabulary import SimpleVocabulary
-from collective.listingviews.interfaces import IListingDefinition, ICustomFieldDefinition
+from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from zope.app.component.hooks import getSite
 from utils import ComplexRecordsProxy
 from interfaces import IListingCustomFieldControlPanel, IListingControlPanel
+from collective.listingviews import LVMessageFactory as _
 
 
 class LVVocabulary(SimpleVocabulary):
@@ -43,7 +43,7 @@ def ListingViewVocabulary(context):
     reg = queryUtility(IRegistry)
     if reg is not None:
         proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                key_names={'views':'id'})
+                                key_names={'views': 'id'})
         for view in proxy.views:
             terms.append(SimpleVocabulary.createTerm(view.id, view.id, view.name))
     return SimpleVocabulary(terms)
@@ -65,8 +65,21 @@ def MetadataVocabulary(context):
     if reg is not None:
         proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
                                     prefix='collective.listingviews.customfield',
-                                   key_names={'fields':'id'})
+                                   key_names={'fields': 'id'})
         for field in proxy.fields:
             terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
                                                      "%s (Custom)" % field.name))
+    return SimpleVocabulary(terms)
+
+
+def ViewBehaviorVocabulary(context):
+    """
+    'Always list' - context of folder, collection or parent.
+    'Show single item' - always show the information of the contenxt regardless folder or collection.
+    """
+    terms = SimpleVocabulary(
+        [SimpleTerm(value=u'list', token=u'list', title=_(U'Always list')),
+        SimpleTerm(value=u'single', token=u'single', title=_(u'Show single item'))]
+    )
+
     return SimpleVocabulary(terms)
