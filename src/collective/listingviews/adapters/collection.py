@@ -11,7 +11,7 @@ class BasicCollectionListingInformationRetriever(
                             BasicTopicListingInformationRetriever):
     adapts(ICollection, IBasicAdapter)
 
-    def getListingItems(self):
+    def getListingFields(self):
         limit = self.context.limit
         query = queryparser.parseFormquery(self.context,
             self.context.getRawQuery())
@@ -19,4 +19,5 @@ class BasicCollectionListingInformationRetriever(
         catalog = getToolByName(self.context, 'portal_catalog')
         items = catalog(query)
         items = items[:limit]
+        self.field_attribute_name = 'listing_fields'
         return map(self.assemble_listing_information, items)

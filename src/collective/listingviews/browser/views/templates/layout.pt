@@ -17,9 +17,28 @@
           </div>
           <div class="listing-collection-view" 
             tal:define="class_name python:view.adapter.listing_style_class;
-                        batch python:view.adapter.retrieve_items" 
+                        fields python:view.adapter.retrieve_items;
+                        batch python:view.adapter.retrieve_listing_items" 
             tal:condition="python: view.adapter.number_of_items > 0" 
             tal:attributes="class string:${class_name} listing-collection-view">
+
+              <div class="listing-item-fields">
+                <dl class="item-fields">
+                  <tal:fields tal:repeat="field fields">
+                    <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
+                      customfieldclass string:listing-field ${field/css_class}"> 
+                      <tal:listingfield tal:condition="not:field/is_custom">
+                        <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
+                        <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
+                      </tal:listingfield>
+                      <tal:listingfield tal:condition="field/is_custom">
+                        <dt tal:content="string: ${field/title}" tal:attributes="class customfieldclass"></dt>
+                        <dd tal:content="structure field/value" tal:attributes="class customfieldclass"></dd>
+                      </tal:listingfield>
+                    </tal:def>
+                  </tal:fields>
+                </dl>
+              </div>
             
               <ul class="listing-items-view">
                   <li class="listing-item" tal:repeat="item_object batch">

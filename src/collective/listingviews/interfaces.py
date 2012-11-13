@@ -15,20 +15,29 @@ class IListingViews(Interface):
 
 class IListingDefinition(Interface):
     id = schema.ASCIILine(title=_(_(u"Id")),
-                          required=True,
-                          description=_(u"Unique id of your listing (will appear as css class)"))
+        required=True,
+        description=_(u"Unique id of your listing (will appear as css class)"))
+
     name = schema.ASCIILine(title=_(u"Title"),
-                            required=False,
-                            description=_(u"Name as it will appear in the display menu to editors"))
+        required=False,
+        description=_(u"Name as it will appear in the display menu to editors"))
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
-    metadata_list = schema.List(title=_(u"Fields"),
-                                description=_(u"Fields in the order you want them to appear in your listing"),
-                                required=True,
-                                default=[],
-                                value_type=schema.Choice(
-                                    vocabulary="collective.listingviews.MetadataVocabulary"),
-                                )
+    item_fields = schema.List(title=_(u"Item Fields"),
+        description=_(u"Item fields in the order you want them to appear in your listing"),
+        required=True,
+        default=[],
+        value_type=schema.Choice(
+            vocabulary="collective.listingviews.MetadataVocabulary"),
+        )
+
+    listing_fields = schema.List(title=_(u"Listing Fields"),
+        description=_(u"Listing fields in the order you want them to appear in your listing"),
+        required=True,
+        default=[],
+        value_type=schema.Choice(
+            vocabulary="collective.listingviews.MetadataVocabulary"),
+        )
 
     behavior_choice = schema.Choice(
         title=_(u"label_behavior_choice", default=u"View Behavior"),
@@ -124,7 +133,12 @@ class IListingAdapter(Interface):
 
     def retrieve_items(self):
         """
-        This method retrieves all the fields
+        This method retrieves all the item fields
+        """
+
+    def retrieve_listing_items(self):
+        """
+        This method retrieves all the listing fields
         """
 
     def number_of_items(self):
@@ -151,7 +165,19 @@ class IListingInformationRetriever(Interface):
     This interface is interesting for everybody who wants to filter
     the items to be shown in a listing view
     """
-    def getListingItems(self):
+    def getItemFields(self):
+        """
+        Return a list of Information relevant for the view for this item.
+        Size should be a hint of the fields size.
+
+        This information returned consists of:
+        title
+            The view title
+        description
+            The view description
+        """
+
+    def getListingFields(self):
         """
         Return a list of Information relevant for the view for each
         fields.

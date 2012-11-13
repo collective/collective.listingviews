@@ -108,6 +108,7 @@ def singleItemInformation(self, context):
     brain = self.catalog.searchResults({'UID': uid})
     adapter = BasicAdapter(context, self.request, self.data)
     retriever = BaseListingInformationRetriever(context, adapter)
+    retriever.field_attribute_name = 'listing_fields'
     self.listing_information = map(retriever.assemble_listing_information, brain)
 
 class ListingRenderer(base.Renderer):
@@ -153,7 +154,7 @@ class ListingRenderer(base.Renderer):
                         if this_url:
                             self.data_more_url = "/".join(this_url())
                         self.data_more_text = adapter.listing_portlet_more_text
-                        self.listing_information = adapter.retrieve_items
+                        self.listing_information = adapter.retrieve_listing_items
                 else:
                     # single content
                     singleItemInformation(self, container)
