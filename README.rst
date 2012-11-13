@@ -239,3 +239,12 @@ possible future directions
 - support hierarchical listing
 - support ajax batching
 - support infinite lists (auto load next when scrolled down)
+
+Dynamic adding to displaymenu
+=============================
+
+https://github.com/plone/Products.CMFDynamicViewFTI/blob/master/Products/CMFDynamicViewFTI/browserdefault.py
+https://github.com/plone/plone.app.customerize/blob/master/plone/app/customerize/browser.py
+        sm = getSiteManager(self.context)
+        sm.registerAdapter(viewzpt, required = reg.required,
+                           provided = reg.provided, name = reg.name)

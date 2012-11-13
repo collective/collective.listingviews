@@ -5,11 +5,28 @@ from collective.listingviews.interfaces import IListingControlSettings, IListing
 from zope.interface import implements
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
-from zope.component import adapts, getUtility
+from zope.component import adapts, getUtility, getAdapters
+from zope.component import getSiteManager
+from zope.component import getGlobalSiteManager
+from zope.browser.interfaces import IBrowserView
+from zope.publisher.interfaces.browser import IBrowserRequest
+from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+from Products.CMFCore.interfaces import IFolderish, IContentish
 from collective.listingviews.utils import ComplexRecordsProxy
+from five.customerize.zpt import TTWViewTemplate
+from collective.listingviews.browser.views.listing_view import ListingView
+from Products.CMFCore.utils import getToolByName
+from zope.browsermenu.interfaces import IBrowserMenu
+from zope.browsermenu.metaconfigure import addMenuItem, MenuItemFactory, menuItemDirective
+from zope.browsermenu.menu import BrowserMenu, BrowserMenuItem, BrowserSubMenuItem
+from zope.browsermenu.interfaces import IBrowserMenuItem
+from Products.ATContentTypes.permission import ModifyViewTemplate
 
 class ListingControlPanel(object):
     implements(IListingControlPanel)
+
+
+
 
 
 class ListingControlPanelForm(controlpanel.RegistryEditForm):
@@ -23,6 +40,83 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
         proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
                                     key_names={'views':'id'})
         return proxy
+
+    def applyChanges(self, data):
+        # for each view we will create a new view in customerize and add that as a menu
+        # item in the display menu
+        sm = getSiteManager(self.context)
+
+        portal_types = getToolByName(self.context, "portal_types")
+
+        for view in data['views']:
+            view_name = 'collective.listingviews.%s'%view.id
+            sm.registerAdapter(ListingView,
+                               required = (IFolderish, IBrowserRequest),
+                               provided = IBrowserView,
+                               name = view_name)
+
+            # add view to the relevent types
+            for type_ in ['Folder','Topic']:
+                fti = portal_types.getTypeInfo(type_)
+                if view_name not in fti.view_methods:
+                    fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
+
+            # registering a menu item will be done in beforeSiteTraverse event
+
+
+        #TODO unregister any old views
+
+        super(ListingControlPanelForm, self).applyChanges(data)
+
+
+        # register all the menu names again from registery
+        _registerMenuItems()
+
+
+# We need to register our menuitems the first time it's accessed
+def registerMenuItems(site, event, _handled=set()):
+    if site.getPhysicalPath() not in _handled:
+        _registerMenuItems()
+        _handled.add(site.getPhysicalPath())
+
+        
+def _registerMenuItems():
+
+    reg = getUtility(IRegistry)
+    proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
+                                key_names={'views':'id'})
+    gsm = getGlobalSiteManager()
+    menu = getUtility(IBrowserMenu, 'plone_displayviews')
+    for view in proxy.views:
+        # register a menu item
+        view_name = 'collective.listingviews.%s'%view.id
+        factory = MenuItemFactory(
+            BrowserMenuItem,
+            title=view.name,
+            action=view_name,
+            #description=description,
+            # icon=icon,
+            #filter=filter, permission=permission, extra=extra, order=order,
+    #                    _for=(IContentish, IDefaultBrowserLayer)
+            )
+        # ensure we remove our old factory if already registered
+        gsm.unregisterAdapter(
+            required = (IFolderish, IDefaultBrowserLayer),
+            provided = menu.getMenuItemType(),
+            name = view.name,
+        )
+
+        gsm.registerAdapter(
+            factory,
+            required = (IFolderish, IDefaultBrowserLayer),
+            provided = menu.getMenuItemType(),
+            name = view.name,
+        )
+
+
+        #assert menu.getMenuItemByAction(IFolderish, self.request, view_name)
+        # pp [x for x in gsm.registeredAdapters() if x.provided == menu.getMenuItemType()]
+
 
 
 class ListingCustomFieldControlPanel(object):
