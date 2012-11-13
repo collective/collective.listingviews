@@ -6,8 +6,26 @@
 <div tal:condition="view/data/omit_border"
      tal:attributes="class string:portletListing ${view/css_class}">
   <div class="listingBody">
+    <div class="listing-item-fields-portlet">
+      <dl class="item-fields">
+        <tal:fields tal:repeat="field view/portlet_items">
+            <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
+              customfieldclass string:listing-field ${field/css_class}"> 
+              <tal:listingfield tal:condition="not:field/is_custom">
+                <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
+                <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
+              </tal:listingfield>
+              <tal:listingfield tal:condition="field/is_custom">
+                <dt tal:content="string: ${field/title}" tal:attributes="class customfieldclass"></dt>
+                <dd tal:content="structure field/value" tal:attributes="class customfieldclass"></dd>
+              </tal:listingfield>
+            </tal:def>
+        </tal:fields>
+      </dl>
+    </div>
+
     <ul class="listing-items-portlet">
-      <li class="listing-item" tal:repeat="item_object view/portlet_items">
+      <li class="listing-item" tal:repeat="item_object view/portlet_listing_items">
           <dl class="listing-fields">
               <tal:fields tal:repeat="field item_object">
                   <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
@@ -52,8 +70,26 @@
     </dt>
 
     <dd class="portletItem odd">
+      <div class="listing-item-fields-portlet">
+        <dl class="item-fields">
+          <tal:fields tal:repeat="field view/portlet_items">
+              <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
+                customfieldclass string:listing-field ${field/css_class}"> 
+                <tal:listingfield tal:condition="not:field/is_custom">
+                  <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
+                  <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
+                </tal:listingfield>
+                <tal:listingfield tal:condition="field/is_custom">
+                  <dt tal:content="string: ${field/title}" tal:attributes="class customfieldclass"></dt>
+                  <dd tal:content="structure field/value" tal:attributes="class customfieldclass"></dd>
+                </tal:listingfield>
+              </tal:def>
+          </tal:fields>
+        </dl>
+      </div>
+    
       <ul class="listing-items-portlet">
-        <li class="listing-item" tal:repeat="item_object view/portlet_items">
+        <li class="listing-item" tal:repeat="item_object view/portlet_listing_items">
             <dl class="listing-fields">
                 <tal:fields tal:repeat="field item_object">
                     <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};

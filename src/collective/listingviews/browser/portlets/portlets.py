@@ -137,30 +137,39 @@ class ListingRenderer(base.Renderer):
 
         self.data_more_url = ""
         self.data_more_text = ""
-        self.listing_view_behavior = "list"
+        self.item_information = []
         self.listing_information = []
         self._is_container = False
+
         if self.data.root:
             container = self._container()
-            if container:
-                if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
-                    adapter = BasicAdapter(container, self.request, self.data)
-                    self.listing_view_behavior = adapter.listing_view_behavior
-                    if self.listing_view_behavior == "single":
-                        singleItemInformation(self, container)
-                    else:
-                        self._is_container = True
-                        this_url = getattr(container, 'getPhysicalPath', None)
-                        if this_url:
-                            self.data_more_url = "/".join(this_url())
-                        self.data_more_text = adapter.listing_portlet_more_text
-                        self.listing_information = adapter.retrieve_listing_items
-                else:
-                    # single content
-                    singleItemInformation(self, container)
         else:
+            container = context
+
+        if not container:
+            return
+
+        adapter = BasicAdapter(container, self.request, self.data)
+        #retriever = BaseListingInformationRetriever(context, adapter)
+        self.item_information = adapter.retrieve_items
+
+        if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
+            self._is_container = True
+            this_url = getattr(container, 'getPhysicalPath', None)
+            if this_url:
+                self.data_more_url = "/".join(this_url())
+            self.data_more_text = adapter.listing_portlet_more_text
+            self.listing_information = adapter.retrieve_listing_items
+        
+
+            #if container:
+                
+                #else:
+                    # single content
+                #    singleItemInformation(self, container)
+        #else:
             # current context don't have footer and more url
-            singleItemInformation(self, context)
+        #    singleItemInformation(self, context)
 
     def css_class(self):
         """Generate a CSS class from the portlet header
@@ -199,6 +208,11 @@ class ListingRenderer(base.Renderer):
             return False
 
     def portlet_items(self):
+        """Main function that do everything.
+        """
+        return self.item_information
+
+    def portlet_listing_items(self):
         """Main function that do everything.
         """
         return self.listing_information
