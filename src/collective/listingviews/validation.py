@@ -10,7 +10,7 @@ class InvalidId(ValidationError):
 
 class InvalidClass(ValidationError):
     __doc__ = _("""a name must begin with an underscore (_),
-        a dash (-), or a letter(a–z), followed by any number of dashes,
+        a dash (-), or a letter(a-z), followed by any number of dashes,
         underscores, letters, or numbers.
         There is a catch: if the first character is a dash,
         the second character must2 be a letter or underscore,
