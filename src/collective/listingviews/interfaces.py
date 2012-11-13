@@ -3,6 +3,7 @@ from zope import schema
 from zope.interface import implements
 from z3c.form.object import registerFactoryAdapter
 from collective.listingviews import LVMessageFactory as _
+from validation import validate_id, validate_class
 
 
 class IListingViews(Interface):
@@ -14,9 +15,10 @@ class IListingViews(Interface):
 
 
 class IListingDefinition(Interface):
-    id = schema.ASCIILine(title=_(_(u"Id")),
+    id = schema.ASCIILine(title=_(u"Id"),
         required=True,
-        description=_(u"Unique id of your listing (will appear as css class)"))
+        description=_(u"Unique id of your listing (will appear as css class). It must contains only alphanumeric or underscore, starting with alpha"),
+        constraint=validate_id)
 
     name = schema.ASCIILine(title=_(u"Title"),
         required=False,
@@ -33,7 +35,7 @@ class IListingDefinition(Interface):
 
     listing_fields = schema.List(title=_(u"Listing Fields"),
         description=_(u"Listing fields in the order you want them to appear in your listing"),
-        required=True,
+        required=False,
         default=[],
         value_type=schema.Choice(
             vocabulary="collective.listingviews.MetadataVocabulary"),
@@ -49,7 +51,10 @@ class IListingDefinition(Interface):
         required=True)
 
     portlet_more_text = schema.ASCIILine(title=_(u"Portlet Read More Text"), required=False)
-    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"), required=False)
+
+    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
+        required=False,
+        constraint=validate_class)
 
 
 class ListingDefinition(object):
@@ -59,12 +64,20 @@ registerFactoryAdapter(IListingDefinition, ListingDefinition)
 
 
 class ICustomFieldDefinition(Interface):
-    id = schema.ASCIILine(title=_(u"Id"), required=True)
+    id = schema.ASCIILine(title=(u"Id"),
+        required=True,
+        description=_(u"It must contains only alphanumeric or underscore, starting with alpha"),
+        constraint=validate_id)
+
     name = schema.ASCIILine(title=_(u"Title"), required=True)
+
     tal_statement = schema.ASCIILine(title=_(u"TAL expression"),
                                      required=True,
                                      description=_(u'e.g. "python:item.getObject().getBocy()"'))
-    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"), required=False)
+
+    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
+        required=False,
+        constraint=validate_class)
 
 
 class CustomFieldDefinition(object):
