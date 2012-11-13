@@ -70,16 +70,3 @@ def MetadataVocabulary(context):
             terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
                                                      "%s (Custom)" % field.name))
     return SimpleVocabulary(terms)
-
-
-def ViewBehaviorVocabulary(context):
-    """
-    'Always list' - context of folder, collection or parent.
-    'Show single item' - always show the information of the contenxt regardless folder or collection.
-    """
-    terms = SimpleVocabulary(
-        [SimpleTerm(value=u'list', token=u'list', title=_(U'Always list')),
-        SimpleTerm(value=u'single', token=u'single', title=_(u'Show single item'))]
-    )
-
-    return SimpleVocabulary(terms)

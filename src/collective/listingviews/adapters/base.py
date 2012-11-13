@@ -83,6 +83,7 @@ class BaseListingInformationRetriever(object):
         # Returns UID of the context or None if not available
         # Note that UID is always available for all Dexterity 1.1+
         # content and this only can fail if the content is old not migrated
+        #uid = context.UID()
         uuid = IUUID(context, None)
         return uuid
 
@@ -95,6 +96,7 @@ class BaseListingInformationRetriever(object):
         uid = self.getUID()
         if not uid:
             return []
+        #brain = self.catalog.searchResults({'UID': uid})
         brain = self.context.portal_catalog(UID=uid)
         self.field_attribute_name = 'item_fields'
         if brain and len(brain) == 1:

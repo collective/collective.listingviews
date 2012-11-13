@@ -103,14 +103,6 @@ class ListingAssignment(base.Assignment):
         return self.header
 
 
-def singleItemInformation(self, context):
-    uid = context.UID()
-    brain = self.catalog.searchResults({'UID': uid})
-    adapter = BasicAdapter(context, self.request, self.data)
-    retriever = BaseListingInformationRetriever(context, adapter)
-    retriever.field_attribute_name = 'listing_fields'
-    self.listing_information = map(retriever.assemble_listing_information, brain)
-
 class ListingRenderer(base.Renderer):
     """Portlet renderer.
 
@@ -150,7 +142,6 @@ class ListingRenderer(base.Renderer):
             return
 
         adapter = BasicAdapter(container, self.request, self.data)
-        #retriever = BaseListingInformationRetriever(context, adapter)
         self.item_information = adapter.retrieve_items
 
         if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
@@ -162,15 +153,7 @@ class ListingRenderer(base.Renderer):
             self.listing_information = adapter.retrieve_listing_items
         
 
-            #if container:
-                
-                #else:
-                    # single content
-                #    singleItemInformation(self, container)
-        #else:
-            # current context don't have footer and more url
-        #    singleItemInformation(self, context)
-
+        
     def css_class(self):
         """Generate a CSS class from the portlet header
         """
