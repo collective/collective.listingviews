@@ -48,25 +48,21 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
         portal_types = getToolByName(self.context, "portal_types")
 
         for view in data['views']:
-            view_name = 'collective.listingviews.%s'%view.id
+            view_name = 'collective.listingviews.%s' % view.id
             sm.registerAdapter(ListingView,
-                               required = (IFolderish, IBrowserRequest),
-                               provided = IBrowserView,
-                               name = view_name)
+                               required=(IFolderish, IBrowserRequest),
+                               provided=IBrowserView,
+                               name=view_name)
 
             # add view to the relevent types
-            for type_ in ['Folder','Topic']:
+            for type_ in ['Folder', 'Topic']:
                 fti = portal_types.getTypeInfo(type_)
                 if view_name not in fti.view_methods:
-                    fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
+                    fti.manage_changeProperties(view_methods=fti.view_methods + (view_name,))
 
-            # registering a menu item will be done in beforeSiteTraverse event
-
-
+        # registering a menu item will be done in beforeSiteTraverse event
         #TODO unregister any old views
-
         super(ListingControlPanelForm, self).applyChanges(data)
-
 
         # register all the menu names again from registery
         _registerMenuItems()
@@ -78,7 +74,7 @@ def registerMenuItems(site, event, _handled=set()):
         _registerMenuItems()
         _handled.add(site.getPhysicalPath())
 
-        
+
 def _registerMenuItems():
 
     reg = getUtility(IRegistry)
@@ -88,7 +84,7 @@ def _registerMenuItems():
     menu = getUtility(IBrowserMenu, 'plone_displayviews')
     for view in proxy.views:
         # register a menu item
-        view_name = 'collective.listingviews.%s'%view.id
+        view_name = 'collective.listingviews.%s' % view.id
         factory = MenuItemFactory(
             BrowserMenuItem,
             title=view.name,
@@ -100,16 +96,16 @@ def _registerMenuItems():
             )
         # ensure we remove our old factory if already registered
         gsm.unregisterAdapter(
-            required = (IFolderish, IDefaultBrowserLayer),
-            provided = menu.getMenuItemType(),
-            name = view.name,
+            required=(IFolderish, IDefaultBrowserLayer),
+            provided=menu.getMenuItemType(),
+            name=view.name,
         )
 
         gsm.registerAdapter(
             factory,
-            required = (IFolderish, IDefaultBrowserLayer),
-            provided = menu.getMenuItemType(),
-            name = view.name,
+            required=(IFolderish, IDefaultBrowserLayer),
+            provided=menu.getMenuItemType(),
+            name=view.name,
         )
 
 
