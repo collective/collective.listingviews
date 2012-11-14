@@ -93,7 +93,6 @@ class BaseListingInformationRetriever(object):
         are a large number of fields in the view. No need
         to wake up all the objects.
         """
-        import pdb; pdb.set_trace()
         uid = self.getUID()
         if not uid:
             return []
