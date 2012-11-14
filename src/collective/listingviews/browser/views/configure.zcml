@@ -50,4 +50,9 @@
 	  action="listing_views"
       description="A custom listing view for folder and collection." />
 
+    <subscriber
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot
+             zope.app.publication.interfaces.IBeforeTraverseEvent"
+        handler=".controlpanel.registerMenuItems"
+        />
 </configure>
