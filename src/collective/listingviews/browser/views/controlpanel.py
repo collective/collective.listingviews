@@ -22,11 +22,9 @@ from zope.browsermenu.menu import BrowserMenu, BrowserMenuItem, BrowserSubMenuIt
 from zope.browsermenu.interfaces import IBrowserMenuItem
 from Products.ATContentTypes.permission import ModifyViewTemplate
 
+
 class ListingControlPanel(object):
     implements(IListingControlPanel)
-
-
-
 
 
 class ListingControlPanelForm(controlpanel.RegistryEditForm):
@@ -38,10 +36,11 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
     def getContent(self):
         reg = getUtility(IRegistry)
         proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                    key_names={'views':'id'})
+                                    key_names={'views': 'id'})
         return proxy
 
     def applyChanges(self, data):
+        import pdb; pdb.set_trace()
         # for each view we will create a new view in customerize and add that as a menu
         # item in the display menu
         sm = getSiteManager(self.context)
@@ -84,7 +83,7 @@ def _registerMenuItems():
 
     reg = getUtility(IRegistry)
     proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                key_names={'views':'id'})
+                                key_names={'views': 'id'})
     gsm = getGlobalSiteManager()
     menu = getUtility(IBrowserMenu, 'plone_displayviews')
     for view in proxy.views:
@@ -118,7 +117,6 @@ def _registerMenuItems():
         # pp [x for x in gsm.registeredAdapters() if x.provided == menu.getMenuItemType()]
 
 
-
 class ListingCustomFieldControlPanel(object):
     implements(IListingCustomFieldControlPanel)
 
@@ -133,7 +131,7 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
         reg = queryUtility(IRegistry)
         return ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
                                    prefix='collective.listingviews.customfield',
-                                   key_names={'fields':'id'})
+                                   key_names={'fields': 'id'})
 
 
 class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):

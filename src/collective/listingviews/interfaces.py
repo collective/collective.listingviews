@@ -21,7 +21,7 @@ class IListingDefinition(Interface):
         constraint=validate_id)
 
     name = schema.ASCIILine(title=_(u"Title"),
-        required=False,
+        required=True,
         description=_(u"Name as it will appear in the display menu to editors"))
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
