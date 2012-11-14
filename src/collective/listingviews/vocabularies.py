@@ -70,3 +70,21 @@ def MetadataVocabulary(context):
             terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
                                                      "%s (Custom)" % field.name))
     return SimpleVocabulary(terms)
+
+
+def ContentTypeVocabulary(context):
+    """
+    Vocabulary for all the content types
+    """
+    # http://developer.plone.org/content/types.html
+    portal = getSite()
+    site_properties = getToolByName(portal, "portal_properties").site_properties
+    not_searched = site_properties.getProperty('types_not_searched', [])
+
+    portal_types = getToolByName(portal, "portal_types")
+    types = portal_types.listContentTypes()
+
+    # Get list of content type ids which are not filtered out
+    prepared_types = [t for t in types if t not in not_searched]
+    terms = [SimpleVocabulary.createTerm(id, None, portal_types[id].title) for id in prepared_types]
+    return SimpleVocabulary(terms)

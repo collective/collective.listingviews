@@ -41,6 +41,14 @@ class IListingDefinition(Interface):
             vocabulary="collective.listingviews.MetadataVocabulary"),
         )
 
+    restricted_to_types = schema.List(title=_(u"Restricted To Types"),
+        description=_(u"Left it blank if the view is applying all types."),
+        required=False,
+        default=[],
+        value_type=schema.Choice(
+            vocabulary="collective.listingviews.ContentTypeVocabulary"),
+        )
+
     batch_size = schema.Int(
         title=_(u"label_batch_size", default=u"View Batch Size"),
         description=_(u"description_batch_size",
