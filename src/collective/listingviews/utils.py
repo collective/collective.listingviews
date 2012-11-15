@@ -344,9 +344,11 @@ class RecordsProxyList(ListMixin):
     """A proxy that represents a List of RecordsProxy objects.
         Two storage schemes are supported. A pure listing
         stored as prefix+"/i0001" where the number is the index.
-        Or an OrderedDict format where a you pass in a key_name
-        and entries are prefix with this key value. Order is still
-        kept in a '.ordereddict_keys' entry.
+        If your list has a field which can be used as a primary key
+        you can pass they key_name in as an optional paramter. This will change
+        the storage format where each entry is prefix+"/"+key_value which looks
+        a lot nicer in the registry. Order is still
+        kept in a special prefix+'.ordereddict_keys' entry.
     """
 
     def __init__(self, registry, schema, check=True, omitted=(), prefix=None, factory=None, key_name=None):
@@ -357,7 +359,8 @@ class RecordsProxyList(ListMixin):
             # will store as ordereddict with items stored using key_name's value and order kept in special keys list
             keys_key = prefix+'.ordereddict_keys'
             if registry.get(keys_key) is None:
-                registry.records[keys_key] = Record(field.List(title=u"Keys of prefix"), [])
+                registry.records[keys_key] = plone.registry.record.Record(
+                    plone.registry.field.List(title=u"Keys of prefix"), [])
             self.keys = registry.records[keys_key]
 
     def _get_element(self, i):
@@ -365,42 +368,50 @@ class RecordsProxyList(ListMixin):
 
     def _set_element(self, index, value):
         if self.key_name is not None:
-            key = getattr(value, self.key_name)
-            # first we have to remove the old value if it's being overwritten
+            #First add it to the map to ensure it's a valid key
+            try:
+                key = getattr(value, self.key_name)
+                self.map[key] = value
+            except:
+                # our key list might be in an inconsistent state
+                if self.keys.value[index] is None:
+                    del self.keys.value[index]
+                raise
+
+            # we have to remove the old value if it's being overwritten
             oldkey = self.keys.value[index]
             if key != oldkey and oldkey is not None:
                 del self.map[oldkey]
             self.keys.value[index] = key
-        self.map[self.genKey(index)] = value
+
+        else:
+            self.map[self.genKey(index)] = value
 
     def __len__(self):
-        if self.key_name is None:
-            return len(self.map)
-        else:
-            return len(self.keys.value)
+        return len(self.map)
 
     def _resize_region(self, start, end, new_size):
-        #move everything along one
-        offset = new_size - (end - start)
-
-        # remove any additional at the end
-        for i in range(len(self.map)+offset, len(self.map)):
-            del self.map[self.genKey(i)]
 
         if self.key_name is None:
+            offset = new_size - (end - start)
+            #move everything along one
             if offset > 0:
-                moves = range(end-1, start, -1)
-            else:
-                moves = range(start, end, +1)
-            for i in moves:
+                for i in range(max(len(self.map)-1,0), start, -1):
                     self.map[self.genKey(i+offset)] = self.map[self.genKey(i)]
+            else:
+                for i in range(end, len(self.map), +1):
+                    self.map[self.genKey(i+offset)] = self.map[self.genKey(i)]
+                # remove any additional at the end
+                for i in range(len(self.map)+offset, len(self.map)):
+                    del self.map[self.genKey(i)]
         else:
+            for i in range(start, end):
+                del self.map[self.keys.value[i]]
             self.keys.value = self.keys.value[:start] + [None for i in range(new_size)] + self.keys.value[end:]
-            
+
     def genKey(self, index):
         if self.key_name is None:
             index_prefix = "i"
             return "%s%05d" %(index_prefix, index)
         else:
             return self.keys.value[index]
-
