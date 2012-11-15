@@ -26,7 +26,14 @@ class ListingControlPanel(object):
     implements(IListingControlPanel)
 
 
+def getViewName(view_id):
+    return 'collective.listingviews.%s'%view_id
 
+def getRegistryViews():
+    reg = getUtility(IRegistry)
+    proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
+                                key_names={'views':'id'})
+    return proxy
 
 
 class ListingControlPanelForm(controlpanel.RegistryEditForm):
@@ -36,10 +43,7 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
     description = _(u"""""")
 
     def getContent(self):
-        reg = getUtility(IRegistry)
-        proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                    key_names={'views':'id'})
-        return proxy
+        return getRegistryViews()
 
     def applyChanges(self, data):
         # for each view we will create a new view in customerize and add that as a menu
@@ -48,8 +52,10 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
 
         portal_types = getToolByName(self.context, "portal_types")
 
+        old_views = set([view.id for view in getRegistryViews().views])
+
         for view in data['views']:
-            view_name = 'collective.listingviews.%s'%view.id
+            view_name = getViewName(view.id)
             sm.registerAdapter(ListingView,
                                required = (IFolderish, IBrowserRequest),
                                provided = IBrowserView,
@@ -62,6 +68,15 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
                     fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
 
             # registering a menu item will be done in beforeSiteTraverse event
+
+            if view.id in old_views:
+                old_views.remove(view.id)
+
+        for view_id in old_views:
+            view_name = getViewName(view)
+            sm.unregisterAdapter(required = (IFolderish, IBrowserRequest),
+                               provided = IBrowserView,
+                               name = view_name)
 
 
         #TODO unregister any old views
@@ -82,14 +97,12 @@ def registerMenuItems(site, event, _handled=set()):
         
 def _registerMenuItems():
 
-    reg = getUtility(IRegistry)
-    proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                key_names={'views':'id'})
+    proxy = getRegistryViews()
     gsm = getGlobalSiteManager()
     menu = getUtility(IBrowserMenu, 'plone_displayviews')
     for view in proxy.views:
         # register a menu item
-        view_name = 'collective.listingviews.%s'%view.id
+        view_name = getViewName(view.id)
         factory = MenuItemFactory(
             BrowserMenuItem,
             title=view.name,
