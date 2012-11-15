@@ -47,7 +47,7 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
         return getRegistryViews()
 
     def applyChanges(self, data):
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         # for each view we will create a new view in customerize and add that as a menu
         # item in the display menu
         sm = getSiteManager(self.context)

@@ -361,8 +361,8 @@ class RecordsProxyList(ListMixin):
             # will store as ordereddict with items stored using key_name's value and order kept in special keys list
             keys_key = prefix + '.ordereddict_keys'
             if registry.get(keys_key) is None:
-                registry.records[keys_key] = plone.registry.record.Record(
-                    plone.registry.field.List(title=u"Keys of prefix"), [])
+                registry.records[keys_key] = Record(
+                    field.List(title=u"Keys of prefix"), [])
             self.keys = registry.records[keys_key]
 
     def _get_element(self, i):
@@ -397,13 +397,13 @@ class RecordsProxyList(ListMixin):
             offset = new_size - (end - start)
             #move everything along one
             if offset > 0:
-                for i in range(max(len(self.map)-1,0), start, -1):
-                    self.map[self.genKey(i+offset)] = self.map[self.genKey(i)]
+                for i in range(max(len(self.map) - 1, 0), start, -1):
+                    self.map[self.genKey(i + offset)] = self.map[self.genKey(i)]
             else:
                 for i in range(end, len(self.map), +1):
-                    self.map[self.genKey(i+offset)] = self.map[self.genKey(i)]
+                    self.map[self.genKey(i + offset)] = self.map[self.genKey(i)]
                 # remove any additional at the end
-                for i in range(len(self.map)+offset, len(self.map)):
+                for i in range(len(self.map) + offset, len(self.map)):
                     del self.map[self.genKey(i)]
         else:
             for i in range(start, end):
