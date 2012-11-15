@@ -22,6 +22,7 @@ from zope.browsermenu.menu import BrowserMenu, BrowserMenuItem, BrowserSubMenuIt
 from zope.browsermenu.interfaces import IBrowserMenuItem
 from Products.ATContentTypes.permission import ModifyViewTemplate
 
+
 class ListingControlPanel(object):
     implements(IListingControlPanel)
 
@@ -46,6 +47,7 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
         return getRegistryViews()
 
     def applyChanges(self, data):
+        import pdb; pdb.set_trace()
         # for each view we will create a new view in customerize and add that as a menu
         # item in the display menu
         sm = getSiteManager(self.context)
@@ -57,12 +59,12 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
         for view in data['views']:
             view_name = getViewName(view.id)
             sm.registerAdapter(ListingView,
-                               required = (IFolderish, IBrowserRequest),
-                               provided = IBrowserView,
-                               name = view_name)
+                               required=(IFolderish, IBrowserRequest),
+                               provided=IBrowserView,
+                               name=view_name)
 
             # add view to the relevent types
-            for type_ in ['Folder','Topic']:
+            for type_ in ['Folder', 'Topic']:
                 fti = portal_types.getTypeInfo(type_)
                 if view_name not in fti.view_methods:
                     fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
@@ -79,10 +81,9 @@ class ListingControlPanelForm(controlpanel.RegistryEditForm):
                                name = view_name)
 
 
+        # registering a menu item will be done in beforeSiteTraverse event
         #TODO unregister any old views
-
         super(ListingControlPanelForm, self).applyChanges(data)
-
 
         # register all the menu names again from registery
         _registerMenuItems()
@@ -94,7 +95,7 @@ def registerMenuItems(site, event, _handled=set()):
         _registerMenuItems()
         _handled.add(site.getPhysicalPath())
 
-        
+
 def _registerMenuItems():
 
     proxy = getRegistryViews()
@@ -114,22 +115,21 @@ def _registerMenuItems():
             )
         # ensure we remove our old factory if already registered
         gsm.unregisterAdapter(
-            required = (IFolderish, IDefaultBrowserLayer),
-            provided = menu.getMenuItemType(),
-            name = view.name,
+            required=(IFolderish, IDefaultBrowserLayer),
+            provided=menu.getMenuItemType(),
+            name=view.name,
         )
 
         gsm.registerAdapter(
             factory,
-            required = (IFolderish, IDefaultBrowserLayer),
-            provided = menu.getMenuItemType(),
-            name = view.name,
+            required=(IFolderish, IDefaultBrowserLayer),
+            provided=menu.getMenuItemType(),
+            name=view.name,
         )
 
 
         #assert menu.getMenuItemByAction(IFolderish, self.request, view_name)
         # pp [x for x in gsm.registeredAdapters() if x.provided == menu.getMenuItemType()]
-
 
 
 class ListingCustomFieldControlPanel(object):
@@ -146,7 +146,7 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
         reg = queryUtility(IRegistry)
         return ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
                                    prefix='collective.listingviews.customfield',
-                                   key_names={'fields':'id'})
+                                   key_names={'fields': 'id'})
 
 
 class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):

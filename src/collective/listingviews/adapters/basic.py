@@ -46,10 +46,19 @@ class BasicAdapter(BaseAdapter):
         return self.settings.listing_choice
 
     @property
+    def item_fields(self):
+        fields = []
+        if self.view_setting:
+            fields = getattr(self.view_setting, 'item_fields', [])
+        if fields is None:
+            fields = []
+        return fields
+
+    @property
     def listing_fields(self):
         fields = []
         if self.view_setting:
-            fields = getattr(self.view_setting, 'metadata_list', [])
+            fields = getattr(self.view_setting, 'listing_fields', [])
         if fields is None:
             fields = []
         return fields
@@ -81,15 +90,35 @@ class BasicAdapter(BaseAdapter):
             portlet_more_text = 'More'
         return portlet_more_text
 
+    @property
+    def listing_view_behavior(self):
+        behavior_choice = 'list'
+        if self.view_setting:
+            behavior_choice = getattr(self.view_setting, 'behavior_choice', 'list')
+        if behavior_choice is None:
+            behavior_choice = 'list'
+        return behavior_choice
+
     def process_items(self):
         adapter = getMultiAdapter((self.listing, self),
             IListingInformationRetriever)
-        return adapter.getListingItems()
+        return adapter.getItemFields()
+
+    def process_listing_items(self):
+        adapter = getMultiAdapter((self.listing, self),
+            IListingInformationRetriever)
+        return adapter.getListingFields()
 
     @property
     @memoize
     def retrieve_items(self):
         items = self.process_items()
+        return items
+
+    @property
+    @memoize
+    def retrieve_listing_items(self):
+        items = self.process_listing_items()
         if not self.is_portlet and self.listing_view_batch_size:
             items = Batch(items,
                 self.listing_view_batch_size,
@@ -99,14 +128,14 @@ class BasicAdapter(BaseAdapter):
 
     @property
     def number_of_items(self):
-        return len(self.retrieve_items)
+        return len(self.retrieve_listing_items)
 
 
 class BasicListingInformationRetriever(BaseListingInformationRetriever):
     implements(IListingInformationRetriever)
     adapts(IBaseFolder, IBasicAdapter)
 
-    def getListingItems(self):
+    def getListingFields(self):
         """
         A catalog search should be faster especially when there
         are a large number of fields in the view. No need
@@ -115,6 +144,7 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         path = self.context.getPhysicalPath()
         path = "/".join(path)
         items = self.context.portal_catalog(path={"query": path, "depth": 1})
+        self.field_attribute_name = 'listing_fields'
         return map(self.assemble_listing_information, items)
 
 
@@ -122,7 +152,7 @@ class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
     implements(IListingInformationRetriever)
     adapts(IATTopic, IBasicAdapter)
 
-    def getListingItems(self):
+    def getListingFields(self):
         query = self.context.buildQuery()
         if query is not None:
             should_limit = self.context.getLimitNumber()
@@ -135,6 +165,7 @@ class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
             items = catalog(query)
             if should_limit:
                 items = items[:limit]
+            self.field_attribute_name = 'listing_fields'
             return map(self.assemble_listing_information, items)
         else:
             return []

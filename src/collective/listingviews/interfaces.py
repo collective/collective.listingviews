@@ -3,6 +3,7 @@ from zope import schema
 from zope.interface import implements
 from z3c.form.object import registerFactoryAdapter
 from collective.listingviews import LVMessageFactory as _
+from validation import validate_id, validate_class
 
 
 class IListingViews(Interface):
@@ -13,24 +14,40 @@ class IListingViews(Interface):
     pass
 
 
-
 class IListingDefinition(Interface):
-    id = schema.ASCIILine(title=_(_(u"Id")),
-                          required=True,
-                          description=_(u"Unique id of your listing (will appear as css class)"))
+    id = schema.ASCIILine(title=_(u"Id"),
+        required=True,
+        description=_(u"Unique id of your listing (will appear as css class). It must contains only alphanumeric or underscore, starting with alpha"),
+        constraint=validate_id)
+
     name = schema.ASCIILine(title=_(u"Title"),
-                            required=False,
-                            description=_(u"Name as it will appear in the display menu to editors"))
+        required=True,
+        description=_(u"Name as it will appear in the display menu to editors"))
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
-    metadata_list = schema.List(title=_(u"Fields"),
-                                description=_(u"Fields in the order you want them to appear in your listing"),
-                                required=True,
-                                default=[],
-                                value_type=schema.Choice(
-                                    vocabulary="collective.listingviews.MetadataVocabulary"),
-                                )
+    item_fields = schema.List(title=_(u"Item Fields"),
+        description=_(u"Item fields in the order you want them to appear in your listing"),
+        required=True,
+        default=[],
+        value_type=schema.Choice(
+            vocabulary="collective.listingviews.MetadataVocabulary"),
+        )
 
+    listing_fields = schema.List(title=_(u"Listing Fields"),
+        description=_(u"Listing fields in the order you want them to appear in your listing"),
+        required=False,
+        default=[],
+        value_type=schema.Choice(
+            vocabulary="collective.listingviews.MetadataVocabulary"),
+        )
+
+    restricted_to_types = schema.List(title=_(u"Restricted To Types"),
+        description=_(u"Left it blank if the view is applying all types."),
+        required=False,
+        default=[],
+        value_type=schema.Choice(
+            vocabulary="collective.listingviews.ContentTypeVocabulary"),
+        )
 
     batch_size = schema.Int(
         title=_(u"label_batch_size", default=u"View Batch Size"),
@@ -42,7 +59,10 @@ class IListingDefinition(Interface):
         required=True)
 
     portlet_more_text = schema.ASCIILine(title=_(u"Portlet Read More Text"), required=False)
-    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"), required=False)
+
+    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
+        required=False,
+        constraint=validate_class)
 
 
 class ListingDefinition(object):
@@ -52,12 +72,20 @@ registerFactoryAdapter(IListingDefinition, ListingDefinition)
 
 
 class ICustomFieldDefinition(Interface):
-    id = schema.ASCIILine(title=_(u"Id"), required=True)
+    id = schema.ASCIILine(title=(u"Id"),
+        required=True,
+        description=_(u"It must contains only alphanumeric or underscore, starting with alpha"),
+        constraint=validate_id)
+
     name = schema.ASCIILine(title=_(u"Title"), required=True)
+
     tal_statement = schema.ASCIILine(title=_(u"TAL expression"),
                                      required=True,
                                      description=_(u'e.g. "python:item.getObject().getBocy()"'))
-    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"), required=False)
+
+    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
+        required=False,
+        constraint=validate_class)
 
 
 class CustomFieldDefinition(object):
@@ -117,7 +145,12 @@ class IListingAdapter(Interface):
 
     def retrieve_items(self):
         """
-        This method retrieves all the fields
+        This method retrieves all the item fields
+        """
+
+    def retrieve_listing_items(self):
+        """
+        This method retrieves all the listing fields
         """
 
     def number_of_items(self):
@@ -144,7 +177,19 @@ class IListingInformationRetriever(Interface):
     This interface is interesting for everybody who wants to filter
     the items to be shown in a listing view
     """
-    def getListingItems(self):
+    def getItemFields(self):
+        """
+        Return a list of Information relevant for the view for this item.
+        Size should be a hint of the fields size.
+
+        This information returned consists of:
+        title
+            The view title
+        description
+            The view description
+        """
+
+    def getListingFields(self):
         """
         Return a list of Information relevant for the view for each
         fields.

@@ -129,34 +129,31 @@ class ListingRenderer(base.Renderer):
 
         self.data_more_url = ""
         self.data_more_text = ""
+        self.item_information = []
         self.listing_information = []
         self._is_container = False
+
         if self.data.root:
             container = self._container()
-            if container:
-                if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
-                    self._is_container = True
-                    adapter = BasicAdapter(container, self.request, self.data)
-                    this_url = getattr(container, 'getPhysicalPath', None)
-                    if this_url:
-                        self.data_more_url = "/".join(this_url())
-                    self.data_more_text = adapter.listing_portlet_more_text
-                    self.listing_information = adapter.retrieve_items
-                else:
-                    # single content
-                    uid = container.UID()
-                    brain = self.catalog.searchResults({'UID': uid})
-                    adapter = BasicAdapter(container, self.request, self.data)
-                    retriever = BaseListingInformationRetriever(container, adapter)
-                    self.listing_information = map(retriever.assemble_listing_information, brain)
         else:
-            # current context don't have footer and more url
-            uid = context.UID()
-            brain = self.catalog.searchResults({'UID': uid})
-            adapter = BasicAdapter(context, self.request, self.data)
-            retriever = BaseListingInformationRetriever(context, adapter)
-            self.listing_information = map(retriever.assemble_listing_information, brain)
+            container = context
 
+        if not container:
+            return
+
+        adapter = BasicAdapter(container, self.request, self.data)
+        self.item_information = adapter.retrieve_items
+
+        if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
+            self._is_container = True
+            this_url = getattr(container, 'getPhysicalPath', None)
+            if this_url:
+                self.data_more_url = "/".join(this_url())
+            self.data_more_text = adapter.listing_portlet_more_text
+            self.listing_information = adapter.retrieve_listing_items
+        
+
+        
     def css_class(self):
         """Generate a CSS class from the portlet header
         """
@@ -194,6 +191,11 @@ class ListingRenderer(base.Renderer):
             return False
 
     def portlet_items(self):
+        """Main function that do everything.
+        """
+        return self.item_information
+
+    def portlet_listing_items(self):
         """Main function that do everything.
         """
         return self.listing_information

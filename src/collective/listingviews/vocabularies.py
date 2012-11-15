@@ -1,11 +1,11 @@
-from zope.schema.vocabulary import SimpleVocabulary
-from collective.listingviews.interfaces import IListingDefinition, ICustomFieldDefinition
+from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from zope.app.component.hooks import getSite
 from utils import ComplexRecordsProxy
 from interfaces import IListingCustomFieldControlPanel, IListingControlPanel
+from collective.listingviews import LVMessageFactory as _
 
 
 class LVVocabulary(SimpleVocabulary):
@@ -43,7 +43,7 @@ def ListingViewVocabulary(context):
     reg = queryUtility(IRegistry)
     if reg is not None:
         proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                key_names={'views':'id'})
+                                key_names={'views': 'id'})
         for view in proxy.views:
             terms.append(SimpleVocabulary.createTerm(view.id, view.id, view.name))
     return SimpleVocabulary(terms)
@@ -65,8 +65,26 @@ def MetadataVocabulary(context):
     if reg is not None:
         proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
                                     prefix='collective.listingviews.customfield',
-                                   key_names={'fields':'id'})
+                                   key_names={'fields': 'id'})
         for field in proxy.fields:
             terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
                                                      "%s (Custom)" % field.name))
+    return SimpleVocabulary(terms)
+
+
+def ContentTypeVocabulary(context):
+    """
+    Vocabulary for all the content types
+    """
+    # http://developer.plone.org/content/types.html
+    portal = getSite()
+    site_properties = getToolByName(portal, "portal_properties").site_properties
+    not_searched = site_properties.getProperty('types_not_searched', [])
+
+    portal_types = getToolByName(portal, "portal_types")
+    types = portal_types.listContentTypes()
+
+    # Get list of content type ids which are not filtered out
+    prepared_types = [t for t in types if t not in not_searched]
+    terms = [SimpleVocabulary.createTerm(id, None, portal_types[id].title) for id in prepared_types]
     return SimpleVocabulary(terms)
