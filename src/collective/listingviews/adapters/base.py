@@ -168,8 +168,9 @@ class BaseListingInformationRetriever(object):
 
                         # example tal statement
                         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
-                        # python:'{0}'.format(object.getObject().modified().strftime("%d/%m/%Y"))
+                        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y"))
                         # python:object.getObject().folder_full_view_item()
+                        # python:object.getObject().remote_url() for atlink content type
                         expression = Expression(tal_statement)
                         expression_context = getExprContext(self.context, item)
                         attr_value = expression(expression_context)
