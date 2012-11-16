@@ -150,10 +150,11 @@ class ListingRenderer(base.Renderer):
             if this_url:
                 self.data_more_url = "/".join(this_url())
             self.data_more_text = adapter.listing_portlet_more_text
-            self.listing_information = adapter.retrieve_listing_items
-        
+            if adapter.listing_view_batch_size:
+                self.listing_information = adapter.retrieve_listing_items[:adapter.listing_view_batch_size]
+            else:
+                self.listing_information = adapter.retrieve_listing_items
 
-        
     def css_class(self):
         """Generate a CSS class from the portlet header
         """
