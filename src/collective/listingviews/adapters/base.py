@@ -122,7 +122,7 @@ class BaseListingInformationRetriever(object):
                 if not subfield[1]:
                     # default field name in Plone is "defaultname:"
                     field = subfield[0]
-
+                    
                     # metadata does not have location
                     if field == 'location':
                         attr_value = getattr(item, 'getURL', None)
@@ -170,10 +170,13 @@ class BaseListingInformationRetriever(object):
                         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
                         # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y"))
                         # python:object.getObject().folder_full_view_item()
-                        # python:object.getObject().remote_url() for atlink content type
-                        expression = Expression(tal_statement)
-                        expression_context = getExprContext(self.context, item)
-                        attr_value = expression(expression_context)
+                        # python:getattr(object.getObject(), 'remote_url', None) and object.getObject().remote_url() for atlink content type
+                        try:
+                            expression = Expression(tal_statement)
+                            expression_context = getExprContext(self.context, item)
+                            attr_value = expression(expression_context)
+                        except ValueError:
+                            attr_value = ""
                         break
 
                     current.append({'title': name, 'css_class': css_class, 'value': attr_value, 'is_custom': True})
