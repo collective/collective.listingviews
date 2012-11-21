@@ -9,8 +9,8 @@
   <body>
     <metal:core fill-slot="content-core">
       <tal:core-macro metal:define-macro="content-core">
-
-        <div class="listingviews" tal:define="adapter context/@@listing_view_adapter">
+        <!-- can't mix context/@@listing_view_adapter and view adapter -->
+        <div class="listingviews" tal:define="adapter view.adapter | ">
           <div class="noimages" tal:condition="python: adapter.number_of_items == 0">
               <p class="discreet" i18n:translate="label_no_listing">
                   Please choose your view in listing settings.
