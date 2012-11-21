@@ -43,6 +43,12 @@
       template="templates/layout.pt"
       permission="zope2.View" />
 
+  <browser:page
+      for="collective.listingviews.interfaces.IListingViews"
+      name="listing_view_adapter"
+      class=".listing_view.ListingViewAdapter"
+      permission="zope2.View" />
+
   <browser:menuItem
       for="collective.listingviews.interfaces.IListingViews"
 	  menu="plone_displayviews"

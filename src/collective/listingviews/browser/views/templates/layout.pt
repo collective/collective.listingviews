@@ -9,17 +9,18 @@
   <body>
     <metal:core fill-slot="content-core">
       <tal:core-macro metal:define-macro="content-core">
-        <div class="listingviews">
-          <div class="noimages" tal:condition="python: view.adapter.number_of_items == 0">
+
+        <div class="listingviews" tal:define="adapter context/@@listing_view_adapter">
+          <div class="noimages" tal:condition="python: adapter.number_of_items == 0">
               <p class="discreet" i18n:translate="label_no_listing">
                   Please choose your view in listing settings.
               </p>
           </div>
           <div class="listing-collection-view" 
-            tal:define="class_name python:view.adapter.listing_style_class;
-                        fields python:view.adapter.retrieve_items;
-                        batch python:view.adapter.retrieve_listing_items" 
-            tal:condition="python: view.adapter.number_of_items > 0" 
+            tal:define="class_name python: adapter.listing_style_class;
+                        fields python: adapter.retrieve_items;
+                        batch python: adapter.retrieve_listing_items" 
+            tal:condition="python: adapter.number_of_items > 0" 
             tal:attributes="class string:${class_name} listing-collection-view">
 
               <div class="listing-item-fields">
@@ -59,7 +60,7 @@
                       </dl>
                   </li>
               </ul>
-              <div class="listing-navigation" tal:condition="view/adapter/listing_view_batch_size">
+              <div class="listing-navigation" tal:condition="adapter/listing_view_batch_size">
                 <div metal:use-macro="view/context/batch_macros/macros/navigation"> 
                   Navigation
                 </div>
