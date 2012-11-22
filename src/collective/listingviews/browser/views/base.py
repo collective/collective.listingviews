@@ -35,20 +35,17 @@ class BaseListingInformationRetriever(BrowserView):
         self.request = request
 
         #Tricky part to work out the listing view thats been picked
-        import pdb; pdb.set_trace()
-
         if IFacetedLayout is not None and \
             (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
             # Case: It's being used from facetednavigation
             self.listing_name = getListingNameFromView(IFacetedLayout(self.context).layout)
+        elif self.request.get('portlet_settings'):
+            self.settings = self.request.get('portlet_settings')
+            self.listing_name = self.settings.view_choice
         else:
             # Case: It's being used from a normal display menu view
             view_name = request.getURL().split('/')[-1]
             self.listing_name = getListingNameFromView(view_name)
-
-
-        if self.request.get('portlet_settings'):
-            self.settings = self.request.get('portlet_settings')
 
 
         self.context = context

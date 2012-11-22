@@ -113,7 +113,7 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         path = "/".join(path)
         items = self.context.portal_catalog(path={"query": path, "depth": 1})
         self.field_attribute_name = 'listing_fields'
-        return map(self.assemble_listing_information, items)
+        return items
 
 
 class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
@@ -133,6 +133,6 @@ class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
             if should_limit:
                 items = items[:limit]
             self.field_attribute_name = 'listing_fields'
-            return map(self.assemble_listing_information, items)
+            return items
         else:
             return []

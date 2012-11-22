@@ -19,4 +19,4 @@ class BasicCollectionListingInformationRetriever(
         items = catalog(query)
         items = items[:limit]
         self.field_attribute_name = 'listing_fields'
-        return map(self.assemble_listing_information, items)
+        return items
