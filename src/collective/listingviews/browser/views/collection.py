@@ -1,15 +1,14 @@
 from zope.component import adapts
+from zope.interface import implements
 from Products.CMFCore.utils import getToolByName
-from collective.listingviews.adapters.basic import\
-    BasicTopicListingInformationRetriever
-from plone.app.collection.interfaces import ICollection
-from collective.listingviews.interfaces import IBasicAdapter
+from basic import BasicTopicListingInformationRetriever
+from collective.listingviews.interfaces import IListingAdapter,IListingInformationRetriever
 from plone.app.querystring import queryparser
 
 
 class BasicCollectionListingInformationRetriever(
                             BasicTopicListingInformationRetriever):
-    adapts(ICollection, IBasicAdapter)
+    implements(IListingInformationRetriever, IListingAdapter)
 
     def getListingFields(self):
         limit = self.context.limit

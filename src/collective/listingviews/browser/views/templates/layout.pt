@@ -6,20 +6,19 @@
   metal:use-macro="context/main_template/macros/master"
   i18n:domain="collective.listingviews">
 
-  <body>
+  <body >
+  
     <metal:core fill-slot="content-core">
       <tal:core-macro metal:define-macro="content-core">
-        <!-- can't mix context/@@listing_view_adapter and view adapter -->
-        <div class="listingviews" tal:define="adapter view.adapter | ">
-          <div class="noimages" tal:condition="python: adapter.number_of_items == 0">
-              <p class="discreet" i18n:translate="label_no_listing">
-                  Please choose your view in listing settings.
-              </p>
-          </div>
-          <div class="listing-collection-view" 
+          <!-- we adapt our local context and request and our setting to determine what to list -->
+
+        <div class="listingviews" tal:define="adapter nocall:context/@@listing_view_adapter;
+            batch folderContents | adapter/retrieve_listing_items;"
+             
+          >
+          <div class="listing-collection-view"
             tal:define="class_name python: adapter.listing_style_class;
-                        fields python: adapter.retrieve_items;
-                        batch python: adapter.retrieve_listing_items" 
+                        fields python: adapter.retrieve_items;"
             tal:condition="python: adapter.number_of_items > 0" 
             tal:attributes="class string:${class_name} listing-collection-view">
 

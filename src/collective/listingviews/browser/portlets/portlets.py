@@ -13,14 +13,6 @@ from plone.i18n.normalizer.interfaces import IIDNormalizer
 from zope.component import getUtility
 from Acquisition import aq_inner
 from plone.app.vocabularies.catalog import SearchableTextSourceBinder
-#from collective.listingviews.settings import ListingSettings
-from collective.listingviews.adapters import BasicAdapter
-#from collective.listingviews.utils import getListingAdapter
-#from zope.component import queryUtility
-#from plone.registry.interfaces import IRegistry
-#from collective.listingviews.interfaces import IListingDefinition
-from collective.listingviews.adapters.base import BaseListingInformationRetriever
-#from Products.CMFCore.utils import getToolByName
 from Products.ATContentTypes.interface import IATTopic
 
 try:
@@ -141,7 +133,7 @@ class ListingRenderer(base.Renderer):
         if not container:
             return
 
-        adapter = BasicAdapter(container, self.request, self.data)
+#        adapter = BasicAdapter(container, self.request, self.data)
         self.item_information = adapter.retrieve_items
 
         if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):

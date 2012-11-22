@@ -1,49 +1,24 @@
-from collective.listingviews.interfaces import IBasicAdapter,\
-    IBasicListingSettings, IListingInformationRetriever,\
-    IListingAdapter, IListingDefinition
+from collective.listingviews.interfaces import \
+    IListingInformationRetriever,\
+    IListingAdapter
 from Products.CMFCore.utils import getToolByName
 from zope.interface import implements
 from zope.component import getMultiAdapter
 from zope.component import adapts
-from base import BaseAdapter, BaseListingInformationRetriever
+from base import BaseListingInformationRetriever
 from collective.listingviews import LVMessageFactory as _
-from Products.ATContentTypes.interface import IATTopic
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
 from plone.memoize.instance import memoize
 from Products.CMFPlone.PloneBatch import Batch
 
-try:
-    from plone.folder.interfaces import IFolder as IBaseFolder
-except ImportError:
-    from Products.Archetypes.interfaces import IBaseFolder
 
+class BasicListingInformationRetriever(BaseListingInformationRetriever):
+    implements(IListingInformationRetriever, IListingAdapter)
 
-class BasicAdapter(BaseAdapter):
-    implements(IBasicAdapter, IListingAdapter)
-
-    name = u"basic"
-    description = _(u"label_default_listing_view",
-        default=u"Use Plone To Manage Listing Views")
-    schema = IBasicListingSettings
     view_setting = None
     is_portlet = False
 
-    def __init__(self, listing, request, portlet_settings=None):
-        super(BasicAdapter, self).__init__(listing, request, portlet_settings)
-        if portlet_settings:
-            self.is_portlet = True
-        registry = queryUtility(IRegistry)
-        if registry is not None:
-            listing_definition = sorted(registry.collectionOfInterface(IListingDefinition, prefix='collective.listingviews.views').items())
-            for name, records in listing_definition:
-                if name == self.settings.listing_choice:
-                    self.view_setting = records
-                    break
-
-    @property
-    def listing_name(self):
-        return self.settings.listing_choice
 
     @property
     def item_fields(self):
@@ -100,14 +75,10 @@ class BasicAdapter(BaseAdapter):
         return behavior_choice
 
     def process_items(self):
-        adapter = getMultiAdapter((self.listing, self),
-            IListingInformationRetriever)
-        return adapter.getItemFields()
+        return self.getItemFields()
 
     def process_listing_items(self):
-        adapter = getMultiAdapter((self.listing, self),
-            IListingInformationRetriever)
-        return adapter.getListingFields()
+        return self.getListingFields()
 
     @property
     @memoize
@@ -131,9 +102,6 @@ class BasicAdapter(BaseAdapter):
         return len(self.retrieve_listing_items)
 
 
-class BasicListingInformationRetriever(BaseListingInformationRetriever):
-    implements(IListingInformationRetriever)
-    adapts(IBaseFolder, IBasicAdapter)
 
     def getListingFields(self):
         """
@@ -150,7 +118,6 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
 
 class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
     implements(IListingInformationRetriever)
-    adapts(IATTopic, IBasicAdapter)
 
     def getListingFields(self):
         query = self.context.buildQuery()

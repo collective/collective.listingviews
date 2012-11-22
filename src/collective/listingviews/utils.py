@@ -1,6 +1,5 @@
 from zope.component import getMultiAdapter
 from settings import ListingSettings
-from collective.listingviews.interfaces import IBasicAdapter
 
 from zope.interface import implements  # , alsoProvides
 #from zope.schema import getFieldsInOrder
@@ -11,10 +10,6 @@ from plone.registry import field
 from plone.registry.record import Record
 from zope import schema
 import re
-
-
-def getListingAdapter(listing, request):
-    return getMultiAdapter((listing, request), IBasicAdapter)
 
 
 def createSettingsFactory(schema):

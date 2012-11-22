@@ -6,13 +6,6 @@ from collective.listingviews import LVMessageFactory as _
 from validation import validate_id, validate_class
 
 
-class IListingViews(Interface):
-    """
-    marker interface for content types that implement
-    the listing views
-    """
-    pass
-
 
 class IListingDefinition(Interface):
     id = schema.ASCIILine(title=_(u"Id"),
@@ -131,11 +124,21 @@ class IListingCustomFieldControlPanel(Interface):
     )
 
 
+class IBaseSettings(Interface):
+    pass
+
+
+class IBasicListingSettings(IBaseSettings):
+    pass
+
+
+
+
 class IListingAdapter(Interface):
     sizes = Attribute("size of the fields")
-    schema = Attribute("Schema of listing view")
-    name = Attribute("Name of the listing view")
-    description = Attribute("Description of listing view")
+#    schema = Attribute("Schema of listing view")
+#    name = Attribute("Name of the listing view")
+#    description = Attribute("Description of listing view")
 
     def log_error(self):
         """
@@ -156,20 +159,6 @@ class IListingAdapter(Interface):
     def number_of_items(self):
         """"""
 
-
-class IBasicAdapter(IListingAdapter):
-    """
-    Use plone to manage listing.
-    """
-    pass
-
-
-class IBaseSettings(Interface):
-    pass
-
-
-class IBasicListingSettings(IBaseSettings):
-    pass
 
 
 class IListingInformationRetriever(Interface):

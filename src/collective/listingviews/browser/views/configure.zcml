@@ -23,19 +23,29 @@
        class=".controlpanel.ListingCustomFieldControlPanelView"
        permission="cmf.ManagePortal"
        />
-
+<!--
   <browser:page
     name="listing-settings"
     for="collective.listingviews.interfaces.IListingViews"
     class=".settings.ListingSettingsView"
     permission="zope2.View"
   />
-
+-->
+<!--
   <adapter
     for="collective.listingviews.interfaces.IListingViews"
     provides="collective.listingviews.interfaces.IListingSettings"
     factory="collective.listingviews.settings.ListingSettings" />
+-->
 
+    <subscriber
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot
+             zope.app.publication.interfaces.IBeforeTraverseEvent"
+        handler=".controlpanel.registerMenuItems"
+        />
+
+
+<!--
   <browser:page
       for="collective.listingviews.interfaces.IListingViews"
       name="listing_views"
@@ -48,17 +58,33 @@
       name="listing_view_adapter"
       class=".listing_view.ListingViewAdapter"
       permission="zope2.View" />
+-->
 
-  <browser:menuItem
-      for="collective.listingviews.interfaces.IListingViews"
-	  menu="plone_displayviews"
-	  title="Listing View"
-	  action="listing_views"
-      description="A custom listing view for folder and collection." />
+<!-- called from layout.pt to retrieve lists of items from context -->
+  <browser:page
+      for="plone.folder.interfaces.IFolder"
+      name="listing_view_adapter"
+      class=".basic.BasicListingInformationRetriever"
+      permission="zope2.View"
+      zcml:condition="installed plone.folder" />
+  <browser:page
+      for="Products.Archetypes.interfaces.IBaseFolder"
+      name="listing_view_adapter"
+      class=".basic.BasicListingInformationRetriever"
+      permission="zope2.View"
+       />
+  <browser:page
+      for="Products.ATContentTypes.interface.IATTopic"
+      name="listing_view_adapter"
+      class=".basic.BasicTopicListingInformationRetriever"
+      permission="zope2.View"
+      zcml:condition="installed Products.ATContentTypes"/>
+  <browser:page
+      for="plone.app.collection.interfaces.ICollection"
+      name="listing_view_adapter"
+      class=".collection.BasicCollectionListingInformationRetriever"
+      permission="zope2.View"
+       zcml:condition="installed plone.app.collection"/>
 
-    <subscriber
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot
-             zope.app.publication.interfaces.IBeforeTraverseEvent"
-        handler=".controlpanel.registerMenuItems"
-        />
+
 </configure>

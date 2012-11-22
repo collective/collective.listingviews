@@ -30,12 +30,22 @@ class ListingControlPanel(object):
 def getViewName(view_id):
     return 'collective.listingviews.%s'%view_id
 
+def getListingNameFromView(view_name):
+    return view_name.lstrip('collective.listingviews.')
+
+
 def getRegistryViews():
     reg = getUtility(IRegistry)
     proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
                                 key_names={'views':'id'})
     return proxy
 
+def getRegistryFields():
+    reg = getUtility(IRegistry)
+    proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
+                                   prefix='collective.listingviews.customfield',
+                                   key_names={'fields': 'id'})
+    return proxy
 
 class ListingControlPanelForm(controlpanel.RegistryEditForm):
 
@@ -143,10 +153,7 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
     description = _(u"""""")
 
     def getContent(self):
-        reg = queryUtility(IRegistry)
-        return ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
-                                   prefix='collective.listingviews.customfield',
-                                   key_names={'fields': 'id'})
+        return getRegistryFields()
 
 
 class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):

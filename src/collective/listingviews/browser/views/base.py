@@ -1,8 +1,15 @@
 import Missing
 from DateTime import DateTime
 from collective.listingviews import LVMessageFactory as _
-from collective.listingviews.interfaces import IListingAdapter, IListingViews
+from collective.listingviews.interfaces import IListingAdapter, \
+    IListingInformationRetriever, IListingCustomFieldControlPanel, IListingControlPanel
 from collective.listingviews.settings import ListingSettings
+from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
+
+try:
+    from eea.facetednavigation.layout.interfaces import IFacetedLayout
+except:
+    IFacetedLayout = None
 from zLOG import LOG, INFO
 from zope.interface import implements
 from zope.component import adapts, getMultiAdapter
@@ -14,27 +21,50 @@ from collective.listingviews.interfaces import ICustomFieldDefinition
 from Products.CMFCore.Expression import Expression, getExprContext
 from zope.app.component.hooks import getSite
 from plone.uuid.interfaces import IUUID
+from Products.Five import BrowserView
+from collective.listingviews.browser.views.controlpanel import getRegistryFields, getRegistryViews, getListingNameFromView
 
 
-class BaseAdapter(object):
-
-    implements(IListingAdapter)
-    adapts(IListingViews, IDefaultBrowserLayer)
+class BaseListingInformationRetriever(BrowserView):
+    implements(IListingAdapter, IListingInformationRetriever)
 
     sizes = {}
-    settings = None
-    schema = None
-    name = u"base"
-    description = _(u"label_base_listing_view",
-        default=u"Think abstract class here...")
 
-    def __init__(self, listing, request, portlet_settings=None):
-        self.listing = listing
+    def __init__(self, context, request):
+        self.context = context
         self.request = request
-        if portlet_settings:
-            self.settings = portlet_settings
+
+        #Tricky part to work out the listing view thats been picked
+        import pdb; pdb.set_trace()
+
+        if IFacetedLayout is not None and \
+            (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
+            # Case: It's being used from facetednavigation
+            self.listing_name = getListingNameFromView(IFacetedLayout(self.context).layout)
         else:
-            self.settings = ListingSettings(self.listing, interfaces=[self.schema])
+            # Case: It's being used from a normal display menu view
+            view_name = request.getURL().split('/')[-1]
+            self.listing_name = getListingNameFromView(view_name)
+
+
+        if self.request.get('portlet_settings'):
+            self.settings = self.request.get('portlet_settings')
+
+
+        self.context = context
+#        self._field_attribute_name = None
+#        self.item_fields = []
+        #TODO: this won't work with p.a.collections
+        self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
+
+#        self.item_fields = getRegistryFields()
+        viewsdata = getRegistryViews()
+        print "finding view called %s"%self.listing_name
+        for view in viewsdata.views:
+            if view.id == self.listing_name:
+                self.view_setting = view
+                break
+        assert self.view_setting is not None
 
     def log_error(self, ex='', inst='', msg=""):
         LOG('collective.listingviews', INFO,
@@ -51,21 +81,8 @@ class BaseAdapter(object):
     def number_of_items(self):
         return 0
 
+    #retriever fields
 
-class BaseListingInformationRetriever(object):
-
-    def __init__(self, context, listing_adapter):
-        portal = getSite()
-        self.pm = getToolByName(context, 'portal_membership')
-        self.context = context
-        self.listing_adapter = listing_adapter
-        self._field_attribute_name = None
-        self.item_fields = []
-        self.metadata_display = dict(getToolByName(portal, 'portal_atct').getMetadataDisplay().items())
-        registry = queryUtility(IRegistry)
-        if registry is not None:
-            self.item_fields = sorted(registry.collectionOfInterface(ICustomFieldDefinition,
-                            prefix='collective.listingviews.customfield.fields').items())
 
     @property
     def field_attribute_name(self):
@@ -104,10 +121,9 @@ class BaseListingInformationRetriever(object):
         return []
 
     def assemble_listing_information(self, brain):
-        listing_fields = getattr(self.listing_adapter, self._field_attribute_name)
         item = brain
         current = []
-        for field in listing_fields:
+        for field in self.view_setting.listing_fields:
             try:
                 if ":" not in field:
                     print "No valid field: %s (No colon)" % field
@@ -141,7 +157,7 @@ class BaseListingInformationRetriever(object):
                         field == 'ExpirationDate' or\
                         field == 'ModificationDate' or\
                         field == 'CreationDate':
-                        plone = getMultiAdapter((self.context, self.listing_adapter.request), name="plone")
+                        plone = getMultiAdapter((self.context, self.request), name="plone")
                         attr_value = plone.toLocalizedTime(attr_value, long_format=1)
                     elif isinstance(attr_value, basestring):
                         attr_value = attr_value.decode("utf-8")
