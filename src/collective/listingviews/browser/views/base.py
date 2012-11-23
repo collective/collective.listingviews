@@ -54,13 +54,14 @@ class BaseListingInformationRetriever(BrowserView):
 
     def setListingView(self, view_name):
         self.listing_name = view_name
-#        self.item_fields = getRegistryFields()
         viewsdata = getRegistryViews()
         for view in viewsdata.views:
             if view.id == self.listing_name:
                 self.view_setting = view
                 break
         assert self.view_setting is not None
+
+
 
     def log_error(self, ex='', inst='', msg=""):
         LOG('collective.listingviews', INFO,
@@ -119,6 +120,7 @@ class BaseListingInformationRetriever(BrowserView):
     def assemble_listing_information(self, brain):
         item = brain
         current = []
+        #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
         for field in self.view_setting.listing_fields:
             try:
                 if ":" not in field:
@@ -165,33 +167,29 @@ class BaseListingInformationRetriever(BrowserView):
                     current.append({'title': field, 'css_class': css_class, 'value': attr_value, 'is_custom': False})
                 elif not subfield[0]:
                     # custom field name is ":customname"
-                    field = subfield[1]
+                    field_name = subfield[1]
 
-                    if not self.item_fields:
-                        continue
+                    field = None
+                    for field in getRegistryFields().fields:
+                        if field.name == field_name:
+                            break
+                    if field is None:
+                        raise Exception("Custom field not recognised '%'"%field_name)
 
-                    for metadata, fields in self.item_fields:
-                        if metadata != field:
-                            continue
 
-                        name = getattr(fields, 'name', '')
-                        css_class = getattr(fields, 'css_class', '')
-                        tal_statement = getattr(fields, 'tal_statement', '')
+                    # example tal statement
+                    # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
+                    # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y"))
+                    # python:object.getObject().folder_full_view_item()
+                    # python:getattr(object.getObject(), 'remote_url', None) and object.getObject().remote_url() for atlink content type
+                    try:
+                        expression = Expression(field.tal_statement)
+                        expression_context = getExprContext(self.context, item)
+                        attr_value = expression(expression_context)
+                    except ValueError:
+                        attr_value = ""
 
-                        # example tal statement
-                        # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
-                        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y"))
-                        # python:object.getObject().folder_full_view_item()
-                        # python:getattr(object.getObject(), 'remote_url', None) and object.getObject().remote_url() for atlink content type
-                        try:
-                            expression = Expression(tal_statement)
-                            expression_context = getExprContext(self.context, item)
-                            attr_value = expression(expression_context)
-                        except ValueError:
-                            attr_value = ""
-                        break
-
-                    current.append({'title': name, 'css_class': css_class, 'value': attr_value, 'is_custom': True})
+                    current.append({'title': field.name, 'css_class': field.css_class, 'value': attr_value, 'is_custom': True})
 
                 else:
                     print "No valid field"
