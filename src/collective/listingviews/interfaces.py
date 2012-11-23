@@ -166,6 +166,12 @@ class IListingInformationRetriever(Interface):
     This interface is interesting for everybody who wants to filter
     the items to be shown in a listing view
     """
+
+    def setListingView(self, view_name):
+        """
+        Set id of the view to one of the available views stored in the registry.
+        """
+
     def getItemFields(self):
         """
         Return a list of Information relevant for the view for this item.

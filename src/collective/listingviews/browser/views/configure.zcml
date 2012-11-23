@@ -23,20 +23,6 @@
        class=".controlpanel.ListingCustomFieldControlPanelView"
        permission="cmf.ManagePortal"
        />
-<!--
-  <browser:page
-    name="listing-settings"
-    for="collective.listingviews.interfaces.IListingViews"
-    class=".settings.ListingSettingsView"
-    permission="zope2.View"
-  />
--->
-<!--
-  <adapter
-    for="collective.listingviews.interfaces.IListingViews"
-    provides="collective.listingviews.interfaces.IListingSettings"
-    factory="collective.listingviews.settings.ListingSettings" />
--->
 
     <subscriber
         for="Products.CMFPlone.interfaces.IPloneSiteRoot
@@ -44,21 +30,13 @@
         handler=".controlpanel.registerMenuItems"
         />
 
-
-<!--
-  <browser:page
-      for="collective.listingviews.interfaces.IListingViews"
-      name="listing_views"
-      class=".listing_view.ListingView"
-      template="templates/layout.pt"
-      permission="zope2.View" />
-
-  <browser:page
-      for="collective.listingviews.interfaces.IListingViews"
-      name="listing_view_adapter"
-      class=".listing_view.ListingViewAdapter"
-      permission="zope2.View" />
--->
+    <!-- to get macros for portlets -->
+    <browser:page
+        for="*"
+        name="listing_view_macros"
+        class=".listing_view.ListingView"
+        allowed_attributes="macros"
+        permission="zope.Public" />
 
 <!-- called from layout.pt to retrieve lists of items from context -->
   <browser:page

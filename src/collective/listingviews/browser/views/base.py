@@ -38,14 +38,12 @@ class BaseListingInformationRetriever(BrowserView):
         if IFacetedLayout is not None and \
             (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
             # Case: It's being used from facetednavigation
-            self.listing_name = getListingNameFromView(IFacetedLayout(self.context).layout)
-        elif self.request.get('portlet_settings'):
-            self.settings = self.request.get('portlet_settings')
-            self.listing_name = self.settings.view_choice
+            self.setListingView( getListingNameFromView(IFacetedLayout(self.context).layout) )
         else:
             # Case: It's being used from a normal display menu view
             view_name = request.getURL().split('/')[-1]
-            self.listing_name = getListingNameFromView(view_name)
+            self.setListingView( getListingNameFromView(view_name) )
+        # Case: portlet will call setListingView itself
 
 
         self.context = context
@@ -54,9 +52,10 @@ class BaseListingInformationRetriever(BrowserView):
         #TODO: this won't work with p.a.collections
         self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
 
+    def setListingView(self, view_name):
+        self.listing_name = view_name
 #        self.item_fields = getRegistryFields()
         viewsdata = getRegistryViews()
-        print "finding view called %s"%self.listing_name
         for view in viewsdata.views:
             if view.id == self.listing_name:
                 self.view_setting = view

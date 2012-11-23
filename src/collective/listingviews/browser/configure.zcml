@@ -6,14 +6,6 @@
     <include package=".views" />
     <include package=".portlets" />
 
-    <browser:page
-        name="listing_util"
-        for="*"
-        permission="zope2.View"
-        class=".util.LVUtility"
-        allowed_interface=".interfaces.ILVUtility"
-        />
-        
     <!-- We need to make the request annotatable for this to work -->
     <class class="ZPublisher.BaseRequest.BaseRequest">
         <implements interface="zope.annotation.interfaces.IAttributeAnnotatable" />

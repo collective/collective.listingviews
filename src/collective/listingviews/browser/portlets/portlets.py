@@ -133,19 +133,20 @@ class ListingRenderer(base.Renderer):
         if not container:
             return
 
-#        adapter = BasicAdapter(container, self.request, self.data)
-        self.item_information = adapter.retrieve_items
+        self.adapter = getMultiAdapter((container, self.request), name=u'listing_view_adapter')
+        self.adapter.setListingView(self.data.listing_choice)
 
-        if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
-            self._is_container = True
-            this_url = getattr(container, 'getPhysicalPath', None)
-            if this_url:
-                self.data_more_url = "/".join(this_url())
-            self.data_more_text = adapter.listing_portlet_more_text
-            if adapter.listing_view_batch_size:
-                self.listing_information = adapter.retrieve_listing_items[:adapter.listing_view_batch_size]
-            else:
-                self.listing_information = adapter.retrieve_listing_items
+        #TODO this commented code needs to go back into the adapters
+#        if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
+#            self._is_container = True
+#            this_url = getattr(container, 'getPhysicalPath', None)
+#            if this_url:
+#                self.data_more_url = "/".join(this_url())
+#            self.data_more_text = adapter.listing_portlet_more_text
+#            if adapter.listing_view_batch_size:
+#                self.listing_information = adapter.retrieve_listing_items[:adapter.listing_view_batch_size]
+#            else:
+#                self.listing_information = adapter.retrieve_listing_items
 
     def css_class(self):
         """Generate a CSS class from the portlet header
@@ -186,12 +187,17 @@ class ListingRenderer(base.Renderer):
     def portlet_items(self):
         """Main function that do everything.
         """
-        return self.item_information
+        return self.adapter.retrieve_items
 
     def portlet_listing_items(self):
         """Main function that do everything.
         """
-        return self.listing_information
+        return self.adapter.retrieve_listing_items
+
+    @property
+    def listing_view_adapter(self):
+        return self.adapter
+
 
 
 class ListingAddForm(base.AddForm):
