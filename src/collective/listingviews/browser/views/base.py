@@ -34,6 +34,9 @@ class BaseListingInformationRetriever(BrowserView):
         self.context = context
         self.request = request
 
+        #TODO: this won't work with p.a.collections
+        self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
+
         #Tricky part to work out the listing view thats been picked
         if IFacetedLayout is not None and \
             (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
@@ -45,12 +48,8 @@ class BaseListingInformationRetriever(BrowserView):
             self.setListingView( getListingNameFromView(view_name) )
         # Case: portlet will call setListingView itself
 
-
-        self.context = context
 #        self._field_attribute_name = None
 #        self.item_fields = []
-        #TODO: this won't work with p.a.collections
-        self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
 
     def setListingView(self, view_name):
         self.listing_name = view_name
@@ -61,6 +60,28 @@ class BaseListingInformationRetriever(BrowserView):
                 break
         assert self.view_setting is not None
 
+
+        self.field_filters = []
+        #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
+        for field in self.view_setting.listing_fields:
+            if ":" not in field:
+                print "No valid field: %s (No colon)" % field
+                continue
+
+            subfield = field.split(":")
+
+            if len(subfield) is not 2:
+                print "No valid field: %s (Too much colon)" % field
+                continue
+
+            if not subfield[1]:
+                # default field name in Plone is "defaultname:"
+                self.field_filters.append(self.metadataField(field_name = subfield[0]))
+            elif not subfield[0]:
+                # custom field name is ":customname"
+                self.field_filters.append(self.customField(field_name = subfield[1]))
+            else:
+                print "No valid field"
 
 
     def log_error(self, ex='', inst='', msg=""):
@@ -119,82 +140,73 @@ class BaseListingInformationRetriever(BrowserView):
 
     def assemble_listing_information(self, brain):
         item = brain
-        current = []
-        #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
-        for field in self.view_setting.listing_fields:
-            try:
-                if ":" not in field:
-                    print "No valid field: %s (No colon)" % field
-                    continue
-
-                subfield = field.split(":")
-
-                if len(subfield) is not 2:
-                    print "No valid field: %s (Too much colon)" % field
-                    continue
-
-                if not subfield[1]:
-                    # default field name in Plone is "defaultname:"
-                    field = subfield[0]
-                    
-                    # metadata does not have location
-                    if field == 'location':
-                        attr_value = getattr(item, 'getURL', None)
-                        if attr_value:
-                            attr_value = attr_value()
-                    else:
-                        attr_value = getattr(item, field, None)
-
-                    if attr_value == None or attr_value == Missing.Value:
-                        continue
-
-                    if isinstance(attr_value, DateTime) or\
-                        field == 'end' or\
-                        field == 'EffectiveDate' or\
-                        field == 'start' or\
-                        field == 'ExpirationDate' or\
-                        field == 'ModificationDate' or\
-                        field == 'CreationDate':
-                        plone = getMultiAdapter((self.context, self.request), name="plone")
-                        attr_value = plone.toLocalizedTime(attr_value, long_format=1)
-                    elif isinstance(attr_value, basestring):
-                        attr_value = attr_value.decode("utf-8")
-
-                    css_class = field
-                    if field in self.metadata_display:
-                        field = self.metadata_display[field]
-
-                    current.append({'title': field, 'css_class': css_class, 'value': attr_value, 'is_custom': False})
-                elif not subfield[0]:
-                    # custom field name is ":customname"
-                    field_name = subfield[1]
-
-                    field = None
-                    for field in getRegistryFields().fields:
-                        if field.name == field_name:
-                            break
-                    if field is None:
-                        raise Exception("Custom field not recognised '%'"%field_name)
+        for func in self.field_filters:
+            yield func(item)
 
 
-                    # example tal statement
-                    # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
-                    # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y"))
-                    # python:object.getObject().folder_full_view_item()
-                    # python:getattr(object.getObject(), 'remote_url', None) and object.getObject().remote_url() for atlink content type
-                    try:
-                        expression = Expression(field.tal_statement)
-                        expression_context = getExprContext(self.context, item)
-                        attr_value = expression(expression_context)
-                    except ValueError:
-                        attr_value = ""
+    def metadataField(self, field_name):
 
-                    current.append({'title': field.name, 'css_class': field.css_class, 'value': attr_value, 'is_custom': True})
+        plone = getMultiAdapter((self.context, self.request), name="plone")
 
-                else:
-                    print "No valid field"
-            except KeyError:
-                # deal with missing keys
-                pass
+        if field_name in self.metadata_display:
+            field = self.metadata_display[field_name]
+        else:
+            raise Exception("Field no longer exists '%s'"%field_name)
 
-        return current
+        def value(item):
+            # metadata does not have location
+            if field_name == 'location':
+                attr_value = getattr(item, 'getURL', None)
+                if attr_value:
+                    attr_value = attr_value()
+            else:
+                attr_value = getattr(item, field_name, None)
+
+            if attr_value == None or attr_value == Missing.Value:
+                return None
+            elif field_name in ['end','EffectiveDate','start','ExpirationDate','ModificationDate','CreationDate']:
+                return plone.toLocalizedTime(attr_value, long_format=1)
+            elif isinstance(attr_value, DateTime):
+                return plone.toLocalizedTime(attr_value, long_format=1)
+            elif isinstance(attr_value, basestring):
+                return attr_value.decode("utf-8")
+            else:
+                return attr_value
+
+        css_class = field_name
+
+        return lambda item: {'title': field, 'css_class': css_class, 'value': value(item), 'is_custom': False}
+
+    def dateField(self, field_name):
+        if isinstance(attr_value, DateTime) or\
+            field == 'end' or\
+            field == 'EffectiveDate' or\
+            field == 'start' or\
+            field == 'ExpirationDate' or\
+            field == 'ModificationDate' or\
+            field == 'CreationDate':
+            plone = getMultiAdapter((self.context, self.request), name="plone")
+            attr_value = plone.toLocalizedTime(attr_value, long_format=1)
+
+    def customField(self, field_name):
+        field = None
+        for field in getRegistryFields().fields:
+            if field.name == field_name:
+                break
+        if field is None:
+            raise Exception("Custom field not recognised '%'"%field_name)
+
+
+        # example tal statement
+        # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
+        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y"))
+        # python:object.getObject().folder_full_view_item()
+        # python:getattr(object.getObject(), 'remote_url', None) and object.getObject().remote_url() for atlink content type
+        expression = Expression(field.tal_statement)
+
+        def value(item):
+            expression_context = getExprContext(self.context, item)
+            val = expression(expression_context)
+            return {'title': field.name, 'css_class': field.css_class, 'value': val, 'is_custom': True}
+        return value
+
