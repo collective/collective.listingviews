@@ -135,7 +135,7 @@ class IBasicListingSettings(IBaseSettings):
 
 class IListingAdapter(Interface):
 
-    def retrieve_items(self):
+    def retrieve_context_item(self):
         """
         This method retrieves all the item fields
         """
@@ -153,9 +153,4 @@ class IListingAdapter(Interface):
     def set_listing_view(self, view_name):
         """
         Set id of the view to one of the available views stored in the registry.
-        """
-
-    def get_listing_fields(self):
-        """
-        Return listing fields based on the context type
         """

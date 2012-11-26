@@ -4,13 +4,22 @@ from Products.CMFCore.utils import getToolByName
 from basic import BasicTopicListingInformationRetriever
 from collective.listingviews.interfaces import IListingAdapter
 from plone.app.querystring import queryparser
+from plone.memoize.instance import memoize
+from Products.CMFPlone.PloneBatch import Batch
 
 
 class BasicCollectionListingInformationRetriever(
                             BasicTopicListingInformationRetriever):
     implements(IListingAdapter)
 
-    def get_listing_fields(self):
+    @property
+    @memoize
+    def retrieve_listing_items(self):
+        """
+        A catalog search should be faster especially when there
+        are a large number of fields in the view. No need
+        to wake up all the objects.
+        """
         limit = self.context.limit
         query = queryparser.parseFormquery(self.context,
             self.context.getRawQuery())
@@ -19,4 +28,10 @@ class BasicCollectionListingInformationRetriever(
         items = catalog(query)
         items = items[:limit]
         self.field_attribute_name = 'listing_fields'
+
+        if not self.is_portlet and self.listing_view_batch_size:
+            items = Batch(items,
+                self.listing_view_batch_size,
+                int(self.request.get('b_start', 0)),
+                orphan=1)
         return items

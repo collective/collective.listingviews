@@ -29,6 +29,7 @@ class BaseListingInformationRetriever(BrowserView):
     implements(IListingAdapter)
 
     view_setting = None
+    field_filters = []
 
     def __init__(self, context, request):
         self.context = context
@@ -52,14 +53,15 @@ class BaseListingInformationRetriever(BrowserView):
 #        self.item_fields = []
 
     def set_listing_view(self, view_name):
-
         self.listing_name = view_name
         viewsdata = getRegistryViews()
         for view in viewsdata.views:
             if view.id == self.listing_name:
                 self.view_setting = view
                 break
-        assert self.view_setting is not None
+
+        if self.view_setting is None:
+            return
 
         self.field_filters = []
         #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
@@ -83,13 +85,10 @@ class BaseListingInformationRetriever(BrowserView):
             else:
                 print "No valid field"
 
-    def retrieve_items(self):
+    def retrieve_context_item(self):
         raise Exception("Not implemented")
 
     def retrieve_listing_items(self):
-        raise Exception("Not implemented")
-
-    def get_listing_fields(self):
         raise Exception("Not implemented")
 
     @property

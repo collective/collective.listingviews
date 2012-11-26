@@ -4,7 +4,7 @@
   lang="en"
   tal:define="adapter nocall:view/listing_view_adapter;
          batch adapter/retrieve_listing_items;
-         fields adapter/retrieve_items;
+         fields adapter/retrieve_context_item;
          macros nocall:context/@@listing_view_macros/macros;
          ">
 
