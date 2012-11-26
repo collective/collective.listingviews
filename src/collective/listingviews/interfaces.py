@@ -132,19 +132,7 @@ class IBasicListingSettings(IBaseSettings):
     pass
 
 
-
-
 class IListingAdapter(Interface):
-    sizes = Attribute("size of the fields")
-#    schema = Attribute("Schema of listing view")
-#    name = Attribute("Name of the listing view")
-#    description = Attribute("Description of listing view")
-
-    def log_error(self):
-        """
-        provides an easy way to log errors in adapters.
-        we don't want an adapter to prevent a page from loading...
-        """
 
     def retrieve_items(self):
         """
@@ -157,42 +145,16 @@ class IListingAdapter(Interface):
         """
 
     def number_of_items(self):
-        """"""
+        """
+        Total items of the current list
+        """
 
-
-
-class IListingInformationRetriever(Interface):
-    """
-    This interface is interesting for everybody who wants to filter
-    the items to be shown in a listing view
-    """
-
-    def setListingView(self, view_name):
+    def set_listing_view(self, view_name):
         """
         Set id of the view to one of the available views stored in the registry.
         """
 
-    def getItemFields(self):
+    def get_listing_fields(self):
         """
-        Return a list of Information relevant for the view for this item.
-        Size should be a hint of the fields size.
-
-        This information returned consists of:
-        title
-            The view title
-        description
-            The view description
-        """
-
-    def getListingFields(self):
-        """
-        Return a list of Information relevant for the view for each
-        fields.
-        Size should be a hint of the fields size.
-
-        This information returned consists of:
-        title
-            The view title
-        description
-            The view description
+        Return listing fields based on the context type
         """

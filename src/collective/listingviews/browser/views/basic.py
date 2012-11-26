@@ -1,5 +1,4 @@
 from collective.listingviews.interfaces import \
-    IListingInformationRetriever,\
     IListingAdapter
 from Products.CMFCore.utils import getToolByName
 from zope.interface import implements
@@ -14,11 +13,10 @@ from Products.CMFPlone.PloneBatch import Batch
 
 
 class BasicListingInformationRetriever(BaseListingInformationRetriever):
-    implements(IListingInformationRetriever, IListingAdapter)
+    implements(IListingAdapter)
 
     view_setting = None
     is_portlet = False
-
 
     @property
     def item_fields(self):
@@ -74,22 +72,22 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
             behavior_choice = 'list'
         return behavior_choice
 
-    def process_items(self):
-        return self.getItemFields()
-
-    def process_listing_items(self):
-        return self.getListingFields()
-
     @property
     @memoize
     def retrieve_items(self):
-        items = self.process_items()
+        items = self.get_item_fields()
         return items
 
     @property
     @memoize
     def retrieve_listing_items(self):
-        items = self.process_listing_items()
+        """
+        A catalog search should be faster especially when there
+        are a large number of fields in the view. No need
+        to wake up all the objects.
+        """
+        items = self.get_listing_fields()
+
         if not self.is_portlet and self.listing_view_batch_size:
             items = Batch(items,
                 self.listing_view_batch_size,
@@ -101,9 +99,7 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
     def number_of_items(self):
         return len(self.retrieve_listing_items)
 
-
-
-    def getListingFields(self):
+    def get_listing_fields(self):
         """
         A catalog search should be faster especially when there
         are a large number of fields in the view. No need
@@ -117,9 +113,9 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
 
 
 class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
-    implements(IListingInformationRetriever)
+    implements(IListingAdapter)
 
-    def getListingFields(self):
+    def get_listing_fields(self):
         query = self.context.buildQuery()
         if query is not None:
             should_limit = self.context.getLimitNumber()
