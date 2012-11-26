@@ -31,7 +31,7 @@ def getViewName(view_id):
     return 'collective.listingviews.%s'%view_id
 
 def getListingNameFromView(view_name):
-    return view_name.lstrip('collective.listingviews.')
+    return view_name.replace('collective.listingviews.', '')
 
 
 def getRegistryViews():
