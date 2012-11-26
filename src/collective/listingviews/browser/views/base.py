@@ -52,14 +52,15 @@ class BaseListingInformationRetriever(BrowserView):
 #        self.item_fields = []
 
     def set_listing_view(self, view_name):
-
         self.listing_name = view_name
         viewsdata = getRegistryViews()
         for view in viewsdata.views:
             if view.id == self.listing_name:
                 self.view_setting = view
                 break
-        assert self.view_setting is not None
+
+        if self.view_setting is None:
+            return
 
         self.field_filters = []
         #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
