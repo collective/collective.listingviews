@@ -3,7 +3,7 @@ from zope import schema
 from zope.interface import implements
 from z3c.form.object import registerFactoryAdapter
 from collective.listingviews import LVMessageFactory as _
-from validation import validate_id, validate_class
+from validation import validate_id, validate_class, validate_tal
 
 
 
@@ -74,7 +74,8 @@ class ICustomFieldDefinition(Interface):
 
     tal_statement = schema.ASCIILine(title=_(u"TAL expression"),
                                      required=True,
-                                     description=_(u'e.g. "python:item.getObject().getBocy()"'))
+                                     description=_(u'e.g. "python:item.getObject().getBocy()"'),
+                                     constraint=validate_tal)
 
     css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
         required=False,
