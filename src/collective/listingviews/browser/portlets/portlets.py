@@ -134,7 +134,7 @@ class ListingRenderer(base.Renderer):
             return
 
         self.adapter = getMultiAdapter((container, self.request), name=u'listing_view_adapter')
-        self.adapter.setListingView(self.data.listing_choice)
+        self.adapter.set_listing_view(self.data.listing_choice)
 
         #TODO this commented code needs to go back into the adapters
 #        if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):

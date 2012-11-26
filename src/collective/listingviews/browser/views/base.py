@@ -173,12 +173,11 @@ class BaseListingInformationRetriever(BrowserView):
         return lambda item: {'title': field, 'css_class': css_class, 'value': value(item), 'is_custom': False}
 
     def custom_field(self, field_name):
-        field = None
-        for field in getRegistryFields().fields:
-            if field.name == field_name:
-                break
-        if field is None:
-            raise Exception("Custom field not recognised '%'" % field_name)
+        fields = [f for f in getRegistryFields().fields if f.id == field_name]
+        if not fields:
+            raise Exception("Custom field not recognised '%s'" % field_name)
+        else:
+            field = fields[0]
 
         # example tal statement
         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
