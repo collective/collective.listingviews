@@ -156,8 +156,12 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
 
     def getContent(self):
         return getRegistryFields()
-
-
+#
+#    def updateWidgets(self):
+#        super(ListingCustomFieldControlPanelForm, self).updateWidgets()
+#        import pdb; pdb.set_trace()
+#        self.widgets['tal_statement'].size = 100
+        
 class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
     form = ListingControlPanelForm
 

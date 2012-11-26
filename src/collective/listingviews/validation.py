@@ -2,6 +2,8 @@ import re
 from collective.listingviews import LVMessageFactory as _
 #from zope.interface import Invalid
 from zope.schema import ValidationError
+from zope.tales.tales import CompilerError
+from Products.CMFCore.Expression import Expression
 
 
 class InvalidId(ValidationError):
@@ -16,6 +18,8 @@ class InvalidClass(ValidationError):
         the second character must2 be a letter or underscore,
         and the name must be at least 2 characters long.""")
 
+class InvalidTAL(ValidationError):
+    __doc__ = _("""TALES Compile Error""")
 
 def validate_id(value):
     """
@@ -37,4 +41,12 @@ def validate_class(value):
     if not re.match("^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$", value):
         #raise Invalid(_(u"Id must only containts alphanumeric or underscore, starting with alpha."))
         raise InvalidClass(value)
+    return True
+
+def validate_tal(value):
+    """ Find compile bugs in tal """
+    try:
+        Expression(value)
+    except CompilerError as e:
+        raise InvalidTAL(value)
     return True
