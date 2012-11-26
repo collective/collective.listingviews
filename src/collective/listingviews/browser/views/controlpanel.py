@@ -31,7 +31,8 @@ def getViewName(view_id):
     return 'collective.listingviews.%s'%view_id
 
 def getListingNameFromView(view_name):
-    return view_name.lstrip('collective.listingviews.')
+    #TODO beter way then replace, could appear in the middle.
+    return view_name.replace('collective.listingviews.', '')
 
 
 def getRegistryViews():
@@ -46,6 +47,7 @@ def getRegistryFields():
                                    prefix='collective.listingviews.customfield',
                                    key_names={'fields': 'id'})
     return proxy
+
 
 class ListingControlPanelForm(controlpanel.RegistryEditForm):
 

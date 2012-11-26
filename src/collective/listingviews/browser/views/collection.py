@@ -2,15 +2,15 @@ from zope.component import adapts
 from zope.interface import implements
 from Products.CMFCore.utils import getToolByName
 from basic import BasicTopicListingInformationRetriever
-from collective.listingviews.interfaces import IListingAdapter,IListingInformationRetriever
+from collective.listingviews.interfaces import IListingAdapter
 from plone.app.querystring import queryparser
 
 
 class BasicCollectionListingInformationRetriever(
                             BasicTopicListingInformationRetriever):
-    implements(IListingInformationRetriever, IListingAdapter)
+    implements(IListingAdapter)
 
-    def getListingFields(self):
+    def get_listing_fields(self):
         limit = self.context.limit
         query = queryparser.parseFormquery(self.context,
             self.context.getRawQuery())

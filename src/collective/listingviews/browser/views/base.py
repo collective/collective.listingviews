@@ -2,7 +2,7 @@ import Missing
 from DateTime import DateTime
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter, \
-    IListingInformationRetriever, IListingCustomFieldControlPanel, IListingControlPanel
+    IListingCustomFieldControlPanel, IListingControlPanel
 from collective.listingviews.settings import ListingSettings
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
 
@@ -26,9 +26,9 @@ from collective.listingviews.browser.views.controlpanel import getRegistryFields
 
 
 class BaseListingInformationRetriever(BrowserView):
-    implements(IListingAdapter, IListingInformationRetriever)
+    implements(IListingAdapter)
 
-    sizes = {}
+    view_setting = None
 
     def __init__(self, context, request):
         self.context = context
@@ -41,17 +41,18 @@ class BaseListingInformationRetriever(BrowserView):
         if IFacetedLayout is not None and \
             (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
             # Case: It's being used from facetednavigation
-            self.setListingView( getListingNameFromView(IFacetedLayout(self.context).layout) )
+            self.set_listing_view(getListingNameFromView(IFacetedLayout(self.context).layout))
         else:
             # Case: It's being used from a normal display menu view
             view_name = request.getURL().split('/')[-1]
-            self.setListingView( getListingNameFromView(view_name) )
+            self.set_listing_view(getListingNameFromView(view_name))
         # Case: portlet will call setListingView itself
 
 #        self._field_attribute_name = None
 #        self.item_fields = []
 
-    def setListingView(self, view_name):
+    def set_listing_view(self, view_name):
+
         self.listing_name = view_name
         viewsdata = getRegistryViews()
         for view in viewsdata.views:
@@ -59,7 +60,6 @@ class BaseListingInformationRetriever(BrowserView):
                 self.view_setting = view
                 break
         assert self.view_setting is not None
-
 
         self.field_filters = []
         #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
@@ -76,18 +76,12 @@ class BaseListingInformationRetriever(BrowserView):
 
             if not subfield[1]:
                 # default field name in Plone is "defaultname:"
-                self.field_filters.append(self.metadataField(field_name = subfield[0]))
+                self.field_filters.append(self.metadata_field(field_name=subfield[0]))
             elif not subfield[0]:
                 # custom field name is ":customname"
-                self.field_filters.append(self.customField(field_name = subfield[1]))
+                self.field_filters.append(self.custom_field(field_name=subfield[1]))
             else:
                 print "No valid field"
-
-
-    def log_error(self, ex='', inst='', msg=""):
-        LOG('collective.listingviews', INFO,
-            "%s adapter, listing view is %s\n%s\n%s\n%s" %
-            (self.name, str(self.listing), msg, ex, inst))
 
     def retrieve_items(self):
         raise Exception("Not implemented")
@@ -95,12 +89,14 @@ class BaseListingInformationRetriever(BrowserView):
     def retrieve_listing_items(self):
         raise Exception("Not implemented")
 
+    def get_listing_fields(self):
+        raise Exception("Not implemented")
+
     @property
     def number_of_items(self):
         return 0
 
     #retriever fields
-
 
     @property
     def field_attribute_name(self):
@@ -111,7 +107,7 @@ class BaseListingInformationRetriever(BrowserView):
         self._field_attribute_name = value
 
     # BrowserView helper method
-    def getUID(self):
+    def get_UID(self):
         """ AT and Dexterity compatible way to extract UID from a content item """
         # Make sure we don't get UID from parent folder accidentally
         context = self.context.aq_base
@@ -122,13 +118,13 @@ class BaseListingInformationRetriever(BrowserView):
         uuid = IUUID(context, None)
         return uuid
 
-    def getItemFields(self):
+    def get_item_fields(self):
         """
         A catalog search should be faster especially when there
         are a large number of fields in the view. No need
         to wake up all the objects.
         """
-        uid = self.getUID()
+        uid = self.get_UID()
         if not uid:
             return []
         #brain = self.catalog.searchResults({'UID': uid})
@@ -143,15 +139,14 @@ class BaseListingInformationRetriever(BrowserView):
         for func in self.field_filters:
             yield func(item)
 
-
-    def metadataField(self, field_name):
+    def metadata_field(self, field_name):
 
         plone = getMultiAdapter((self.context, self.request), name="plone")
 
         if field_name in self.metadata_display:
             field = self.metadata_display[field_name]
         else:
-            raise Exception("Field no longer exists '%s'"%field_name)
+            raise Exception("Field no longer exists '%s'" % field_name)
 
         def value(item):
             # metadata does not have location
@@ -164,7 +159,7 @@ class BaseListingInformationRetriever(BrowserView):
 
             if attr_value == None or attr_value == Missing.Value:
                 return None
-            elif field_name in ['end','EffectiveDate','start','ExpirationDate','ModificationDate','CreationDate']:
+            elif field_name in ['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate']:
                 return plone.toLocalizedTime(attr_value, long_format=1)
             elif isinstance(attr_value, DateTime):
                 return plone.toLocalizedTime(attr_value, long_format=1)
@@ -177,25 +172,13 @@ class BaseListingInformationRetriever(BrowserView):
 
         return lambda item: {'title': field, 'css_class': css_class, 'value': value(item), 'is_custom': False}
 
-    def dateField(self, field_name):
-        if isinstance(attr_value, DateTime) or\
-            field == 'end' or\
-            field == 'EffectiveDate' or\
-            field == 'start' or\
-            field == 'ExpirationDate' or\
-            field == 'ModificationDate' or\
-            field == 'CreationDate':
-            plone = getMultiAdapter((self.context, self.request), name="plone")
-            attr_value = plone.toLocalizedTime(attr_value, long_format=1)
-
-    def customField(self, field_name):
+    def custom_field(self, field_name):
         field = None
         for field in getRegistryFields().fields:
             if field.name == field_name:
                 break
         if field is None:
-            raise Exception("Custom field not recognised '%'"%field_name)
-
+            raise Exception("Custom field not recognised '%'" % field_name)
 
         # example tal statement
         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
@@ -209,4 +192,3 @@ class BaseListingInformationRetriever(BrowserView):
             val = expression(expression_context)
             return {'title': field.name, 'css_class': field.css_class, 'value': val, 'is_custom': True}
         return value
-
