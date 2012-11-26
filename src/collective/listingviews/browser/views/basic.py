@@ -112,7 +112,7 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         return items
 
 
-class BasicTopicListingInformationRetriever(BaseListingInformationRetriever):
+class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
     implements(IListingAdapter)
 
     def get_listing_fields(self):
