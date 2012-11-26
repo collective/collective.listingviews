@@ -11,13 +11,11 @@ class ListingView(BrowserView):
         super(ListingView, self).__init__(context, request)
 
 
-#    def render(self):
-#        #print "*** ListingView render %s" % self.settings.listing_choice
-#        return self.index()
-#
-#    def __call__(self):
-#        #print "*** ListingView call %s" % self.settings.listing_choice
-#        return self.render()
+    def render(self):
+        return self.index()
+
+    def __call__(self):
+        return self.render()
 
     @property
     def macros(self):
