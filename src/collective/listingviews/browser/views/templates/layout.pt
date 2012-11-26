@@ -18,7 +18,7 @@
           >
           <div class="listing-collection-view"
             tal:define="class_name python: adapter.listing_style_class;
-                        fields python: adapter.retrieve_items;"
+                        fields python: adapter.retrieve_context_item;"
             tal:attributes="class string:${class_name} listing-collection-view">
 
               <div class="listing-item-fields">

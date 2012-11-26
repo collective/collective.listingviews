@@ -187,7 +187,7 @@ class ListingRenderer(base.Renderer):
     def portlet_items(self):
         """Main function that do everything.
         """
-        return self.adapter.retrieve_items
+        return self.adapter.retrieve_context_item
 
     def portlet_listing_items(self):
         """Main function that do everything.

@@ -29,6 +29,7 @@ class BaseListingInformationRetriever(BrowserView):
     implements(IListingAdapter)
 
     view_setting = None
+    field_filters = []
 
     def __init__(self, context, request):
         self.context = context
@@ -84,13 +85,10 @@ class BaseListingInformationRetriever(BrowserView):
             else:
                 print "No valid field"
 
-    def retrieve_items(self):
+    def retrieve_context_item(self):
         raise Exception("Not implemented")
 
     def retrieve_listing_items(self):
-        raise Exception("Not implemented")
-
-    def get_listing_fields(self):
         raise Exception("Not implemented")
 
     @property
