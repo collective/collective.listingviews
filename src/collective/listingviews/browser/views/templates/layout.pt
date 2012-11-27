@@ -13,9 +13,7 @@
           <!-- we adapt our local context and request and our setting to determine what to list -->
 
         <div class="listingviews" tal:define="adapter nocall:context/@@listing_view_adapter;
-            batch folderContents | adapter/retrieve_listing_items;"
-             
-          >
+            batch folderContents | adapter/retrieve_listing_items;">
           <div class="listing-collection-view"
             tal:define="class_name python: adapter.listing_style_class;
                         fields python: adapter.retrieve_context_item;"
@@ -46,7 +44,7 @@
               <ul class="listing-items-view" metal:define-macro="listing_items">
                   <li class="listing-item" tal:repeat="item_object batch">
                       <dl class="listing-fields">
-                          <tal:fields tal:repeat="field python:adapter.assemble_listing_information(item_object)">
+                          <tal:fields tal:repeat="field python:adapter.assemble_listing_information(item_object, False)">
                               <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
                                 customfieldclass string:listing-field ${field/css_class}"> 
                                 <tal:listingfield tal:condition="not:field/is_custom">

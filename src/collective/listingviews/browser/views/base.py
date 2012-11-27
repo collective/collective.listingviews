@@ -29,8 +29,9 @@ class BaseListingInformationRetriever(BrowserView):
     implements(IListingAdapter)
 
     view_setting = None
-    field_filters = []
-
+    item_field_filters = []
+    listing_field_filters = []
+    
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -49,9 +50,6 @@ class BaseListingInformationRetriever(BrowserView):
             self.set_listing_view(getListingNameFromView(view_name))
         # Case: portlet will call setListingView itself
 
-#        self._field_attribute_name = None
-#        self.item_fields = []
-
     def set_listing_view(self, view_name):
         self.listing_name = view_name
         viewsdata = getRegistryViews()
@@ -63,9 +61,13 @@ class BaseListingInformationRetriever(BrowserView):
         if self.view_setting is None:
             return
 
-        self.field_filters = []
         #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
-        for field in self.view_setting.listing_fields:
+        self.item_field_filters = self.retrieve_fields(self.view_setting.item_fields)
+        self.listing_field_filters = self.retrieve_fields(self.view_setting.listing_fields)
+
+    def retrieve_fields(self, fields):
+        field_filters = []
+        for field in fields:
             if ":" not in field:
                 print "No valid field: %s (No colon)" % field
                 continue
@@ -78,12 +80,13 @@ class BaseListingInformationRetriever(BrowserView):
 
             if not subfield[1]:
                 # default field name in Plone is "defaultname:"
-                self.field_filters.append(self.metadata_field(field_name=subfield[0]))
+                field_filters.append(self.metadata_field(field_name=subfield[0]))
             elif not subfield[0]:
                 # custom field name is ":customname"
-                self.field_filters.append(self.custom_field(field_name=subfield[1]))
+                field_filters.append(self.custom_field(field_name=subfield[1]))
             else:
                 print "No valid field"
+        return field_filters
 
     def retrieve_context_item(self):
         raise Exception("Not implemented")
@@ -94,16 +97,6 @@ class BaseListingInformationRetriever(BrowserView):
     @property
     def number_of_items(self):
         return 0
-
-    #retriever fields
-
-    @property
-    def field_attribute_name(self):
-        return self._field_attribute_name
-
-    @field_attribute_name.setter
-    def field_attribute_name(self, value):
-        self._field_attribute_name = value
 
     # BrowserView helper method
     def get_UID(self):
@@ -117,25 +110,18 @@ class BaseListingInformationRetriever(BrowserView):
         uuid = IUUID(context, None)
         return uuid
 
-    def get_item_fields(self):
+    def assemble_listing_information(self, brain, is_item_fields):
         """
-        A catalog search should be faster especially when there
-        are a large number of fields in the view. No need
-        to wake up all the objects.
+        brain: object that need to be retrieve
+        is_item_fields: switch between item_field and listing_field
         """
-        uid = self.get_UID()
-        if not uid:
-            return []
-        #brain = self.catalog.searchResults({'UID': uid})
-        brain = self.context.portal_catalog(UID=uid)
-        self.field_attribute_name = 'item_fields'
-        if brain and len(brain) == 1:
-            return self.assemble_listing_information(brain[0])
-        return []
-
-    def assemble_listing_information(self, brain):
         item = brain
-        for func in self.field_filters:
+        #switch between listing_fields or item_fields
+        retrieve_fields = self.listing_field_filters
+        if is_item_fields:
+            retrieve_fields = self.item_field_filters
+
+        for func in retrieve_fields:
             yield func(item)
 
     def metadata_field(self, field_name):

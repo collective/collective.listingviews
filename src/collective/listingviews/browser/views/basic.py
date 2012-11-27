@@ -75,8 +75,19 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
     @property
     @memoize
     def retrieve_context_item(self):
-        items = self.get_item_fields()
-        return items
+        """
+        A catalog search should be faster especially when there
+        are a large number of fields in the view. No need
+        to wake up all the objects.
+        """
+        uid = self.get_UID()
+        if not uid:
+            return []
+        #brain = self.catalog.searchResults({'UID': uid})
+        brain = self.context.portal_catalog(UID=uid)
+        if brain and len(brain) == 1:
+            return self.assemble_listing_information(brain[0], True)
+        return []
 
     @property
     @memoize
@@ -89,7 +100,6 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         path = self.context.getPhysicalPath()
         path = "/".join(path)
         items = self.context.portal_catalog(path={"query": path, "depth": 1})
-        self.field_attribute_name = 'listing_fields'
 
         if not self.is_portlet and self.listing_view_batch_size:
             items = Batch(items,
@@ -126,7 +136,6 @@ class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
             items = catalog(query)
             if should_limit:
                 items = items[:limit]
-            self.field_attribute_name = 'listing_fields'
         else:
             return []
 
