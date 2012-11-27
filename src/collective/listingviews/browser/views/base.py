@@ -22,6 +22,7 @@ from Products.CMFCore.Expression import Expression, getExprContext
 from zope.app.component.hooks import getSite
 from plone.uuid.interfaces import IUUID
 from Products.Five import BrowserView
+from plone.memoize.instance import memoize
 from collective.listingviews.browser.views.controlpanel import getRegistryFields, getRegistryViews, getListingNameFromView
 
 
@@ -31,7 +32,7 @@ class BaseListingInformationRetriever(BrowserView):
     view_setting = None
     item_field_filters = []
     listing_field_filters = []
-    
+
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -88,8 +89,22 @@ class BaseListingInformationRetriever(BrowserView):
                 print "No valid field"
         return field_filters
 
+    @property
+    @memoize
     def retrieve_context_item(self):
-        raise Exception("Not implemented")
+        """
+        A catalog search should be faster especially when there
+        are a large number of fields in the view. No need
+        to wake up all the objects.
+        """
+        uid = self.get_UID()
+        if not uid:
+            return []
+        #brain = self.catalog.searchResults({'UID': uid})
+        brain = self.context.portal_catalog(UID=uid)
+        if brain and len(brain) == 1:
+            return self.assemble_listing_information(brain[0], False)
+        return []
 
     def retrieve_listing_items(self):
         raise Exception("Not implemented")
@@ -97,6 +112,13 @@ class BaseListingInformationRetriever(BrowserView):
     @property
     def number_of_items(self):
         return 0
+
+    @property
+    def is_container(self):
+        """
+        Return true if current object is a container, such as folder, or collection
+        """
+        return False
 
     # BrowserView helper method
     def get_UID(self):
@@ -110,16 +132,17 @@ class BaseListingInformationRetriever(BrowserView):
         uuid = IUUID(context, None)
         return uuid
 
-    def assemble_listing_information(self, brain, is_item_fields):
+    def assemble_listing_information(self, brain, is_container):
         """
         brain: object that need to be retrieve
-        is_item_fields: switch between item_field and listing_field
+        is_container: if true, this will return listing_field
         """
         item = brain
         #switch between listing_fields or item_fields
-        retrieve_fields = self.listing_field_filters
-        if is_item_fields:
-            retrieve_fields = self.item_field_filters
+        retrieve_fields = self.item_field_filters
+        # for container, they will have both item and listing field filters
+        if is_container:
+            retrieve_fields = self.listing_field_filters
 
         for func in retrieve_fields:
             yield func(item)

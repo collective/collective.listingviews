@@ -154,3 +154,8 @@ class IListingAdapter(Interface):
         """
         Set id of the view to one of the available views stored in the registry.
         """
+
+    def is_container(self):
+        """
+        Return true if current object is a container, such as folder, or collection
+        """

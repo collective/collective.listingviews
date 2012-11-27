@@ -15,9 +15,6 @@ from Products.CMFPlone.PloneBatch import Batch
 class BasicListingInformationRetriever(BaseListingInformationRetriever):
     implements(IListingAdapter)
 
-    view_setting = None
-    is_portlet = False
-
     @property
     def item_fields(self):
         fields = []
@@ -57,7 +54,7 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
     @property
     def listing_portlet_more_text(self):
         portlet_more_text = 'More'
-        if self.is_portlet and self.view_setting:
+        if self.view_setting:
             portlet_more_text = getattr(self.view_setting, 'portlet_more_text', '')
         if portlet_more_text is None:
             portlet_more_text = 'More'
@@ -74,23 +71,6 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
 
     @property
     @memoize
-    def retrieve_context_item(self):
-        """
-        A catalog search should be faster especially when there
-        are a large number of fields in the view. No need
-        to wake up all the objects.
-        """
-        uid = self.get_UID()
-        if not uid:
-            return []
-        #brain = self.catalog.searchResults({'UID': uid})
-        brain = self.context.portal_catalog(UID=uid)
-        if brain and len(brain) == 1:
-            return self.assemble_listing_information(brain[0], True)
-        return []
-
-    @property
-    @memoize
     def retrieve_listing_items(self):
         """
         A catalog search should be faster especially when there
@@ -101,7 +81,7 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         path = "/".join(path)
         items = self.context.portal_catalog(path={"query": path, "depth": 1})
 
-        if not self.is_portlet and self.listing_view_batch_size:
+        if self.listing_view_batch_size:
             items = Batch(items,
                 self.listing_view_batch_size,
                 int(self.request.get('b_start', 0)),
@@ -111,6 +91,13 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
     @property
     def number_of_items(self):
         return len(self.retrieve_listing_items)
+
+    @property
+    def is_container(self):
+        """
+        Return true if current object is a container, such as folder, or collection
+        """
+        return True
 
 
 class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
@@ -139,7 +126,7 @@ class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
         else:
             return []
 
-        if not self.is_portlet and self.listing_view_batch_size:
+        if self.listing_view_batch_size:
             items = Batch(items,
                 self.listing_view_batch_size,
                 int(self.request.get('b_start', 0)),

@@ -122,8 +122,6 @@ class ListingRenderer(base.Renderer):
         self.data_more_url = ""
         self.data_more_text = ""
         self.item_information = []
-        self.listing_information = []
-        self._is_container = False
 
         if self.data.root:
             container = self._container()
@@ -138,15 +136,11 @@ class ListingRenderer(base.Renderer):
 
         #TODO this commented code needs to go back into the adapters
 #        if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):
-#            self._is_container = True
-#            this_url = getattr(container, 'getPhysicalPath', None)
-#            if this_url:
-#                self.data_more_url = "/".join(this_url())
-#            self.data_more_text = adapter.listing_portlet_more_text
-#            if adapter.listing_view_batch_size:
-#                self.listing_information = adapter.retrieve_listing_items[:adapter.listing_view_batch_size]
-#            else:
-#                self.listing_information = adapter.retrieve_listing_items
+        if self.adapter.is_container:
+            this_url = getattr(container, 'getPhysicalPath', None)
+            if this_url:
+                self.data_more_url = "/".join(this_url())
+            self.data_more_text = self.adapter.listing_portlet_more_text
 
     def css_class(self):
         """Generate a CSS class from the portlet header
@@ -166,9 +160,6 @@ class ListingRenderer(base.Renderer):
 
     def more_text(self):
         return self.data_more_text
-
-    def is_container(self):
-        return self._is_container
 
     def _container(self):
         try:
@@ -192,12 +183,15 @@ class ListingRenderer(base.Renderer):
     def portlet_listing_items(self):
         """Main function that do everything.
         """
-        return self.adapter.retrieve_listing_items
+        listing_items = self.adapter.retrieve_listing_items
+        size = self.adapter.listing_view_batch_size
+        if size:
+                listing_items = listing_items[:size]
+        return listing_items
 
     @property
     def listing_view_adapter(self):
         return self.adapter
-
 
 
 class ListingAddForm(base.AddForm):

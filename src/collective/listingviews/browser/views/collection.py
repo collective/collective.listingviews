@@ -28,7 +28,7 @@ class BasicCollectionListingInformationRetriever(
         items = catalog(query)
         items = items[:limit]
 
-        if not self.is_portlet and self.listing_view_batch_size:
+        if self.listing_view_batch_size:
             items = Batch(items,
                 self.listing_view_batch_size,
                 int(self.request.get('b_start', 0)),
