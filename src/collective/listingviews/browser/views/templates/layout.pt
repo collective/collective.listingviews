@@ -20,7 +20,7 @@
             tal:attributes="class string:${class_name} listing-collection-view">
 
               <div class="listing-item-fields">
-                <dl class="item-fields" metal:define-macro="item_fields">
+                <dl class="item-fields" tal:attributes="class string:${class_name}-item item-fields" metal:define-macro="item_fields">
 
                   <tal:fields tal:repeat="field fields">
                     <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
@@ -39,9 +39,10 @@
               </div>
               <tal:core-macro metal:define-macro="content-core"
                               tal:define="adapter adapter | nocall:context/@@listing_view_adapter;
-                              batch folderContents | adapter/retrieve_listing_items;">
+                              batch folderContents | adapter/retrieve_listing_items;
+                              class_name python: adapter.listing_style_class;">
 
-              <ul class="listing-items-view" metal:define-macro="listing_items">
+              <ul class="listing-items-view" tal:attributes="class string:${class_name}-listing listing-items-view" metal:define-macro="listing_items">
                   <li class="listing-item" tal:repeat="item_object batch">
                       <dl class="listing-fields">
                           <tal:fields tal:repeat="field python:adapter.assemble_listing_information(item_object, True)">
