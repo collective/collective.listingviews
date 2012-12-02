@@ -4,12 +4,15 @@ from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter, \
     IListingCustomFieldControlPanel, IListingControlPanel
 from collective.listingviews.settings import ListingSettings
-from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
 
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout
+    from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
 except:
     IFacetedLayout = None
+    IFacetedNavigable = None
+    IFacetedSearchMode = None
+
 from zLOG import LOG, INFO
 from zope.interface import implements
 from zope.component import adapts, getMultiAdapter
