@@ -110,10 +110,23 @@ class BaseListingInformationRetriever(BrowserView):
         return []
 
     def retrieve_listing_items(self):
-        raise Exception("Not implemented")
+        return []
 
     @property
     def number_of_items(self):
+        return 0
+
+    @property
+    def listing_style_class(self):
+        style_class = ""
+        if self.view_setting:
+            style_class = getattr(self.view_setting, 'css_class', '')
+        if style_class is None:
+            style_class = ""
+        return style_class
+
+    @property
+    def listing_view_batch_size(self):
         return 0
 
     @property

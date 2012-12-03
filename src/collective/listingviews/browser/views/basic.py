@@ -34,15 +34,6 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         return fields
 
     @property
-    def listing_style_class(self):
-        style_class = ""
-        if self.view_setting:
-            style_class = getattr(self.view_setting, 'css_class', '')
-        if style_class is None:
-            style_class = ""
-        return style_class
-
-    @property
     def listing_view_batch_size(self):
         batch_size = 0
         if self.view_setting:

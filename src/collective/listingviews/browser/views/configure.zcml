@@ -63,6 +63,10 @@
       class=".collection.BasicCollectionListingInformationRetriever"
       permission="zope2.View"
        zcml:condition="installed plone.app.collection"/>
-
+  <browser:page
+      for="*"
+      name="listing_view_adapter"
+      class=".base.BaseListingInformationRetriever"
+      permission="zope2.View" />
 
 </configure>

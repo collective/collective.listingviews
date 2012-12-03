@@ -150,6 +150,16 @@ class IListingAdapter(Interface):
         Total items of the current list
         """
 
+    def listing_style_class(self):
+        """
+        Listing view css class
+        """
+
+    def listing_view_batch_size(self):
+        """
+        Batch size
+        """
+
     def set_listing_view(self, view_name):
         """
         Set id of the view to one of the available views stored in the registry.
