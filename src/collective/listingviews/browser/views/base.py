@@ -205,7 +205,9 @@ class BaseListingInformationRetriever(BrowserView):
 
         # example tal statement
         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
-        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y"))
+        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y") if getattr(object.getObject(), 'effective', None) else "")
+        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y") if object.getObject().effective().year() >= 1900 else "")
+        # python:'{0}'.format(object.getObject().effective().strftime("%d %B %Y"))
         # python:object.getObject().folder_full_view_item()
         # python:getattr(object.getObject(), 'remote_url', None) and object.getObject().remote_url() for atlink content type
         expression = Expression(field.tal_statement)
