@@ -6,11 +6,6 @@
     <include package=".views" />
     <include package=".portlets" />
 
-    <!-- We need to make the request annotatable for this to work -->
-    <class class="ZPublisher.BaseRequest.BaseRequest">
-        <implements interface="zope.annotation.interfaces.IAttributeAnnotatable" />
-    </class>
-
     <browser:resourceDirectory
         name="listingviews.resources"
         directory="files"

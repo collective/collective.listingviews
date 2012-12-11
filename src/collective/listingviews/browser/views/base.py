@@ -3,7 +3,7 @@ from DateTime import DateTime
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter, \
     IListingCustomFieldControlPanel, IListingControlPanel
-from collective.listingviews.settings import ListingSettings
+#from collective.listingviews.settings import ListingSettings
 
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout

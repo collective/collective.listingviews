@@ -88,13 +88,13 @@ class CustomFieldDefinition(object):
 registerFactoryAdapter(ICustomFieldDefinition, CustomFieldDefinition)
 
 
-class IListingSettings(Interface):
-    listing_choice = schema.Choice(
-        title=_(u"label_listing_choice", default=u"Listing views"),
-        description=_(u"description_listing_choice",
-            default=u"Select the custom listing views."),
-        vocabulary="collective.listingviews.ListingViewVocabulary",
-        default="view1")
+#class IListingSettings(Interface):
+#    listing_choice = schema.Choice(
+#        title=_(u"label_listing_choice", default=u"Listing views"),
+#        description=_(u"description_listing_choice",
+#            default=u"Select the custom listing views."),
+#        vocabulary="collective.listingviews.ListingViewVocabulary",
+#        default="view1")
 
 
 class IListingControlSettings(Interface):
@@ -125,12 +125,12 @@ class IListingCustomFieldControlPanel(Interface):
     )
 
 
-class IBaseSettings(Interface):
-    pass
+#class IBaseSettings(Interface):
+#    pass
 
 
-class IBasicListingSettings(IBaseSettings):
-    pass
+#class IBasicListingSettings(IBaseSettings):
+#    pass
 
 
 class IListingAdapter(Interface):
