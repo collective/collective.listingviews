@@ -61,10 +61,10 @@
                       </dl>
                   </li>
               </ul>
-              <div class="listing-navigation" tal:condition="adapter/listing_view_batch_size">
-                <div metal:use-macro="view/context/batch_macros/macros/navigation"> 
-                  Navigation
-                </div>
+
+              <!-- Navigation -->
+              <div metal:use-macro="view/context/batch_macros/macros/navigation"> 
+                Navigation
               </div>
               </tal:core-macro>
         </div>
