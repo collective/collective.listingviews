@@ -3,13 +3,16 @@ from DateTime import DateTime
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter, \
     IListingCustomFieldControlPanel, IListingControlPanel
-from collective.listingviews.settings import ListingSettings
-from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
+#from collective.listingviews.settings import ListingSettings
 
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout
+    from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
 except:
     IFacetedLayout = None
+    IFacetedNavigable = None
+    IFacetedSearchMode = None
+
 from zLOG import LOG, INFO
 from zope.interface import implements
 from zope.component import adapts, getMultiAdapter
@@ -22,6 +25,7 @@ from Products.CMFCore.Expression import Expression, getExprContext
 from zope.app.component.hooks import getSite
 from plone.uuid.interfaces import IUUID
 from Products.Five import BrowserView
+from plone.memoize.instance import memoize
 from collective.listingviews.browser.views.controlpanel import getRegistryFields, getRegistryViews, getListingNameFromView
 
 
@@ -29,7 +33,8 @@ class BaseListingInformationRetriever(BrowserView):
     implements(IListingAdapter)
 
     view_setting = None
-    field_filters = []
+    item_field_filters = []
+    listing_field_filters = []
 
     def __init__(self, context, request):
         self.context = context
@@ -49,9 +54,6 @@ class BaseListingInformationRetriever(BrowserView):
             self.set_listing_view(getListingNameFromView(view_name))
         # Case: portlet will call setListingView itself
 
-#        self._field_attribute_name = None
-#        self.item_fields = []
-
     def set_listing_view(self, view_name):
         self.listing_name = view_name
         viewsdata = getRegistryViews()
@@ -63,9 +65,13 @@ class BaseListingInformationRetriever(BrowserView):
         if self.view_setting is None:
             return
 
-        self.field_filters = []
         #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
-        for field in self.view_setting.listing_fields:
+        self.item_field_filters = self.retrieve_fields(self.view_setting.item_fields)
+        self.listing_field_filters = self.retrieve_fields(self.view_setting.listing_fields)
+
+    def retrieve_fields(self, fields):
+        field_filters = []
+        for field in fields:
             if ":" not in field:
                 print "No valid field: %s (No colon)" % field
                 continue
@@ -78,32 +84,57 @@ class BaseListingInformationRetriever(BrowserView):
 
             if not subfield[1]:
                 # default field name in Plone is "defaultname:"
-                self.field_filters.append(self.metadata_field(field_name=subfield[0]))
+                field_filters.append(self.metadata_field(field_name=subfield[0]))
             elif not subfield[0]:
                 # custom field name is ":customname"
-                self.field_filters.append(self.custom_field(field_name=subfield[1]))
+                field_filters.append(self.custom_field(field_name=subfield[1]))
             else:
                 print "No valid field"
+        return field_filters
 
+    @property
+    @memoize
     def retrieve_context_item(self):
-        raise Exception("Not implemented")
+        """
+        A catalog search should be faster especially when there
+        are a large number of fields in the view. No need
+        to wake up all the objects.
+        """
+        uid = self.get_UID()
+        if not uid:
+            return []
+        #brain = self.catalog.searchResults({'UID': uid})
+        brain = self.context.portal_catalog(UID=uid)
+        if brain and len(brain) == 1:
+            return self.assemble_listing_information(brain[0], False)
+        return []
 
     def retrieve_listing_items(self):
-        raise Exception("Not implemented")
+        return []
 
     @property
     def number_of_items(self):
         return 0
 
-    #retriever fields
+    @property
+    def listing_style_class(self):
+        style_class = ""
+        if self.view_setting:
+            style_class = getattr(self.view_setting, 'css_class', '')
+        if style_class is None:
+            style_class = ""
+        return style_class
 
     @property
-    def field_attribute_name(self):
-        return self._field_attribute_name
+    def listing_view_batch_size(self):
+        return 0
 
-    @field_attribute_name.setter
-    def field_attribute_name(self, value):
-        self._field_attribute_name = value
+    @property
+    def is_container(self):
+        """
+        Return true if current object is a container, such as folder, or collection
+        """
+        return False
 
     # BrowserView helper method
     def get_UID(self):
@@ -117,25 +148,19 @@ class BaseListingInformationRetriever(BrowserView):
         uuid = IUUID(context, None)
         return uuid
 
-    def get_item_fields(self):
+    def assemble_listing_information(self, brain, is_container):
         """
-        A catalog search should be faster especially when there
-        are a large number of fields in the view. No need
-        to wake up all the objects.
+        brain: object that need to be retrieve
+        is_container: if true, this will return listing_field
         """
-        uid = self.get_UID()
-        if not uid:
-            return []
-        #brain = self.catalog.searchResults({'UID': uid})
-        brain = self.context.portal_catalog(UID=uid)
-        self.field_attribute_name = 'item_fields'
-        if brain and len(brain) == 1:
-            return self.assemble_listing_information(brain[0])
-        return []
-
-    def assemble_listing_information(self, brain):
         item = brain
-        for func in self.field_filters:
+        #switch between listing_fields or item_fields
+        retrieve_fields = self.item_field_filters
+        # for container, they will have both item and listing field filters
+        if is_container:
+            retrieve_fields = self.listing_field_filters
+
+        for func in retrieve_fields:
             yield func(item)
 
     def metadata_field(self, field_name):
@@ -180,7 +205,9 @@ class BaseListingInformationRetriever(BrowserView):
 
         # example tal statement
         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))
-        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y"))
+        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y") if getattr(object.getObject(), 'effective', None) else "")
+        # python:'{0}'.format(object.getObject().effective().strftime("%d/%m/%Y") if object.getObject().effective().year() >= 1900 else "")
+        # python:'{0}'.format(object.getObject().effective().strftime("%d %B %Y"))
         # python:object.getObject().folder_full_view_item()
         # python:getattr(object.getObject(), 'remote_url', None) and object.getObject().remote_url() for atlink content type
         expression = Expression(field.tal_statement)

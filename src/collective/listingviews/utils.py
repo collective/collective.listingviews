@@ -1,5 +1,5 @@
 from zope.component import getMultiAdapter
-from settings import ListingSettings
+#from settings import ListingSettings
 
 from zope.interface import implements  # , alsoProvides
 #from zope.schema import getFieldsInOrder
@@ -12,20 +12,9 @@ from zope import schema
 import re
 
 
-def createSettingsFactory(schema):
-    class Settings(ListingSettings):
-        implements(schema)
-
-        def __init__(self, context, interfaces=[schema]):
-            super(Settings, self).__init__(context, interfaces)
-
-    return Settings
 
 _marker = object()
 
-
-def facetId(name):
-    return "facet_" + re.sub("\W", "", name)
 
 
 # From http://code.activestate.com/recipes/440656/
