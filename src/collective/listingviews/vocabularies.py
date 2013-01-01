@@ -58,7 +58,12 @@ def MetadataVocabulary(context):
     portal = getSite()
     metadataDisplay = getToolByName(portal, 'portal_atct').getMetadataDisplay()
     for name, display_name in metadataDisplay.items():
-        terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
+        if name in ['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate']:
+            for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
+                terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
+                                                         "%s (%s)"%(display_name, format_name)))
+        else:
+            terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
 
     # custom field
     reg = queryUtility(IRegistry)

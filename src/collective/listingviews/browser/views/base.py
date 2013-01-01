@@ -71,6 +71,8 @@ class BaseListingInformationRetriever(BrowserView):
 
     def retrieve_fields(self, fields):
         field_filters = []
+        plone_util = getMultiAdapter((self.context, self.request), name="plone")
+
         for field in fields:
             if ":" not in field:
                 print "No valid field: %s (No colon)" % field
@@ -82,14 +84,18 @@ class BaseListingInformationRetriever(BrowserView):
                 print "No valid field: %s (Too much colon)" % field
                 continue
 
-            if not subfield[1]:
-                # default field name in Plone is "defaultname:"
-                field_filters.append(self.metadata_field(field_name=subfield[0]))
-            elif not subfield[0]:
+            field, func = subfield
+
+            if field:
                 # custom field name is ":customname"
-                field_filters.append(self.custom_field(field_name=subfield[1]))
+                field_filters.append(self.custom_field(field_name=func))
             else:
-                print "No valid field"
+                filter = self.metadata_field(field_name=field)
+                if func=='localshort':
+                    filter = lambda item: plone_util.toLocalizedTime(filter(item), long_format=0)
+                elif func=='locallong':
+                    filter = lambda item: plone_util.toLocalizedTime(filter(item), long_format=1)
+                field_filters.append(filter)
         return field_filters
 
     @property
@@ -183,8 +189,6 @@ class BaseListingInformationRetriever(BrowserView):
 
             if attr_value == None or attr_value == Missing.Value:
                 return None
-            elif field_name in ['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate']:
-                return plone.toLocalizedTime(attr_value, long_format=1)
             elif isinstance(attr_value, DateTime):
                 return plone.toLocalizedTime(attr_value, long_format=1)
             elif isinstance(attr_value, basestring):

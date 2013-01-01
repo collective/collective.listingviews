@@ -4,7 +4,8 @@ from zope.interface import implements
 from z3c.form.object import registerFactoryAdapter
 from collective.listingviews import LVMessageFactory as _
 from validation import validate_id, validate_class, validate_tal
-
+from plone.autoform import directives as form
+from collective.z3cform.widgets.token_input_widget import TokenInputFieldWidget
 
 
 class IListingDefinition(Interface):
@@ -18,22 +19,25 @@ class IListingDefinition(Interface):
         description=_(u"Name as it will appear in the display menu to editors"))
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
-    item_fields = schema.List(title=_(u"Item Fields"),
-        description=_(u"Item fields in the order you want them to appear in your listing"),
+    form.widget(item_fields=TokenInputFieldWidget)
+    item_fields = schema.List(title=_(u"Fields of Item"),
+        description=_(u"Display the following fields at of current content item. Sort to change order."),
         required=True,
         default=[],
         value_type=schema.Choice(
             vocabulary="collective.listingviews.MetadataVocabulary"),
         )
 
-    listing_fields = schema.List(title=_(u"Listing Fields"),
-        description=_(u"Listing fields in the order you want them to appear in your listing"),
+    form.widget(listing_fields=TokenInputFieldWidget)
+    listing_fields = schema.List(title=_(u"Fields of Contents"),
+        description=_(u"Folders/Collections and other listable items will list contents displaying these fields for each"),
         required=False,
         default=[],
         value_type=schema.Choice(
             vocabulary="collective.listingviews.MetadataVocabulary"),
         )
 
+    form.widget(restricted_to_types=TokenInputFieldWidget)
     restricted_to_types = schema.List(title=_(u"Restricted To Types"),
         description=_(u"Left it blank if the view is applying all types."),
         required=False,
@@ -56,6 +60,7 @@ class IListingDefinition(Interface):
     css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
         required=False,
         constraint=validate_class)
+
 
 
 class ListingDefinition(object):
