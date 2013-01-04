@@ -171,6 +171,8 @@ except ImportError:
         setup_args['download_base'] = options.download_base
     if options.use_distribute:
         setup_args['no_fake'] = True
+        if sys.version_info[:2] == (2, 4):
+            setup_args['version'] = '0.6.32'
     ez['use_setuptools'](**setup_args)
     if 'pkg_resources' in sys.modules:
         reload(sys.modules['pkg_resources'])
@@ -193,6 +195,8 @@ if not has_broken_dash_S:
 find_links = options.download_base
 if not find_links:
     find_links = os.environ.get('bootstrap-testing-find-links')
+if not find_links and options.accept_buildout_test_releases:
+    find_links = 'https://github.com/buildout/buildout/downloads'
 if find_links:
     cmd.extend(['-f', quote(find_links)])
 
@@ -229,6 +233,8 @@ if version is None and not options.accept_buildout_test_releases:
         bestv = None
         for dist in index[req.project_name]:
             distv = dist.parsed_version
+            if distv >= pkg_resources.parse_version('2dev'):
+                continue
             if _final_version(distv):
                 if bestv is None or distv > bestv:
                     best = [dist]
@@ -238,8 +244,12 @@ if version is None and not options.accept_buildout_test_releases:
         if best:
             best.sort()
             version = best[-1].version
+
 if version:
-    requirement = '=='.join((requirement, version))
+    requirement += '=='+version
+else:
+    requirement += '<2dev'
+
 cmd.append(requirement)
 
 if is_jython:

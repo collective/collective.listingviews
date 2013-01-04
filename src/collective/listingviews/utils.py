@@ -352,17 +352,28 @@ class RecordsProxyList(ListMixin):
     def _get_element(self, i):
         return self.map[self.genKey(i)]
 
+    def get(self, id, default=None):
+        return self.map.get(id, default)
+
+    def indexof(self, id):
+        if self.key_name is not None:
+            item = self.map.get(id)
+            key = getattr(item, self.key_name)
+            return self.keys.value.index(key)
+        else:
+            raise Exception('No key_name set')
+
+
+
     def _set_element(self, index, value):
         if self.key_name is not None:
             #First add it to the map to ensure it's a valid key
             try:
                 key = getattr(value, self.key_name)
-                self.map[key] = value
             except:
-                # our key list might be in an inconsistent state
-                if self.keys.value[index] is None:
-                    del self.keys.value[index]
-                raise
+                key = value[self.key_name]
+            assert key
+            self.map[key] = value
 
             # we have to remove the old value if it's being overwritten
             oldkey = self.keys.value[index]
@@ -374,7 +385,10 @@ class RecordsProxyList(ListMixin):
             self.map[self.genKey(index)] = value
 
     def __len__(self):
-        return len(self.map)
+        if self.key_name is None:
+            return len(self.map)
+        else:
+            return len(self.keys.value)
 
     def _resize_region(self, start, end, new_size):
         if self.key_name is None:

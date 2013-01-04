@@ -1,17 +1,11 @@
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.component import queryUtility
-from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from zope.app.component.hooks import getSite
-from utils import ComplexRecordsProxy
-from interfaces import IListingCustomFieldControlPanel, IListingControlPanel
-from collective.listingviews import LVMessageFactory as _
-
 
 class LVVocabulary(SimpleVocabulary):
     """
     Don't error out if you can't find it right away
-    and default to the default value...
+    and default to the default value
     This prevents any issues if a field
     is removed and the user had it selected.
     """
@@ -36,45 +30,6 @@ class LVVocabulary(SimpleVocabulary):
             return self.by_value[self.default]
         except:
             raise LookupError(value)
-
-
-def ListingViewVocabulary(context):
-    terms = []
-    reg = queryUtility(IRegistry)
-    if reg is not None:
-        proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                key_names={'views': 'id'})
-        for view in proxy.views:
-            terms.append(SimpleVocabulary.createTerm(view.id, view.id, view.name))
-    return SimpleVocabulary(terms)
-
-
-def MetadataVocabulary(context):
-    """
-    Metadata name is stored in registry. Format for default name is "fieldname:"
-    and format for custom name is ":customname"
-    """
-    terms = []
-    portal = getSite()
-    metadataDisplay = getToolByName(portal, 'portal_atct').getMetadataDisplay()
-    for name, display_name in metadataDisplay.items():
-        if name in ['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate']:
-            for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
-                terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
-                                                         "%s (%s)"%(display_name, format_name)))
-        else:
-            terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
-
-    # custom field
-    reg = queryUtility(IRegistry)
-    if reg is not None:
-        proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
-                                    prefix='collective.listingviews.customfield',
-                                   key_names={'fields': 'id'})
-        for field in proxy.fields:
-            terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
-                                                     "%s (Custom)" % field.name))
-    return SimpleVocabulary(terms)
 
 
 def ContentTypeVocabulary(context):

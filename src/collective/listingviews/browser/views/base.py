@@ -86,7 +86,7 @@ class BaseListingInformationRetriever(BrowserView):
 
             field, func = subfield
 
-            if field:
+            if func and not field:
                 # custom field name is ":customname"
                 field_filters.append(self.custom_field(field_name=func))
             else:

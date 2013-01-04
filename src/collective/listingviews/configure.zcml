@@ -20,20 +20,20 @@
 
   <utility
         provides="zope.schema.interfaces.IVocabularyFactory"
-        component=".vocabularies.ListingViewVocabulary"
+        component=".interfaces.ListingViewVocabulary"
         name="collective.listingviews.ListingViewVocabulary"
         />
 
   <utility
         provides="zope.schema.interfaces.IVocabularyFactory"
-        component=".vocabularies.MetadataVocabulary"
+        component=".interfaces.MetadataVocabulary"
         name="collective.listingviews.MetadataVocabulary"
         />
+
 
   <utility
         provides="zope.schema.interfaces.IVocabularyFactory"
         component=".vocabularies.ContentTypeVocabulary"
         name="collective.listingviews.ContentTypeVocabulary"
         />
-
 </configure>

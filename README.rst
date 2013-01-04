@@ -3,13 +3,17 @@
 Introduction
 ============
 
-ListingViews aims to replace the need to override templates for collections, folders, collection porlets or content
-views in many situations when used in conjunction with plone.app.theming. 
-It lets you define your ListingViews in Plone Site Setup. A ListingView is definition of what fields you'd like to
-see and in which order. You can pick these view from the ``Display`` menu of any item. For collections and folders it
-will give you a batched list. For a content item, it will give you just information about that item. ListingView portlets
-work the same way. For advanced use you can create custom fields using a TAL expression.
+ListingViews allows a site administrator to create new views in Plone Site Setup.
+A ListingView definition is an order list of fields which will appear as a repeating list of definition
+lists in html with a unique css selector. Editors can pick these view from the ``Display`` menu of any item.
+For collections and folders it will give you a batched list. For a content item, it will give you just
+information about that item. You can also use the same ListingViews in portlets.
+For advanced use you can create custom fields using a TAL expression.
+
 The html of the listings is designed to to be simple and easy to theme using diazo.
+ListingViews,when used in conjunction with plone.app.theming, aims to replace many of the usecases which
+previously have required overriding ZPT templates, for collections, folders, collection, porlets or content views.
+
 
 Example: Adding publication date news listing
 =============================================
@@ -39,7 +43,7 @@ To include publication date with the custom format in the news listing
 
 1. Go to ``Site Setup > Listing Custom Fields > Add``
 2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
-   ``python:object.getObject().modified().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
+   ``python:object.getObject().effictive().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
 
@@ -231,6 +235,10 @@ possible future directions
 - make a listingview tile for use in deco or collective.cover. Tile would include querystring to replace collection. If you wanted to instead reference a tile elsewhere we might need a referencebrowser widget that lets us pick tiles not just content?
 - provide a way to make bulk changes in content from one listingview to another listingview. This would allow a new "template" to be
   created and tested and then switched in production.
+- support the concept of functions instead of custom fields. When creating a function you specify which fields it can apply to, or the whole object (which makes
+  it a custom field). In the listing view, you can now pick the field with or without that function applied.
+- interactive testing with a view in control panel of sample content with your functions applied, or a specifc view.
+- provide a way to turn a view into zpt so it can be used in fs code.
 - implement safe html filtering
 - support customisation of batching settings
 - support old style collections
@@ -240,11 +248,3 @@ possible future directions
 - support ajax batching
 - support infinite lists (auto load next when scrolled down)
 
-Dynamic adding to displaymenu
-=============================
-
-https://github.com/plone/Products.CMFDynamicViewFTI/blob/master/Products/CMFDynamicViewFTI/browserdefault.py
-https://github.com/plone/plone.app.customerize/blob/master/plone/app/customerize/browser.py
-        sm = getSiteManager(self.context)
-        sm.registerAdapter(viewzpt, required = reg.required,
-                           provided = reg.provided, name = reg.name)

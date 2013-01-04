@@ -65,20 +65,35 @@ To include publication date with the custom format in the news listing
 
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
->>> print browser.contents
 
 # TODO: stupid widget has a "virtual" input so we can't use it
->>> browser.getControl(name="form.widgets.views.0.widgets.listing_fields.to").value = ['Title', "Location", "Tal expression"]
->>> browser.getControl('Save').click()
+>>> browser.getControl(name="crud-add.form.widgets.item_fields.from").value = ['Title:', "location:", ":pubdate"]
 
 
-5. Specify a ``View Batch Size`` of 3 and then ``Save``.
+5. Specify a ``View Batch Size`` of 3 and then ``Add``.
+
+>>> browser.getControl('View Batch Size').value = '3'
+>>> browser.getControl('Add').click()
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
 
 6. Go to your news folder and create a collection normally which displays your news sorted by reverse publication date
-7. Select ``Display > Listing View``.
-8. Click on ``Listing Settings``, then select ``News with publication`` and then ``Apply``.
+
+>>> browser.getLink('Home').click()
+>>> browser.getLink('Folder').click()
+>>> browser.getControl('Title').value = 'folder1'
+>>> browser.getControl('Save').click()
+
+Add an item
+>>> browser.getLink('Page').click()
+>>> browser.getControl('Title').value = 'item1'
+>>> browser.getControl('Save').click()
+
+>>> browser.getLink('folder1').click()
+
+7. Select ``Display > 'News with publication'``. This will change the folder view to our new view we created.
+
+>>> browser.getLink('News with publication').click()
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-setting.png
 
@@ -89,6 +104,8 @@ like this
 
 with html like this::
 
+>>> print browser.contents
+<html>...
     <div class="listingviews">
         <div class=" listing-collection-view">
             <ul class="listing-items-view">
@@ -108,6 +125,9 @@ with html like this::
             </ul>
         </div>
     </div>
+...
+
+
 
 Next you will need to use diazo rules like the following to turn the bare lising view into the final result::
 
