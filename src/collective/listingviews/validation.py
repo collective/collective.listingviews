@@ -7,7 +7,7 @@ from Products.CMFCore.Expression import Expression
 
 
 class InvalidId(ValidationError):
-    __doc__ = _("Id must only containts alphanumeric or underscore, starting with alpha.")
+    __doc__ = _("Id must only contains alphanumeric or underscore, starting with alpha.")
 
 
 class InvalidClass(ValidationError):
@@ -23,11 +23,11 @@ class InvalidTAL(ValidationError):
 
 def validate_id(value):
     """
-    Check that id only containts alphanumeric or underscore, starting with alpha.
+    Check that id only contains alphanumeric or underscore, starting with alpha.
     """
     #http://plone.org/documentation/manual/developer-manual/forms/using-zope.formlib/adding-validation
     if not re.match("^[A-Za-z][A-Za-z0-9_]*$", value):
-        #raise Invalid(_(u"Id must only containts alphanumeric or underscore, starting with alpha."))
+        #raise Invalid(_(u"Id must only contains alphanumeric or underscore, starting with alpha."))
         raise InvalidId(value)
     return True
 
@@ -39,7 +39,7 @@ def validate_class(value):
     #http://www.w3.org/TR/CSS21/grammar.html#scanner
     #http://stackoverflow.com/questions/448981/what-characters-are-valid-in-css-class-names
     if not re.match("^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$", value):
-        #raise Invalid(_(u"Id must only containts alphanumeric or underscore, starting with alpha."))
+        #raise Invalid(_(u"Id must only contains alphanumeric or underscore, starting with alpha."))
         raise InvalidClass(value)
     return True
 
