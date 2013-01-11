@@ -30,6 +30,7 @@ from plone.z3cform import layout
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.form import AutoObjectSubForm, AutoFields, AutoExtensibleForm
 from z3c.form import field, form, button
+from zope.cachedescriptors.property import Lazy as lazy_property
 
 
 def getViewName(view_id):
@@ -147,31 +148,34 @@ class ListingViewEditForm(crud.EditForm):
     handlers = crud.EditForm.handlers.copy()
     editsubform_factory = ListingViewDefinitionEditForm
 
-class ListingViewAddForm(AutoExtensibleForm, crud.AddForm):
+class ListingViewAddForm(crud.AddForm, AutoExtensibleForm):
     @property
     def schema(self):
         return self.context.add_schema
 
+    # fixes bug with OrderedSelect widget which turns crud-add.form into crud.add.form
+    prefix = 'crud.add.form.'
+
 class ListingViewSchemaListing(crud.CrudForm):
     """ The combined pigeonhole edit + add forms.
     """
-#
-#    @lazy_property
-#    def description(self):
-#        if self.get_items():
-#            return _(u'The following custom metadata schemas are available for '
-#                     u'your site.')
-#        else:
-#            return _(u'Click the "Add Schema" button to begin creating '
-#                     u' a new metadata schema.')
 
-#    template = ViewPageTemplateFile('schema_listing.pt')
+    @lazy_property
+    def description(self):
+        if self.get_items():
+            return _(u'The following custom listing views are available for '
+                     u'your site.')
+        else:
+            return _(u'Click the "Add" button to begin creating '
+                     u' a new listing view.')
+
     update_schema = field.Fields(IListingDefinition).select('name')
     view_schema = field.Fields(IListingDefinition).select('id')
     add_schema = IListingDefinition
     addform_factory = ListingViewAddForm
 #    editform_factory = ListingViewEditForm
 
+    ignoreContext = True
 
     def get_items(self):
         """ Look up all existing schemas in the registry.
@@ -183,6 +187,7 @@ class ListingViewSchemaListing(crud.CrudForm):
         record = ListingDefinition(data)
         views.append(record)
         addView(self.context, record)
+        _registerMenuItems()
 
     def remove(self, (name, item)):
         """ Remove a schema.
@@ -191,6 +196,7 @@ class ListingViewSchemaListing(crud.CrudForm):
         view = views.get(name)
         del views[views.indexof(name)]
         removeView(self.context, view)
+        _registerMenuItems()
 
     def link(self, item, field):
         """ Generate links to the edit page for each schema.
@@ -249,6 +255,9 @@ class ListingViewControlPanel(SimpleItem):
     def publishTraverse(self, request, name):
         """ Use another context for breadcrumbs
         """
+        # disable inline validation as it doesn't work
+        if name == 'kss_z3cform_inline_validation':
+            return
         return ListingViewEditContext(self.context, request, name).__of__(self)
 
     def browserDefault(self, request):

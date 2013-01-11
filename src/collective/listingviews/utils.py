@@ -373,6 +373,7 @@ class RecordsProxyList(ListMixin):
             except:
                 key = value[self.key_name]
             assert key
+            assert self.keys.value.count(key) == 0 or self.keys.value.index(key) == index
             self.map[key] = value
 
             # we have to remove the old value if it's being overwritten

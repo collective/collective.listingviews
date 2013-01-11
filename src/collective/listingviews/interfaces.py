@@ -4,7 +4,10 @@ from zope.interface import implements
 from z3c.form.object import registerFactoryAdapter
 from collective.listingviews import LVMessageFactory as _
 from validation import validate_id, validate_class, validate_tal
-from plone.autoform import directives as form
+try:
+    from plone.autoform import directives as form
+except:
+    from plone.directives import form
 #from collective.z3cform.widgets.token_input_widget import TokenInputFieldWidget
 from collective.z3cform.chosen import ChosenMultiFieldWidget
 #from plone.formwidget.contenttree import AutocompleteMultiSelectionFieldWidget

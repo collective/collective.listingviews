@@ -37,6 +37,7 @@ setup(name='collective.listingviews',
           # -*- Extra requirements: -*-
           'plone.app.z3cform',
           'plone.app.testing',
+#          'plone.directives.form', # older directives
           'collective.z3cform.chosen'
       ],
       extras_require={'test': ['plone.app.testing']},
