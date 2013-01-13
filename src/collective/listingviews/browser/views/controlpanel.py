@@ -91,7 +91,7 @@ def _registerMenuItems():
     gsm = getGlobalSiteManager()
     menu = getUtility(IBrowserMenu, 'plone_displayviews')
     for view in proxy.views:
-        if not view.id or view.name:
+        if not view.id or not view.name:
             #TODO: should give a warning
             continue
         # register a menu item
@@ -100,7 +100,7 @@ def _registerMenuItems():
             BrowserMenuItem,
             title=view.name,
             action=view_name,
-            #description=description,
+            description=view.name,
             # icon=icon,
             #filter=filter, permission=permission, extra=extra, order=order,
     #                    _for=(IContentish, IDefaultBrowserLayer)
@@ -109,14 +109,14 @@ def _registerMenuItems():
         gsm.unregisterAdapter(
             required=(IFolderish, IDefaultBrowserLayer),
             provided=menu.getMenuItemType(),
-            name=view.name,
+            name=view_name,
         )
 
         gsm.registerAdapter(
             factory,
             required=(IFolderish, IDefaultBrowserLayer),
             provided=menu.getMenuItemType(),
-            name=view.name,
+            name=view_name,
         )
 
 
@@ -297,44 +297,46 @@ class ListingViewEditContext(SimpleItem):
 
 # Old crud form
 
-class ListingControlPanelForm(controlpanel.RegistryEditForm):
-
-    schema = IListingControlPanel
-    label = _(u"Manage Listing Views")
-    description = _(u"""""")
-
-    def getContent(self):
-        return getRegistryViews()
-
-    def applyChanges(self, data):
-        #import pdb; pdb.set_trace()
-        # for each view we will create a new view in customerize and add that as a menu
-        # item in the display menu
-
-        old_views = set([view.id for view in getRegistryViews().views])
-
-        for view in data['views']:
-            addView(self.context, view)
-            # registering a menu item will be done in beforeSiteTraverse event
-            if view.id in old_views:
-                old_views.remove(view.id)
-
-        for view_id in old_views:
-            removeView(self.context, view)
-
-
-        # registering a menu item will be done in beforeSiteTraverse event
-        #TODO unregister any old views
-        super(ListingControlPanelForm, self).applyChanges(data)
-
-        # register all the menu names again from registery
-        _registerMenuItems()
-
-class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
-    form = ListingControlPanelForm
+#class ListingControlPanelForm(controlpanel.RegistryEditForm):
+#
+#    schema = IListingControlPanel
+#    label = _(u"Manage Listing Views")
+#    description = _(u"""""")
+#
+#    def getContent(self):
+#        return getRegistryViews()
+#
+#    def applyChanges(self, data):
+#        #import pdb; pdb.set_trace()
+#        # for each view we will create a new view in customerize and add that as a menu
+#        # item in the display menu
+#
+#        old_views = set([view.id for view in getRegistryViews().views])
+#
+#        for view in data['views']:
+#            addView(self.context, view)
+#            # registering a menu item will be done in beforeSiteTraverse event
+#            if view.id in old_views:
+#                old_views.remove(view.id)
+#
+#        for view_id in old_views:
+#            removeView(self.context, view)
+#
+#
+#        # registering a menu item will be done in beforeSiteTraverse event
+#        #TODO unregister any old views
+#        super(ListingControlPanelForm, self).applyChanges(data)
+#
+#        # register all the menu names again from registery
+#        _registerMenuItems()
+#
+#class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
+#    form = ListingControlPanelForm
 
 #class ListingCustomFieldControlPanel(object):
 #    implements(IListingCustomFieldControlPanel)
+#class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
+#    form = ListingControlPanelForm
 
 
 class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
@@ -351,8 +353,6 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
 #        import pdb; pdb.set_trace()
 #        self.widgets['tal_statement'].size = 100
         
-class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
-    form = ListingControlPanelForm
 
 
 class ListingCustomFieldControlPanelView(controlpanel.ControlPanelFormWrapper):

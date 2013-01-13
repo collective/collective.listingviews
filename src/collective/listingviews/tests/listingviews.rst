@@ -64,16 +64,26 @@ To include publication date with the custom format in the news listing
 4. Name it "News with publication", add Title, Location, Local Publication Date fields.
 
 >>> browser.getControl('Id').value = "pubnews"
->>> browser.getControl('Title', index=0).value = "News with publication"
+>>> browser.getForm(id='crud-add-form').getControl('Title', index=0).value = "News with publication"
 
-# TODO: stupid widget has a "virtual" input so we can't use it
->>> browser.getControl(name="crud-add.form.widgets.item_fields.from").value = ['Title:', "location:", ":pubdate"]
+# HACK: widget creates control using js so have to fake it
+>>> form = browser.getControl('Add').mech_form
+>>> form.new_control('text','crud.add.form.widgets.item_fields:list', {'value':'Title:'})
+
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:'})
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'location:'})
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':':pubdate'})
+>>> form.fixup()
 
 
 5. Specify a ``View Batch Size`` of 3 and then ``Add``.
 
 >>> browser.getControl('View Batch Size').value = '3'
 >>> browser.getControl('Add').click()
+
+We should have a crud form with a link to edit the listing view we just added
+>>> browser.getLink('pubnews')
+<Link text='pubnews' url='http://nohost/plone/listingviews_controlpanel/pubnews'>
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
 
@@ -94,8 +104,11 @@ Add an item
 7. Select ``Display > 'News with publication'``. This will change the folder view to our new view we created.
 
 >>> browser.getLink('News with publication').click()
+>>> browser.contents
+'...View changed...'
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-setting.png
+
 
 You will now have a listing that contains all the information you need but doesn't look very nice. It will look
 like this
