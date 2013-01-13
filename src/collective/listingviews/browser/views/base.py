@@ -90,11 +90,13 @@ class BaseListingInformationRetriever(BrowserView):
                 # custom field name is ":customname"
                 field_filters.append(self.custom_field(field_name=func))
             else:
-                filter = self.metadata_field(field_name=field)
+                field_value = self.metadata_field(field_name=field)
                 if func=='localshort':
-                    filter = lambda item: plone_util.toLocalizedTime(filter(item), long_format=0)
+                    filter = lambda item: plone_util.toLocalizedTime(field_value(item), long_format=0)
                 elif func=='locallong':
-                    filter = lambda item: plone_util.toLocalizedTime(filter(item), long_format=1)
+                    filter = lambda item: plone_util.toLocalizedTime(field_value(item), long_format=1)
+                else:
+                    filter = field_value
                 field_filters.append(filter)
         return field_filters
 

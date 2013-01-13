@@ -46,7 +46,7 @@ To include publication date with the custom format in the news listing
 
 
 2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
-   ``python:object.getObject().effictive().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
+   ``python:object.getObject().effective().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
 
@@ -72,6 +72,7 @@ To include publication date with the custom format in the news listing
 
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:'})
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'location:'})
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'EffectiveDate:localdate'})
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':':pubdate'})
 >>> form.fixup()
 
