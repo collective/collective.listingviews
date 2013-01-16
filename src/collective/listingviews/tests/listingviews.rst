@@ -52,7 +52,8 @@ To include publication date with the custom format in the news listing
 
 >>> browser.getControl('Id').value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
->>> browser.getControl('TAL expression').value = "python:object.getObject().effective().strftime('%d/%m/%Y')"
+>>> browser.getControl('TAL expression').value = \
+...   "python:object.getObject().effective() > 0 and object.getObject().effective().strftime('%d/%m/%Y') or ''"
 >>> browser.getControl('Save').click()
 
 
@@ -70,11 +71,11 @@ To include publication date with the custom format in the news listing
 >>> form = browser.getControl('Add').mech_form
 >>> form.new_control('text','crud.add.form.widgets.item_fields:list', {'value':'Title:'})
 
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:'})
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'location:'})
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'EffectiveDate:localdate'})
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':':pubdate'})
->>> form.fixup()
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:'}, index=1)
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'location:'}, index=2)
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'EffectiveDate:localshort'}, index=3)
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':':pubdate'}, index=4)
+#>>> form.fixup()
 
 
 5. Specify a ``View Batch Size`` of 3 and then ``Add``.
@@ -94,11 +95,13 @@ We should have a crud form with a link to edit the listing view we just added
 >>> browser.getLink('Folder').click()
 >>> browser.getControl('Title').value = 'folder1'
 >>> browser.getControl('Save').click()
+>>> browser.getLink('Publish').click()
 
 Add an item
 >>> browser.getLink('Page').click()
 >>> browser.getControl('Title').value = 'item1'
 >>> browser.getControl('Save').click()
+>>> browser.getLink('Publish').click()
 
 >>> browser.getLink('folder1').click()
 
@@ -119,26 +122,35 @@ like this
 with html like this::
 
 >>> print browser.contents
-<html>...
-    <div class="listingviews">
-        <div class=" listing-collection-view">
-            <ul class="listing-items-view">
-                <li class="listing-item">
-                    <dl class="listing-fields">
-                        <dt class="listing-field field-Title"> Title</dt>
-                        <dd class="listing-field field-Title">Bravery awards for Marysville fire</dd>
-                        <dt class="listing-field field-Description"> Description</dt>
-                        <dd class="listing-field field-Description">Five SES volunteers from Healesville and Marysville were honoured with bravery awards from the Royal Humane Society of Australasia in Melbourne on Friday, 17 February 2012.</dd>
-                        <dt class="listing-field field-location"> Location</dt>
-                        <dd class="listing-field field-location">http://127.0.0.1:8080/Plone/media/news/news-items/bravery-awards-for-marysville-fire</dd>
-                        <dt class="listing-field custom-date"> Local Publication Date</dt>
-                        <dd class="listing-field custom-date">12/09/2012</dd>
-                    </dl>
-                </li>
-                ...
-            </ul>
-        </div>
-    </div>
+<BLANKLINE>
+<!DOCTYPE html>
+<BLANKLINE>
+<html...
+              <div class="listing-item-fields">
+                <dl class="-item item-fields">
+                      <dt class="listing-field field-Title">Title</dt>
+                      <dd class="listing-field field-Title">folder1</dd>
+                </dl>
+              </div>
+<BLANKLINE>
+<BLANKLINE>
+              <ul class="-listing listing-items-view">
+                  <li class="listing-item">
+                      <dl class="listing-fields">
+                              <dt class="listing-field field-Title">Title</dt>
+                              <dd class="listing-field field-Title">item1</dd>
+<BLANKLINE>
+                              <dt class="listing-field field-Location">Location</dt>
+                              <dd class="listing-field field-Location">http://nohost/plone/folder1/item1</dd>
+<BLANKLINE>
+                              <dt class="listing-field field-Location">Effective Date</dt>
+                              <dd class="listing-field field-Location">.../.../...</dd>
+<BLANKLINE>
+                              <dt class="listing-field pubdate">Local Publication Date</dt>
+                              <dd class="listing-field pubdate">.../.../...</dd>
+                      </dl>
+                  </li>
+              </ul>
 ...
 
 

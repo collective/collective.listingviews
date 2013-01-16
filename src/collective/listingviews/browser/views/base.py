@@ -65,7 +65,6 @@ class BaseListingInformationRetriever(BrowserView):
         if self.view_setting is None:
             return
 
-        #TODO: this is inefficient to do on every iteration. need to move to setListingView and turn to functions
         self.item_field_filters = self.retrieve_fields(self.view_setting.item_fields)
         self.listing_field_filters = self.retrieve_fields(self.view_setting.listing_fields)
 
@@ -75,14 +74,12 @@ class BaseListingInformationRetriever(BrowserView):
 
         for field in fields:
             if ":" not in field:
-                print "No valid field: %s (No colon)" % field
-                continue
+                raise Exception( "No valid field: %s (No colon)" % field )
 
             subfield = field.split(":")
 
             if len(subfield) is not 2:
-                print "No valid field: %s (Too much colon)" % field
-                continue
+                raise Exception( "No valid field: %s (Too many colons)" % field )
 
             field, func = subfield
 
@@ -90,14 +87,19 @@ class BaseListingInformationRetriever(BrowserView):
                 # custom field name is ":customname"
                 field_filters.append(self.custom_field(field_name=func))
             else:
-                field_value = self.metadata_field(field_name=field)
+                field_func = self.metadata_field(field_name=field)
+                def filter_value(item, filter):
+                    field_def = field_func(item)
+                    field_def['value'] = filter(field_def['value'])
+                    return field_def
                 if func=='localshort':
-                    filter = lambda item: plone_util.toLocalizedTime(field_value(item), long_format=0)
+                    filter = lambda value: plone_util.toLocalizedTime(value, long_format=0)
+                    field_filters.append(lambda item: filter_value(item, filter))
                 elif func=='locallong':
-                    filter = lambda item: plone_util.toLocalizedTime(field_value(item), long_format=1)
+                    filter = lambda value: plone_util.toLocalizedTime(value, long_format=1)
+                    field_filters.append(lambda item: filter_value(item, filter))
                 else:
-                    filter = field_value
-                field_filters.append(filter)
+                    field_filters.append(field_func)
         return field_filters
 
     @property
@@ -180,6 +182,8 @@ class BaseListingInformationRetriever(BrowserView):
         else:
             raise Exception("Field no longer exists '%s'" % field_name)
 
+        css_class = "field-%s" % (field)
+
         def value(item):
             # metadata does not have location
             if field_name == 'location':
@@ -198,8 +202,6 @@ class BaseListingInformationRetriever(BrowserView):
             else:
                 return attr_value
 
-        css_class = field_name
-
         return lambda item: {'title': field, 'css_class': css_class, 'value': value(item), 'is_custom': False}
 
     def custom_field(self, field_name):
@@ -217,9 +219,13 @@ class BaseListingInformationRetriever(BrowserView):
         # python:object.getObject().folder_full_view_item()
         # python:getattr(object.getObject(), 'remote_url', None) and object.getObject().remote_url() for atlink content type
         expression = Expression(field.tal_statement)
+        if field.css_class:
+            css_class = "%s %s" % (field_name, field.css_class)
+        else:
+            css_class = field_name
 
         def value(item):
             expression_context = getExprContext(self.context, item)
             val = expression(expression_context)
-            return {'title': field.name, 'css_class': field.css_class, 'value': val, 'is_custom': True}
+            return {'title': field.name, 'css_class': css_class, 'value': val, 'is_custom': True}
         return value

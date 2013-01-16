@@ -20,21 +20,11 @@
             tal:attributes="class string:${class_name} listing-collection-view">
 
               <div class="listing-item-fields">
-                <dl class="item-fields" tal:attributes="class string:${class_name}-item item-fields" metal:define-macro="item_fields">
-
-                  <tal:fields tal:repeat="field fields">
-                    <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
-                      customfieldclass string:listing-field ${field/css_class}"> 
-                      <tal:listingfield tal:condition="not:field/is_custom">
-                        <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
-                        <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
-                      </tal:listingfield>
-                      <tal:listingfield tal:condition="field/is_custom">
-                        <dt tal:content="string: ${field/title}" tal:attributes="class customfieldclass"></dt>
-                        <dd tal:content="structure field/value" tal:attributes="class customfieldclass"></dd>
-                      </tal:listingfield>
-                    </tal:def>
-                  </tal:fields>
+                <dl class="item-fields" tal:attributes="class string:${class_name}-item item-fields" metal:define-macro="item_fields"><tal:fields
+                        tal:repeat="field fields">
+                      <dt tal:content="string:${field/title}" tal:attributes="class string:listing-field ${field/css_class}"></dt>
+                      <dd tal:content="structure field/value" tal:attributes="class string:listing-field ${field/css_class}"></dd></tal:fields
+                     >
                 </dl>
               </div>
               <tal:core-macro metal:define-macro="content-core"
@@ -44,21 +34,11 @@
 
               <ul class="listing-items-view" tal:attributes="class string:${class_name}-listing listing-items-view" metal:define-macro="listing_items">
                   <li class="listing-item" tal:repeat="item_object batch">
-                      <dl class="listing-fields">
-                          <tal:fields tal:repeat="field python:adapter.assemble_listing_information(item_object, True)">
-                              <tal:def tal:define="fieldclass string:listing-field field-${field/css_class};
-                                customfieldclass string:listing-field ${field/css_class}"> 
-                                <tal:listingfield tal:condition="not:field/is_custom">
-                                  <dt tal:content="string: ${field/title}" tal:attributes="class fieldclass"></dt>
-                                  <dd tal:content="structure field/value" tal:attributes="class fieldclass"></dd>
-                                </tal:listingfield>
-                                <tal:listingfield tal:condition="field/is_custom">
-                                  <dt tal:content="string: ${field/title}" tal:attributes="class customfieldclass"></dt>
-                                  <dd tal:content="structure field/value" tal:attributes="class customfieldclass"></dd>
-                                </tal:listingfield>
-                              </tal:def>
-                          </tal:fields>
-                      </dl>
+                      <dl class="listing-fields"><tal:fields
+                          tal:repeat="field python:adapter.assemble_listing_information(item_object, True)">
+                              <dt tal:content="string:${field/title}" tal:attributes="class string:listing-field ${field/css_class}"></dt>
+                              <dd tal:content="structure field/value" tal:attributes="class string:listing-field ${field/css_class}"></dd>
+                      </tal:fields></dl>
                   </li>
               </ul>
 
