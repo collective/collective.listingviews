@@ -70,12 +70,11 @@ To include publication date with the custom format in the news listing
 # HACK: widget creates control using js so have to fake it
 >>> form = browser.getControl('Add').mech_form
 >>> form.new_control('text','crud.add.form.widgets.item_fields:list', {'value':'Title:'})
-
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:'}, index=1)
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'location:'}, index=2)
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'EffectiveDate:localshort'}, index=3)
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':':pubdate'}, index=4)
-#>>> form.fixup()
+>>> #form.fixup()
 
 
 5. Specify a ``View Batch Size`` of 3 and then ``Add``.
@@ -95,7 +94,6 @@ We should have a crud form with a link to edit the listing view we just added
 >>> browser.getLink('Folder').click()
 >>> browser.getControl('Title').value = 'folder1'
 >>> browser.getControl('Save').click()
->>> browser.getLink('Publish').click()
 
 Add an item
 >>> browser.getLink('Page').click()
@@ -103,10 +101,9 @@ Add an item
 >>> browser.getControl('Save').click()
 >>> browser.getLink('Publish').click()
 
->>> browser.getLink('folder1').click()
-
 7. Select ``Display > 'News with publication'``. This will change the folder view to our new view we created.
 
+>>> browser.getLink('folder1').click()
 >>> browser.getLink('News with publication').click()
 >>> browser.contents
 '...View changed...'
@@ -143,8 +140,8 @@ with html like this::
                               <dt class="listing-field field-Location">Location</dt>
                               <dd class="listing-field field-Location">http://nohost/plone/folder1/item1</dd>
 <BLANKLINE>
-                              <dt class="listing-field field-Location">Effective Date</dt>
-                              <dd class="listing-field field-Location">.../.../...</dd>
+                              <dt class="listing-field field-Effective-Date">Effective Date</dt>
+                              <dd class="listing-field field-Effective-Date">..., ...</dd>
 <BLANKLINE>
                               <dt class="listing-field pubdate">Local Publication Date</dt>
                               <dd class="listing-field pubdate">.../.../...</dd>
