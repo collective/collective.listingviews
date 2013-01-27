@@ -1,5 +1,6 @@
 import Missing
 from DateTime import DateTime
+from Products.PageTemplates.Expressions import getEngine
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter, \
     IListingCustomFieldControlPanel, IListingControlPanel
@@ -29,6 +30,7 @@ from plone.memoize.instance import memoize
 from collective.listingviews.browser.views.controlpanel import getRegistryFields, getRegistryViews, getListingNameFromView
 
 
+
 class BaseListingInformationRetriever(BrowserView):
     implements(IListingAdapter)
 
@@ -43,6 +45,13 @@ class BaseListingInformationRetriever(BrowserView):
         #TODO: this won't work with p.a.collections
         self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
 
+        plone_util = getMultiAdapter((self.context, self.request), name="plone")
+        self.filters = dict(
+            localshort = lambda item, value: plone_util.toLocalizedTime(value, long_format=0),
+            locallong = lambda item, value: plone_util.toLocalizedTime(value, long_format=1),
+            tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value)
+        )
+
         #Tricky part to work out the listing view thats been picked
         if IFacetedLayout is not None and \
             (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
@@ -53,6 +62,7 @@ class BaseListingInformationRetriever(BrowserView):
             view_name = request.getURL().split('/')[-1]
             self.set_listing_view(getListingNameFromView(view_name))
         # Case: portlet will call setListingView itself
+
 
     def set_listing_view(self, view_name):
         self.listing_name = view_name
@@ -70,7 +80,6 @@ class BaseListingInformationRetriever(BrowserView):
 
     def retrieve_fields(self, fields):
         field_filters = []
-        plone_util = getMultiAdapter((self.context, self.request), name="plone")
 
         for field in fields:
             if ":" not in field:
@@ -87,19 +96,7 @@ class BaseListingInformationRetriever(BrowserView):
                 # custom field name is ":customname"
                 field_filters.append(self.custom_field(field_name=func))
             else:
-                field_func = self.metadata_field(field_name=field)
-                def filter_value(item, filter):
-                    field_def = field_func(item)
-                    field_def['value'] = filter(field_def['value'])
-                    return field_def
-                if func=='localshort':
-                    filter = lambda value: plone_util.toLocalizedTime(value, long_format=0)
-                    field_filters.append(lambda item: filter_value(item, filter))
-                elif func=='locallong':
-                    filter = lambda value: plone_util.toLocalizedTime(value, long_format=1)
-                    field_filters.append(lambda item: filter_value(item, filter))
-                else:
-                    field_filters.append(field_func)
+                field_filters.append(self.metadata_field(field, func))
         return field_filters
 
     @property
@@ -173,34 +170,45 @@ class BaseListingInformationRetriever(BrowserView):
         for func in retrieve_fields:
             yield func(item)
 
-    def metadata_field(self, field_name):
+    def metadata_field(self, field_name, filter_name):
 
-        plone = getMultiAdapter((self.context, self.request), name="plone")
+        filter_func = self.filters.get(filter_name, None)
+
+#        plone = getMultiAdapter((self.context, self.request), name="plone")
 
         if field_name in self.metadata_display:
             field = self.metadata_display[field_name]
         else:
             raise Exception("Field no longer exists '%s'" % field_name)
 
-        css_class = "field-%s" % (field)
+        #TODO need better function to make valid css class
+        if not filter_name:
+            css_class = "field-%s" % (field_name)
+        else:
+            css_class = "field-%s-%s" % (field_name, filter_name)
 
         def value(item):
             # metadata does not have location
-            if field_name == 'location':
-                attr_value = getattr(item, 'getURL', None)
-                if attr_value:
-                    attr_value = attr_value()
-            else:
-                attr_value = getattr(item, field_name, None)
+
+#            if field_name == 'location':
+#                attr_value = getattr(item, 'getURL', None)
+#                if attr_value:
+#                    attr_value = attr_value()
+#            else:
+            attr_value = getattr(item, field_name, None)
 
             if attr_value == None or attr_value == Missing.Value:
-                return None
-            elif isinstance(attr_value, DateTime):
-                return plone.toLocalizedTime(attr_value, long_format=1)
+                value = None
+#            elif isinstance(attr_value, DateTime):
+#                value = plone.toLocalizedTime(attr_value, long_format=1)
             elif isinstance(attr_value, basestring):
-                return attr_value.decode("utf-8")
+                value = attr_value.decode("utf-8")
             else:
-                return attr_value
+                value = attr_value
+            if filter_func is None:
+                return value
+            else:
+                return filter_func(item, value)
 
         return lambda item: {'title': field, 'css_class': css_class, 'value': value(item), 'is_custom': False}
 
@@ -225,7 +233,11 @@ class BaseListingInformationRetriever(BrowserView):
             css_class = field_name
 
         def value(item):
-            expression_context = getExprContext(self.context, item)
+            expression_context = getExprContext(self.context, self.context)
+            expression_context.setLocal('item', item)
             val = expression(expression_context)
             return {'title': field.name, 'css_class': css_class, 'value': val, 'is_custom': True}
         return value
+
+# Override context creation
+

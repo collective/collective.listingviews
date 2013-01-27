@@ -77,6 +77,11 @@ def MetadataVocabulary(context):
             for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
                 terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
                                                          "%s (%s)"%(display_name, format_name)))
+        elif name in ['Title', 'getId']:
+            terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
+            for format,format_name in [('tolink', 'Link')]:
+                terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
+                                                         "%s (%s)"%(display_name, format_name)))
         else:
             terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
 

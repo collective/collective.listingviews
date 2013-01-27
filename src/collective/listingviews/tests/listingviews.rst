@@ -1,17 +1,5 @@
 
->>> from plone.testing.z2 import Browser
->>> from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD, setRoles, login
->>> from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
->>> portal = layer['portal']
->>> browser = Browser(portal)
->>> portalURL = portal.absolute_url()
->>> browser.open(portalURL)
-
->>> browser.open(portal.absolute_url()+'/@@listingviews_controlpanel')
-
->>> browser.getControl(name='__ac_name').value = SITE_OWNER_NAME
->>> browser.getControl(name='__ac_password').value = SITE_OWNER_PASSWORD
->>> browser.getControl(name='submit').click()
+>>> browser = layer['manager']
 
 Example: Adding publication date news listing
 =============================================
@@ -41,7 +29,8 @@ To include publication date with the custom format in the news listing
 
 1. Go to ``Site Setup > Listing Custom Fields > Add``
 
->>> browser.open(portal.absolute_url()+'/@@listingviewfields_controlpanel')
+>>> browser.getLink('Site Setup').click()
+>>> browser.getLink('Listing Custom Fields').click()
 >>> browser.getControl('Add').click()
 
 
@@ -53,7 +42,7 @@ To include publication date with the custom format in the news listing
 >>> browser.getControl('Id').value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
 >>> browser.getControl('TAL expression').value = \
-...   "python:object.getObject().effective() > 0 and object.getObject().effective().strftime('%d/%m/%Y') or ''"
+...   "python:item.EffectiveDate and item.getObject().effective().strftime('%d/%m/%Y') or ''"
 >>> browser.getControl('Save').click()
 
 
@@ -71,7 +60,7 @@ To include publication date with the custom format in the news listing
 >>> form = browser.getControl('Add').mech_form
 >>> form.new_control('text','crud.add.form.widgets.item_fields:list', {'value':'Title:'})
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:'}, index=1)
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'location:'}, index=2)
+>>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:tolink'}, index=2)
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'EffectiveDate:localshort'}, index=3)
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':':pubdate'}, index=4)
 >>> #form.fixup()
@@ -116,41 +105,63 @@ like this
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-raw.png
 
-with html like this::
+
+We have a definition for the fields of the folder
 
 >>> print browser.contents
-<BLANKLINE>
-<!DOCTYPE html>
-<BLANKLINE>
-<html...
+<...
               <div class="listing-item-fields">
                 <dl class="-item item-fields">
                       <dt class="listing-field field-Title">Title</dt>
                       <dd class="listing-field field-Title">folder1</dd>
                 </dl>
               </div>
-<BLANKLINE>
-<BLANKLINE>
+...
+
+There is an unordered list of definition lists for every item contained in the folder.
+>>> print browser.contents
+<...
               <ul class="-listing listing-items-view">
                   <li class="listing-item">
                       <dl class="listing-fields">
-                              <dt class="listing-field field-Title">Title</dt>
-                              <dd class="listing-field field-Title">item1</dd>
-<BLANKLINE>
-                              <dt class="listing-field field-Location">Location</dt>
-                              <dd class="listing-field field-Location">http://nohost/plone/folder1/item1</dd>
-<BLANKLINE>
-                              <dt class="listing-field field-Effective-Date">Effective Date</dt>
-                              <dd class="listing-field field-Effective-Date">..., ...</dd>
-<BLANKLINE>
-                              <dt class="listing-field pubdate">Local Publication Date</dt>
-                              <dd class="listing-field pubdate">.../.../...</dd>
+                      ...
                       </dl>
                   </li>
               </ul>
 ...
 
+The title of item1
 
+>>> print browser.contents
+<...
+<dt class="listing-field field-Title">Title</dt>
+<dd class="listing-field field-Title">item1</dd>
+...
+
+A title made into a link to item1
+
+>>> print browser.contents
+<...
+<dt class="listing-field field-Title-tolink">Title</dt>
+<dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
+...
+
+
+How the default effective date field looks
+
+>>> print browser.contents
+<...
+                              <dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
+                              <dd class="listing-field field-EffectiveDate-localshort">..., ...</dd>
+...
+
+and finally our custom version of the effective date
+
+>>> print browser.contents
+<...
+                              <dt class="listing-field pubdate">Local Publication Date</dt>
+                              <dd class="listing-field pubdate">.../.../...</dd>
+...
 
 Next you will need to use diazo rules like the following to turn the bare lising view into the final result::
 
@@ -211,17 +222,48 @@ Next you'd like to use this same publication date on the view of your news item 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/news-item-top.png
 
 1. Go to ``Site Setup > Listing View > Add``
+>>> browser.getLink('Site Setup').click()
+>>> browser.getLink('Listing View').click()
+>>> browser.getControl('Add').click()
+
 2. Name it ``News Item Info``, add just ``Local Publication Date`` fields.
+
+>>> browser.getControl('Id').value = "pubnewsitem"
+>>> browser.getForm(id='crud-add-form').getControl('Title', index=0).value = "News Item Info"
+
+# HACK: widget creates control using js so have to fake it
+>>> form = browser.getControl('Add').mech_form
+>>> form.new_control('text','crud.add.form.widgets.item_fields:list', {'value':':pubdate'}, index=4)
+>>> browser.getControl('Add').click()
+
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-view.png
 
 3. Go to your news folder where all the news items located and Add a ``Listing Portlet`` portlet to the left side using
   ``Manage porlets``. Alternatively you can go to
   ``Site Setup > Types > News Item > Manage Portlets assigned to this content type``.
-4. Enter ``news-item`` as the Portlet header.
+
+>>> browser.getLink('Home').click()
+>>> browser.getLink('folder1').click()
+>>> browser.getLink('Manage portlets').click()
+>>> browser.getControl('Listing Portlet', index=1).click()
+>>> layer.getFormFromControl(browser.getControl('Listing Portlet', index=1)).submit()
+
+
+4. Enter ``News Item Info`` as the Portlet header.
+
+>>> browser.getControl('Portlet header').value = 'News Item Info'
+
 5. Select ``News Item Info`` as the ``Listing views``.
+
+>>> browser.getControl('News Item Info').click()
+
+
 6. Leave ``Target`` target blank as you want it to display the publication date of the current item.
 7. Click ``Save``.
+
+>>> browser.getControl('Save').click()
+
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-setting.png
 
@@ -229,27 +271,51 @@ Now whenever you view a news item you will get a portlet on the left hand side
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-raw.png
 
-with html like this::
+>>> browser.getLink('folder1').click()
+>>> browser.getLink('item1').click()
 
-    <dl class="portlet portletListing portlet-listing-news-item">
+We can see a listing portlet
+
+>>> print browser.contents
+<...
+    <dl class="portlet portletListing portlet-listing-news-item-info">
+    ...
+    </dl>
+...
+
+We can see a portlet with the heading ``News Item Info``
+
+>>> print browser.contents
+<...
         <dt class="portletHeader">
             <span class="portletTopLeft"></span>
             <span>
-               news-item
+               News Item Info
             </span>
             <span class="portletTopRight"></span>
         </dt>
-        <dd class="portletItem odd">
-          <ul class="listing-items-portlet">
-            <li class="listing-item">
-                <dl class="listing-fields">
-                    <dt class="listing-field custom-date"> Local Publication Date</dt>
-                    <dd class="listing-field custom-date">12/09/2012</dd>
-                </dl>
-            </li>
-          </ul>
-        </dd>
-      </dl>
+...
+
+Our portlet shows data about the context item (in this case item1)
+
+>>> print browser.contents
+<...
+  <div class="listing-item-fields-portlet">
+      <dl class="-item item-fields">
+                  <dt class="listing-field pubdate">Local Publication Date</dt>
+                  <dd class="listing-field pubdate">27/01/2013</dd>
+            </dl>
+  </div>
+...
+
+and because item1 has no contents we have an empty
+
+>>> print browser.contents
+<...
+    <ul class="-listing listing-items-view">
+    </ul>
+...
+
 
 Using the diazo mockup and rules.xml to change the final design we can move the publication date below the title
 and remove the portlet completely::
