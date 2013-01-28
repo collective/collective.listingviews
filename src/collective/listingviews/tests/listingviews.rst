@@ -6,15 +6,6 @@ Example: Adding publication date news listing
 
 Let's say have a design that demands that has a folder displaying the publication date for each item.
 
-
-e.g.
-
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-top.png
-
-with some extra changes to the batching
-
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-bottom.png
-
 Most of this can be achieved using diazo and css however the publication date isn't in any of Plone's default listing
 views.
 Previously you would have to dig into Plone's code base, find it's folder template implementation and then
@@ -36,8 +27,6 @@ To include publication date with the custom format in the news listing
 
 2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
    a ``TAL expression`` and then ``Save``.
-
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
 
 >>> browser.getControl('Id').value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
@@ -85,8 +74,6 @@ We should have a crud form with a link to edit the listing view we just added
 >>> browser.getLink('pubnews')
 <Link text='pubnews' url='http://nohost/plone/listingviews_controlpanel/pubnews'>
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-global-setting.png
-
 6. Go to your news folder and create a collection normally which displays your news sorted by reverse publication date
 
 >>> browser.getLink('Home').click()
@@ -107,13 +94,9 @@ Add an item
 >>> browser.contents
 '...View changed...'
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-view-setting.png
-
 
 You will now have a listing that contains all the information you need but doesn't look very nice. It will look
 like this
-
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-raw.png
 
 
 We have a definition for the fields of the folder
@@ -173,7 +156,7 @@ and finally our custom version of the effective date
                               <dd class="listing-field pubdate">.../.../...</dd>
 ...
 
-Next you will need to use diazo rules like the following to turn the bare lising view into the final result::
+Next you will need to use diazo rules like the following to turn the bare lising view into the final result
 
 .. code-block:: xml
     <replace css:content="ul.listing-items-view">
@@ -197,7 +180,7 @@ Next you will need to use diazo rules like the following to turn the bare lising
         </xsl:for-each>
     </replace>
 
-If you want to change the batching as well, there is an example::
+If you want to change the batching as well, there is an example
 
 .. code-block:: xml
     <replace css:content="div.listingBar">
@@ -231,8 +214,6 @@ Example: Adding publication date to a Page only via a Portlet
 
 Next you'd like to use this same publication date on the view of your news item itself.
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/news-item-top.png
-
 1. Go to ``Site Setup > Listing View > Add``
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing View').click()
@@ -255,8 +236,6 @@ Finally we only want this to be applied to a Page content type
 
 >>> browser.getControl('Add').click()
 
-
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-view.png
 
 3. Go to your news folder where all the news items located and Add a ``Listing Portlet`` portlet to the left side using
   ``Manage porlets``. Alternatively you can go to
@@ -284,11 +263,7 @@ Finally we only want this to be applied to a Page content type
 >>> browser.getControl('Save').click()
 
 
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-setting.png
-
 Now whenever you view a news item you will get a portlet on the left hand side
-
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-raw.png
 
 >>> browser.getLink('folder1').click()
 
@@ -400,7 +375,7 @@ e.g.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-table-view.png
 
-We just copy our listing view and give it a new class. Add the following to your diazo rules.xml to turn the plain view into a table::
+We just copy our listing view and give it a new class. Add the following to your diazo rules.xml to turn the plain view into a table
 
 .. code-block:: xml
     <replace css:content="ul.listing-items-view">

@@ -34,11 +34,11 @@ There are many possible uses including
 Worked Examples
 ===============
 
-.. include:: ./collective/listingviews/tests/listingviews.rst
+.. include:: ./src/collective/listingviews/tests/listingviews.rst
 
 See the `doctests for a worked example`_
 
-.. _doctests for a worked example: ./collective/listingviews/tests/listingviews.rst
+.. _doctests for a worked example: ./src/collective/listingviews/tests/listingviews.rst
 
 possible future directions
 ==========================
