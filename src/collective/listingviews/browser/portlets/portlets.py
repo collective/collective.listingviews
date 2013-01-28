@@ -161,6 +161,9 @@ class ListingRenderer(base.Renderer):
     def more_text(self):
         return self.data_more_text
 
+    def show_portlet(self):
+        return self.adapter.show_view
+
     def _container(self):
         try:
             portal_state = getMultiAdapter((self.context, self.request),

@@ -103,9 +103,8 @@ class BaseListingInformationRetriever(BrowserView):
     @memoize
     def retrieve_context_item(self):
         """
-        A catalog search should be faster especially when there
-        are a large number of fields in the view. No need
-        to wake up all the objects.
+        A catalog search means we get a brain so custom expressions work with same
+        kind of data
         """
         uid = self.get_UID()
         if not uid:
@@ -139,9 +138,17 @@ class BaseListingInformationRetriever(BrowserView):
     @property
     def is_container(self):
         """
-        Return true if current object is a container, such as folder, or collection
+        :return: True if current object is a container, such as folder, or collection
         """
         return False
+
+    @property
+    def show_view(self):
+        """
+        :return: True if the the context is valid for this listing view
+        """
+        types = self.view_setting.restricted_to_types
+        return not types or self.context.getPortalTypeName() in types
 
     # BrowserView helper method
     def get_UID(self):

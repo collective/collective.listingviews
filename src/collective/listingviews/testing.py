@@ -52,6 +52,13 @@ class BrowserIntegrationTesting(IntegrationTesting):
                 index += 1
                 continue
 
+    def errorlog(self):
+        from Products.CMFCore.utils import getToolByName
+        portal = self['portal']
+        errorLog = getToolByName(portal, 'error_log')
+        print errorLog.getLogEntries()[-1]['tb_text']
+
+
 
 
 

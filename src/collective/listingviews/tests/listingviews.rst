@@ -35,14 +35,14 @@ To include publication date with the custom format in the news listing
 
 
 2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
-   ``python:object.getObject().effective().strftime("%d/%m/%Y")`` for ``TAL expression`` and then ``Save``.
+   a ``TAL expression`` and then ``Save``.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-custom-field.png
 
 >>> browser.getControl('Id').value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
 >>> browser.getControl('TAL expression').value = \
-...   "python:item.EffectiveDate and item.getObject().effective().strftime('%d/%m/%Y') or ''"
+...   "python:item.effective.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
 >>> browser.getControl('Save').click()
 
 
@@ -234,6 +234,13 @@ Next you'd like to use this same publication date on the view of your news item 
 # HACK: widget creates control using js so have to fake it
 >>> form = browser.getControl('Add').mech_form
 >>> form.new_control('text','crud.add.form.widgets.item_fields:list', {'value':':pubdate'}, index=4)
+
+
+Finally we only want this to be applied to a Page content type
+
+#>>> browser.getControl('Restricted To Types').getControl('Page').click()
+>>> form.new_control('text','crud.add.form.widgets.restricted_to_types:list', {'value':'Document'}, index=1)
+
 >>> browser.getControl('Add').click()
 
 
@@ -272,10 +279,19 @@ Now whenever you view a news item you will get a portlet on the left hand side
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-portlet-raw.png
 
 >>> browser.getLink('folder1').click()
+
+Because we restricted which types the view can be applied to we won't see it on the folder
+>>> 'portlet-listing-news-item-info' not in browser.contents
+True
+
+and not because there is an error
+
+>>> 'There was an error while rendering the portlet' not in browser.contents
+True
+
+However on the item we can see a listing portlet
+
 >>> browser.getLink('item1').click()
-
-We can see a listing portlet
-
 >>> print browser.contents
 <...
     <dl class="portlet portletListing portlet-listing-news-item-info">
@@ -308,14 +324,13 @@ Our portlet shows data about the context item (in this case item1)
   </div>
 ...
 
-and because item1 has no contents we have an empty
+and because item1 has no contents we have an empty list
 
 >>> print browser.contents
 <...
     <ul class="-listing listing-items-view">
     </ul>
 ...
-
 
 Using the diazo mockup and rules.xml to change the final design we can move the publication date below the title
 and remove the portlet completely::
@@ -361,3 +376,9 @@ We just copy our listing view and give it a new class. Add the following to your
             </xsl:for-each>
         </table>
     </replace>
+
+
+
+#>>> layer.errorlog()
+
+
