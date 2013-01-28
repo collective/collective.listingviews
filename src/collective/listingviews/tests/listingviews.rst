@@ -103,24 +103,24 @@ We have a definition for the fields of the folder
 
 >>> print browser.contents
 <...
-              <div class="listing-item-fields">
-                <dl class="-item item-fields">
-                      <dt class="listing-field field-Title">Title</dt>
-                      <dd class="listing-field field-Title">folder1</dd>
-                </dl>
-              </div>
+      <div class="listing-item-fields">
+        <dl class="pubnews-item item-fields">
+              <dt class="listing-field field-Title">Title</dt>
+              <dd class="listing-field field-Title">folder1</dd>
+        </dl>
+      </div>
 ...
 
 There is an unordered list of definition lists for every item contained in the folder.
 >>> print browser.contents
 <...
-              <ul class="-listing listing-items-view">
-                  <li class="listing-item">
-                      <dl class="listing-fields">
-                      ...
-                      </dl>
-                  </li>
-              </ul>
+      <ul class="pubnews-listing listing-items-view">
+          <li class="listing-item">
+              <dl class="listing-fields">
+              ...
+              </dl>
+          </li>
+      </ul>
 ...
 
 The title of item1
@@ -144,21 +144,21 @@ How the default effective date field looks
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
-                              <dd class="listing-field field-EffectiveDate-localshort">..., ...</dd>
+<dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
+<dd class="listing-field field-EffectiveDate-localshort">..., ...</dd>
 ...
 
 and finally our custom version of the effective date
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field pubdate">Local Publication Date</dt>
-                              <dd class="listing-field pubdate">.../.../...</dd>
+<dt class="listing-field pubdate">Local Publication Date</dt>
+<dd class="listing-field pubdate">.../.../...</dd>
 ...
 
 Next you will need to use diazo rules like the following to turn the bare lising view into the final result
 
-.. code-block:: xml
+::
     <replace css:content="ul.listing-items-view">
         <xsl:for-each select="./li[contains(@class, 'listing-item')]">
             <div class="span8">
@@ -182,7 +182,7 @@ Next you will need to use diazo rules like the following to turn the bare lising
 
 If you want to change the batching as well, there is an example
 
-.. code-block:: xml
+::
     <replace css:content="div.listingBar">
         <xsl:for-each css:select="div.listingBar span">
             <xsl:choose>
@@ -215,6 +215,7 @@ Example: Adding publication date to a Page only via a Portlet
 Next you'd like to use this same publication date on the view of your news item itself.
 
 1. Go to ``Site Setup > Listing View > Add``
+
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing View').click()
 >>> browser.getControl('Add').click()
@@ -231,9 +232,8 @@ Next you'd like to use this same publication date on the view of your news item 
 
 Finally we only want this to be applied to a Page content type
 
-#>>> browser.getControl('Restricted To Types').getControl('Page').click()
+>>> #browser.getControl('Restricted To Types').getControl('Page').click()
 >>> form.new_control('text','crud.add.form.widgets.restricted_to_types:list', {'value':'Document'}, index=1)
-
 >>> browser.getControl('Add').click()
 
 
@@ -268,6 +268,7 @@ Now whenever you view a news item you will get a portlet on the left hand side
 >>> browser.getLink('folder1').click()
 
 Because we restricted which types the view can be applied to we won't see the portlet on the folder
+
 >>> 'portlet-listing-news-item-info' in browser.contents
 False
 
@@ -298,13 +299,13 @@ We can see a portlet with the heading ``News Item Info``
 
 >>> print browser.contents
 <...
-        <dt class="portletHeader">
-            <span class="portletTopLeft"></span>
-            <span>
-               News Item Info
-            </span>
-            <span class="portletTopRight"></span>
-        </dt>
+    <dt class="portletHeader">
+        <span class="portletTopLeft"></span>
+        <span>
+           News Item Info
+        </span>
+        <span class="portletTopRight"></span>
+    </dt>
 ...
 
 Our portlet shows data about the context item (in this case item1)
@@ -312,7 +313,7 @@ Our portlet shows data about the context item (in this case item1)
 >>> print browser.contents
 <...
   <div class="listing-item-fields-portlet">
-      <dl class="-item item-fields">
+      <dl class="pubnewsitem-item item-fields">
                   <dt class="listing-field pubdate">Local Publication Date</dt>
                   <dd class="listing-field pubdate">.../.../...</dd>
             </dl>
@@ -323,7 +324,7 @@ and because item1 has no contents we have an empty list
 
 >>> print browser.contents
 <...
-    <ul class="-listing listing-items-view">
+    <ul class="pubnewsitem-listing listing-items-view">
     </ul>
 ...
 
@@ -359,7 +360,7 @@ We will now see the portlet at the folder level
 >>> print browser.contents
 <...
   <div class="listing-item-fields-portlet">
-      <dl class="-item item-fields">
+      <dl class="pubnewsitem-item item-fields">
           <dt class="listing-field pubdate">Local Publication Date</dt>
           <dd class="listing-field pubdate">.../.../...</dd>
       </dl>
@@ -377,7 +378,7 @@ e.g.
 
 We just copy our listing view and give it a new class. Add the following to your diazo rules.xml to turn the plain view into a table
 
-.. code-block:: xml
+::
     <replace css:content="ul.listing-items-view">
         <table>
             <tr>

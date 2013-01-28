@@ -1,10 +1,7 @@
 import Missing
 from DateTime import DateTime
-from Products.PageTemplates.Expressions import getEngine
 from collective.listingviews import LVMessageFactory as _
-from collective.listingviews.interfaces import IListingAdapter, \
-    IListingCustomFieldControlPanel, IListingControlPanel
-#from collective.listingviews.settings import ListingSettings
+from collective.listingviews.interfaces import IListingAdapter\
 
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout
@@ -16,14 +13,9 @@ except:
 
 from zLOG import LOG, INFO
 from zope.interface import implements
-from zope.component import adapts, getMultiAdapter
-from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+from zope.component import getMultiAdapter
 from Products.CMFCore.utils import getToolByName
-from zope.component import queryUtility
-from plone.registry.interfaces import IRegistry
-from collective.listingviews.interfaces import ICustomFieldDefinition
 from Products.CMFCore.Expression import Expression, getExprContext
-from zope.app.component.hooks import getSite
 from plone.uuid.interfaces import IUUID
 from Products.Five import BrowserView
 from plone.memoize.instance import memoize
@@ -126,10 +118,11 @@ class BaseListingInformationRetriever(BrowserView):
     def listing_style_class(self):
         style_class = ""
         if self.view_setting:
-            style_class = getattr(self.view_setting, 'css_class', '')
+            style_class = self.view_setting.css_class if self.view_setting.css_class else ''
+            style_class += ' '+self.view_setting.id
         if style_class is None:
             style_class = ""
-        return style_class
+        return style_class.strip()
 
     @property
     def listing_view_batch_size(self):
