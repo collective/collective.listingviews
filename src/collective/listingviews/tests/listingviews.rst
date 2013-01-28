@@ -4,7 +4,7 @@
 Example: Adding publication date news listing
 =============================================
 
-Let's say have a design that demands that has a news folder that displays the publication date for each news item.
+Let's say have a design that demands that has a folder displaying the publication date for each item.
 
 
 e.g.
@@ -175,6 +175,7 @@ and finally our custom version of the effective date
 
 Next you will need to use diazo rules like the following to turn the bare lising view into the final result::
 
+.. code-block:: xml
     <replace css:content="ul.listing-items-view">
         <xsl:for-each select="./li[contains(@class, 'listing-item')]">
             <div class="span8">
@@ -198,6 +199,7 @@ Next you will need to use diazo rules like the following to turn the bare lising
 
 If you want to change the batching as well, there is an example::
 
+.. code-block:: xml
     <replace css:content="div.listingBar">
         <xsl:for-each css:select="div.listingBar span">
             <xsl:choose>
@@ -400,6 +402,7 @@ e.g.
 
 We just copy our listing view and give it a new class. Add the following to your diazo rules.xml to turn the plain view into a table::
 
+.. code-block:: xml
     <replace css:content="ul.listing-items-view">
         <table>
             <tr>
