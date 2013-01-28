@@ -214,8 +214,8 @@ If you want to change the batching as well, there is an example::
     </replace>
 
 
-Example: Adding publication date to a news item
-===============================================
+Example: Adding publication date to a Page only via a Portlet
+=============================================================
 
 Next you'd like to use this same publication date on the view of your news item itself.
 
@@ -266,7 +266,7 @@ Finally we only want this to be applied to a Page content type
 >>> browser.getControl('News Item Info').click()
 
 
-6. Leave ``Target`` target blank as you want it to display the publication date of the current item.
+6. Leave ``Target`` target blank as you want portlet to show information of the current item.
 7. Click ``Save``.
 
 >>> browser.getControl('Save').click()
@@ -280,14 +280,22 @@ Now whenever you view a news item you will get a portlet on the left hand side
 
 >>> browser.getLink('folder1').click()
 
-Because we restricted which types the view can be applied to we won't see it on the folder
->>> 'portlet-listing-news-item-info' not in browser.contents
-True
+Because we restricted which types the view can be applied to we won't see the portlet on the folder
+>>> 'portlet-listing-news-item-info' in browser.contents
+False
 
 and not because there is an error
 
->>> 'There was an error while rendering the portlet' not in browser.contents
-True
+>>> 'There was an error while rendering the portlet' in browser.contents
+False
+
+
+We also aren't able to select that view from the display menu because this is a folder
+
+>>> browser.getLink('News Item Info')
+Exception raised:
+...
+LinkNotFoundError
 
 However on the item we can see a listing portlet
 
@@ -319,7 +327,7 @@ Our portlet shows data about the context item (in this case item1)
   <div class="listing-item-fields-portlet">
       <dl class="-item item-fields">
                   <dt class="listing-field pubdate">Local Publication Date</dt>
-                  <dd class="listing-field pubdate">27/01/2013</dd>
+                  <dd class="listing-field pubdate">.../.../...</dd>
             </dl>
   </div>
 ...
@@ -340,6 +348,37 @@ and remove the portlet completely::
         <xsl:copy-of select="." />
         <div id="publishedDets" class="publishDate">Published <xsl:value-of select="//dl[contains(@class, 'portlet-listing-news-item')]//dd[contains(@class, 'custom-date')]"/></div>
     </replace>
+
+We are also able to select this as a view for the item main content as well
+
+>>> browser.getLink('News Item Info')
+<Link text='News Item Info' url="...">
+
+It's also possible to fix a portlet to show information on particular item instead of the current content context.
+Edit the portlet and search for ``item1`` in the ``Target`` Field.
+
+>>> browser.getLink('Manage portlets').click()
+>>> browser.getLink('News Item Info').click()
+>>> #browser.getControl('Target').value = 'folder1/item1'
+>>> form = browser.getControl('Save').mech_form #HACK
+>>> form.new_control('text','form.root', {'value':'/folder1/item1'})
+>>> browser.getControl('Save').click()
+
+#TODO show what happens if we pick an item of invalid type
+
+We will now see the portlet at the folder level
+>>> browser.getLink('folder1').click()
+
+>>> print browser.contents
+<...
+  <div class="listing-item-fields-portlet">
+      <dl class="-item item-fields">
+          <dt class="listing-field pubdate">Local Publication Date</dt>
+          <dd class="listing-field pubdate">.../.../...</dd>
+      </dl>
+  </div>
+...
+
 
 Example: News listing in table view
 ===================================

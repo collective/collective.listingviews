@@ -11,7 +11,7 @@
 
 <div tal:omit-tag="not:view/data/omit_border"
      tal:attributes="class string:portletListing ${view/css_class}"
-        tal:condition="view/data/show_portlet">
+        tal:condition="view/show_portlet">
 
     <dl tal:condition="not:view/data/omit_border"
         tal:attributes="class string:portlet portletListing ${view/css_class}"
