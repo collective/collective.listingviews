@@ -59,13 +59,13 @@ def addView(portal, view):
     view_name = getViewName(view.id)
     sm = getSiteManager(portal)
     sm.registerAdapter(ListingView,
-                       required=(IFolderish, IBrowserRequest),
+                       required=(IContentish, IBrowserRequest),
                        provided=IBrowserView,
                        name=view_name)
     portal_types = getToolByName(portal, "portal_types")
 
     # add view to the relevent types
-    for type_ in ['Folder', 'Topic']:
+    for type_ in view.restricted_to_types:
         fti = portal_types.getTypeInfo(type_)
         if view_name not in fti.view_methods:
             fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
@@ -73,7 +73,7 @@ def addView(portal, view):
 def removeView(portal, view):
     view_name = getViewName(view.id)
     sm = getSiteManager(portal)
-    sm.unregisterAdapter(required = (IFolderish, IBrowserRequest),
+    sm.unregisterAdapter(required = (IContentish, IBrowserRequest),
                        provided = IBrowserView,
                        name = view_name)
 
@@ -107,14 +107,14 @@ def _registerMenuItems():
             )
         # ensure we remove our old factory if already registered
         gsm.unregisterAdapter(
-            required=(IFolderish, IDefaultBrowserLayer),
+            required=(IContentish, IDefaultBrowserLayer),
             provided=menu.getMenuItemType(),
             name=view_name,
         )
 
         gsm.registerAdapter(
             factory,
-            required=(IFolderish, IDefaultBrowserLayer),
+            required=(IContentish, IDefaultBrowserLayer),
             provided=menu.getMenuItemType(),
             name=view_name,
         )
@@ -151,7 +151,14 @@ class ListingViewEditForm(crud.EditForm):
 class ListingViewAddForm(crud.AddForm, AutoExtensibleForm):
     @property
     def schema(self):
-        return self.context.add_schema
+        schema =  self.context.add_schema
+        return schema
+
+    # @property
+    # def fields(self):
+    #     fields = field.Fields(self.context.add_schema)
+    #     import pdb; pdb.set_trace()
+    #     return fields
 
     # fixes bug with OrderedSelect widget which turns crud-add.form into crud.add.form
     prefix = 'crud.add.form.'
@@ -178,7 +185,7 @@ class ListingViewSchemaListing(crud.CrudForm):
     ignoreContext = True
 
     def get_items(self):
-        """ Look up all existing schemas in the registry.
+        """ Look up all existing views in the registry.
         """
         return [(v.id, v) for v in getRegistryViews().views if v.id]
 

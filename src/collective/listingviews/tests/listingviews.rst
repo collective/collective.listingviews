@@ -51,19 +51,29 @@ To include publication date with the custom format in the news listing
 >>> browser.getLink('Listing View').click()
 >>> browser.getControl('Add').click()
 
-4. Name it "News with publication", add Title, Location, Local Publication Date fields.
+4. Name it "News with publication".
 
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getForm(id='crud-add-form').getControl('Title', index=0).value = "News with publication"
 
+Can can get the view to list information about the context item and also each item in it contains.
+We'll show the ``Title`` of the item
+
 # HACK: widget creates control using js so have to fake it
 >>> form = browser.getControl('Add').mech_form
 >>> form.new_control('text','crud.add.form.widgets.item_fields:list', {'value':'Title:'})
+
+and  ``Title``, ``Location``, ``Effective Date`` and ``Local Publication Date`` for each of the content items
+
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:'}, index=1)
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:tolink'}, index=2)
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'EffectiveDate:localshort'}, index=3)
 >>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':':pubdate'}, index=4)
 >>> #form.fixup()
+
+By default the view will be enabled for all types. We'll enable it for folders.
+
+>>> form.new_control('text','crud.add.form.widgets.restricted_to_types:list', {'value':'Folder'}, index=1)
 
 
 5. Specify a ``View Batch Size`` of 3 and then ``Add``.
@@ -290,10 +300,10 @@ and not because there is an error
 False
 
 
-We also aren't able to select that view from the display menu because this is a folder
+We also aren't able to select that view from the display menu because this is a folder not a Page
 
 >>> browser.getLink('News Item Info')
-Exception raised:
+Traceback (most recent call last):
 ...
 LinkNotFoundError
 
@@ -352,7 +362,7 @@ and remove the portlet completely::
 We are also able to select this as a view for the item main content as well
 
 >>> browser.getLink('News Item Info')
-<Link text='News Item Info' url="...">
+<Link text='News Item Info' url='...'>
 
 It's also possible to fix a portlet to show information on particular item instead of the current content context.
 Edit the portlet and search for ``item1`` in the ``Target`` Field.

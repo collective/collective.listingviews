@@ -148,7 +148,7 @@ class BaseListingInformationRetriever(BrowserView):
         :return: True if the the context is valid for this listing view
         """
         types = self.view_setting.restricted_to_types
-        return not types or self.context.getPortalTypeName() in types
+        return self.context.getPortalTypeName() in types
 
     # BrowserView helper method
     def get_UID(self):

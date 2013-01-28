@@ -13,10 +13,10 @@ from collective.z3cform.chosen import ChosenMultiFieldWidget
 #from plone.formwidget.contenttree import AutocompleteMultiSelectionFieldWidget
 from zope.interface import implements
 from z3c.formwidget.query.interfaces import IQuerySource
-from zope.schema.interfaces import IContextSourceBinder
+from zope.schema.interfaces import IContextSourceBinder, IVocabularyFactory
 from utils import ComplexRecordsProxy
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.component import queryUtility
+from zope.component import queryUtility, getUtility
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from zope.app.component.hooks import getSite
@@ -121,6 +121,12 @@ class MetadataSourceBinder(object):
      def __call__(self, context):
          return VocabularySource(MetadataVocabulary(context))
 
+def friendly_types():
+
+    portal = getSite()
+    vocab = getUtility(IVocabularyFactory, name="plone.app.vocabularies.ReallyUserFriendlyTypes")
+    return [term.value for term in vocab(portal)]
+
 
 class IListingDefinition(Interface):
     id = schema.ASCIILine(title=_(u"Id"),
@@ -138,7 +144,7 @@ class IListingDefinition(Interface):
     item_fields = schema.List(title=_(u"Fields of Item"),
                               description=_(
                                   u"Display the following fields at of current content item. Sort to change order."),
-                              required=True,
+                              required=False,
                               default=[],
                               value_type=schema.Choice(
                                               vocabulary="collective.listingviews.MetadataVocabulary",
@@ -160,11 +166,11 @@ class IListingDefinition(Interface):
 
     #    form.widget(restricted_to_types=AutocompleteMultiSelectionFieldWidget)
     restricted_to_types = schema.List(title=_(u"Restricted To Types"),
-                                      description=_(u"Left it blank if the view is applying all types."),
-                                      required=False,
-                                      default=[],
+                                      description=_(u"Show in display menu or make portlet visible only for these types"),
+                                      required=True,
+                                      defaultFactory=friendly_types,
                                       value_type=schema.Choice(
-                                          vocabulary="collective.listingviews.ContentTypeVocabulary"
+                                          vocabulary="plone.app.vocabularies.ReallyUserFriendlyTypes"
                                       ),
     )
 
