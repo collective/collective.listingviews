@@ -6,8 +6,8 @@
     <!-- Portlet type registrations -->
     <portlet
         addview="collective.listingviews.listingbox"
-        title="Listing Portlet"
-        description="A portlet shows custom listing."
+        title="ListingView Portlet"
+        description="A portlet which pick an item and a view to use to show it"
         i18n:attributes="title;
 			description"
     />

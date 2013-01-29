@@ -3,46 +3,64 @@
 Introduction
 ============
 
-ListingViews allows a site administrator to create new views in Plone Site Setup which they either
+ListingViews allows a Plone site administrator to create views themselves. They can use this to
 
-- Apply to content items via the ``Display Menu``
-- Used in Listing View portlet
+- Create custom views of folders or collection that include metadata and data from contained items
+- Create custom listing portlets with additional information such as lead-images, publication dates or authors.
+- Create listing views with subqueries or python via ``TAL expressions``_.
+- Create additional views of content items pulling additional data out of the content
+- Portlets to display information about the current item such as last updated date
+- ItemView type portlet to display a whole item in a portlet.
+- Carousel portlets which pull content or images from collections or folders and apply js to them
 
 Listing Views are designed to be simple to create quickly on a Plone site and avoid the complexity
 of creating custom ZPT templates or overridden views for many common cases.
-The html markup used by the view is simple and designed to be easily adapted to your needs
-using CSS or Diazo.
 
-Each view consists of
+View definitions are created inside the Plone Site setup for particular content types. Content editors can apply the views
+to content items via the ``Display Menu`` in a ``Listing View Portlet`` (and in the future in a ``Content Listing Tile``).
+
+The html markup used by the view is simple and designed to be easily adapted to your needs
+using CSS or Diazo. Each view consists of
 
 - A definition list of fields of the content item
 - A list of definition lists of fields for each the items in the folder, or collection items
 - Unique css classes for the lists as well as each field type.
 
-Fields that can be selected are
+By default Fields that make up a ListingView definition can be one of the following :
 
-- Metadata fields stored in the catalog (same as can be used on a collection)
-- Metadata fields with some built in filters
-- Custom TAL expressions
-
-There are many possible uses including
-
-- Create views with custom date formats
-- Providing additional views
-- Creating new collection portlets with additional fields
-- Providing extra fields to additional views using a portlet and diazp
-- Preview portlet
-- Replacing jbot style overridden ZPT templates with through-the-web equivalent
-- creating carousel portlets using folder contents including images via custom image field
+- Creation Date (Date)
+- Creation Date (Date & Time)
+- Creator
+- Description
+- Effective Date (Date)
+- Effective Date (Date & Time)
+- End Date (Date)
+- End Date (Date & Time)
+- Expiration Date (Date)
+- Expiration Date (Date & Time)
+- Short Name
+- Short Name (Link)
+- Size
+- Location
+- Modification Date (Date)
+- Modification Date (Date & Time)
+- State
+- Start Date (Date)
+- Start Date (Date & Time)
+- Tags
+- Title
+- Title (Link)
+- Total number of comments
+- + any Custom TAL expressions
 
 Worked Examples
 ===============
 
-.. include:: ./src/collective/listingviews/tests/listingviews.rst
+.. include:: ./trunk/src/collective/listingviews/tests/listingviews.rst
 
 See the `doctests for a worked example`_
 
-.. _doctests for a worked example: ./src/collective/listingviews/tests/listingviews.rst
+.. _doctests for a worked example: ./trunk/src/collective/listingviews/tests/listingviews.rst
 
 Contributing
 ============
@@ -53,8 +71,7 @@ where you might need custom ZPT, while keeping it easy to understand.
 
 Development is at http://github.com/collective/collective.listingviews
 
-Initial development was funded by PretaWeb
-
+Initial development was funded by ``PretaWeb``_
 
 We have some ideas on where this could go:
 
@@ -72,9 +89,9 @@ We have some ideas on where this could go:
 - support hierarchical listing. Allow navigation portlets, sitemaps with additional fields. Maybe different kind of views?
   Maybe allow views to be used as fields within other views?
 - support ajax batching and infinite lists (auto load next when scrolled down)
-- Reuse TAL on different fields. TAL becomes filter not field e.g. convert date or turn Title into link.
-  When creating a function you specify which fields it can apply to, or the whole object (which makes it a
-  it a custom field). In the listing view, you can now pick the field with or without that function applied.
+- Reuse TAL on different fields. TAL becomes formatter function not field e.g. convert date or turn Title into link.
+  Functions let you select with fields they apply to, or apply to whole item (ie custom field).
+- Pre-calculate custom fields. ie add them to catalog metadata.
 
 .. _plone.app.contentlistingtile: https://github.com/plone/plone.app.contentlistingtile
 .. _plone.app.collection: https://github.com/plone/plone.app.collection

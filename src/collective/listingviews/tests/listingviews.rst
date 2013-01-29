@@ -367,6 +367,11 @@ We will now see the portlet at the folder level
   </div>
 ...
 
+Listing Views for collections
+=============================
+
+
+
 
 Example: News listing in table view
 ===================================

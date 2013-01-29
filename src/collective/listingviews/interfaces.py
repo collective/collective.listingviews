@@ -22,23 +22,19 @@ from Products.CMFCore.utils import getToolByName
 from zope.app.component.hooks import getSite
 
 
-#class ListingDefinition(object):
-#    implements(IListingDefinition)
-#
-#registerFactoryAdapter(IListingDefinition, ListingDefinition)
-
-
 class ICustomFieldDefinition(Interface):
     id = schema.ASCIILine(title=(u"Id"),
                           required=True,
-                          description=_(u"It must contains only alphanumeric or underscore, starting with alpha"),
+                          description=_(u"It must contains only alphanumeric or underscore, starting with alpha. Will be used as css class"),
                           constraint=validate_id)
 
-    name = schema.ASCIILine(title=_(u"Title"), required=True)
+    name = schema.ASCIILine(title=_(u"Title"),
+                            description=_(u"Name as it will appear in html of view"),
+                            required=False)
 
     tal_statement = schema.ASCIILine(title=_(u"TAL expression"),
                                      required=True,
-                                     description=_(u'e.g. "python:item.getObject().getBocy()"'),
+                                     description=_(u'variables available include "item":catalog brain, "object": context object, "folder": parent of object if object is not a folder. e.g. "python:item.getObject().getBocy()"'),
                                      constraint=validate_tal)
 
     css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
@@ -136,7 +132,7 @@ class IListingDefinition(Interface):
                           constraint=validate_id)
 
     name = schema.ASCIILine(title=_(u"Title"),
-                            required=True,
+                            required=False,
                             description=_(u"Name as it will appear in the display menu to editors"))
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
