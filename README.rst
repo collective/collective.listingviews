@@ -3,6 +3,9 @@
 Introduction
 ============
 
+.. image:: https://secure.travis-ci.org/collective/collective.listingviews.png
+    :target: http://travis-ci.org/collective/collective.listingviews
+
 ListingViews allows a Plone site administrator to create views themselves. They can use this to
 
 - Create custom views of folders or collection that include metadata and data from contained items
@@ -26,7 +29,7 @@ using CSS or Diazo. Each view consists of
 - A list of definition lists of fields for each the items in the folder, or collection items
 - Unique css classes for the lists as well as each field type.
 
-By default Fields that make up a ListingView definition can be one of the following :
+By default Fields that can make up a ListingView are :
 
 - Creation Date (Date)
 - Creation Date (Date & Time)
