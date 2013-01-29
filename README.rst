@@ -60,7 +60,7 @@ Worked Examples
 
 See the `doctests for a worked example`_
 
-.. _doctests for a worked example: ./tree/master/src/collective/listingviews/tests/listingviews.rst
+.. _doctests for a worked example: ./src/collective/listingviews/tests/listingviews.rst
 
 Contributing
 ============
