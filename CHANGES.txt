@@ -1,8 +1,21 @@
 Changelog
 =========
 
-1.0-dev (unreleased)
---------------------
 
-- Package created using templer
-  [Pretaweb]
+1.0beta1 (unreleased)
+---------------------
+
+- Renamed TAL attributes. object->item (catalog metadata), context->object [Dylan Jay]
+- Functional tests [Dylan Jay]
+- Use CRUD z3cform framework and autoform so make easier to use and easier to replace widgets  [Dylan Jay]
+- Make "Restricted to types" work [Dylan Jay]
+- Add date and link filters  [Dylan Jay]
+- Views appear in display menu directly [Dylan Jay]
+
+1.0alpha1 (unreleased)
+----------------------
+
+- Refactor to support eea.facetednavigation [Dylan Jay]
+- Precompile TAL expressions before loop [Dylan Jay]
+- Initial version [Ivan Teoh]
+- Package created using templer [Ivan Teoh]

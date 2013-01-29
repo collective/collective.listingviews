@@ -1,14 +1,12 @@
 from setuptools import setup, find_packages
 
-version = '1.0'
+version = '1.0beta1'
 
 long_description = (
     open('README.rst').read()
     + '\n' +
     'Contributors\n'
     '============\n'
-    + '\n' +
-    open('CONTRIBUTING.txt').read()
     + '\n' +
     open('CHANGES.txt').read()
     + '\n')
@@ -38,7 +36,7 @@ setup(name='collective.listingviews',
           'plone.app.z3cform',
           'plone.app.testing',
 #          'plone.directives.form', # older directives
-          'collective.z3cform.chosen'
+#          'collective.z3cform.chosen'
       ],
       extras_require={'test': ['plone.app.testing']},
       entry_points="""

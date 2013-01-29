@@ -13,7 +13,6 @@ from plone.i18n.normalizer.interfaces import IIDNormalizer
 from zope.component import getUtility
 from Acquisition import aq_inner
 from plone.app.vocabularies.catalog import SearchableTextSourceBinder
-from Products.ATContentTypes.interface import IATTopic
 
 try:
     from plone.folder.interfaces import IFolder as IBaseFolder
