@@ -56,11 +56,11 @@ By default Fields that make up a ListingView definition can be one of the follow
 Worked Examples
 ===============
 
-.. include:: ./trunk/src/collective/listingviews/tests/listingviews.rst
+.. include:: ./tree/master/src/collective/listingviews/tests/listingviews.rst
 
 See the `doctests for a worked example`_
 
-.. _doctests for a worked example: ./trunk/src/collective/listingviews/tests/listingviews.rst
+.. _doctests for a worked example: ./tree/master/src/collective/listingviews/tests/listingviews.rst
 
 Contributing
 ============
