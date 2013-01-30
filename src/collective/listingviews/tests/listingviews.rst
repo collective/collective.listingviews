@@ -96,7 +96,6 @@ and  ``Title``, ``Location``, ``Effective Date`` and ``Local Publication Date`` 
 By default the view will be enabled for all types. We'll enable it for folders and collections
 
 >>> layer.setInAndOut(browser, ['Folder', 'Collection'])
-
 >>> browser.getControl('Add').click()
 
 We can manage our existing listing views including a link to edit the view we just created.
@@ -229,21 +228,21 @@ add ``Local Publication Date`` to the 'item' fields, rather than the listing fie
 Finally we only want this to be applied to a Page content type
 
 >>> layer.setInAndOut(browser, ['Page'])
-
 >>> browser.getControl('Add').click()
 
 
-Go to your  folder where all the pages are located and Add a ``Listing Portlet`` portlet to the left side using
-  ``Manage porlets``. Alternatively you can go to
-  ``Site Setup > Types > News Item > Manage Portlets assigned to this content type``.
+Go to your  folder where all the pages are located
 
 >>> browser.getLink('Home').click()
 >>> browser.getLink('folder1').click()
 
+and Add a ``Listing Portlet`` portlet to the left side using
+``Manage porlets``. (Alternatively you can go to
+``Site Setup > Types > News Item > Manage Portlets assigned to this content type``).
+
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
-
 
 Enter ``Publication Info`` as the Portlet header.
 
@@ -254,9 +253,7 @@ Select ``Publication Info`` as the ``Listing views``.
 >>> browser.getControl('Publication Info').click()
 
 
-Leave ``Target`` target blank as you want portlet to show information of the current item.
-
-Click ``Save``.
+Leave ``Target`` target blank as you want portlet to show information of the current item. Click ``Save``.
 
 >>> browser.getControl('Save').click()
 
@@ -353,7 +350,6 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 We will now see the portlet at the folder level
 
 >>> browser.getLink('folder1').click()
-
 >>> print browser.contents
 <...
   <div class="listing-item-fields-portlet">
@@ -433,7 +429,6 @@ Select ``News with publication`` as the ``Listing views``.
 We'll make it display collection1
 
 >>> browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
-
 >>> browser.getControl('Save').click()
 
 New when we view home we  see the items inside folder1 based on criteria in collection1

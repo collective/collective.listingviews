@@ -8,7 +8,7 @@ long_description = (
     open('CHANGES.txt').read()
     + '\n')
 
-long_description = long_description.replace('.. include:: ./src/collective/listingviews/tests/listingviews.rst',
+long_description = long_description.replace('See the `doctests for a worked example`_',
                          open('./src/collective/listingviews/tests/listingviews.rst').read())
 
 

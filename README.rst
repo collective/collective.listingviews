@@ -56,16 +56,13 @@ By default Fields that can make up a ListingView are :
 - Tags
 - Title (with or without Link)
 - Total number of comments
-- + any custom TAL expressions
+- plus any custom TAL expressions
 
 Worked Examples
 ===============
 
-.. include:: ./src/collective/listingviews/tests/listingviews.rst
-
 See the `doctests for a worked example`_
 
-.. _doctests for a worked example: ./src/collective/listingviews/tests/listingviews.rst
 
 Contributing
 ============
