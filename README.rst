@@ -59,11 +59,8 @@ the following:
 Worked Examples
 ===============
 
-.. include:: ./tree/master/src/collective/listingviews/tests/listingviews.rst
-
-See the `doctests for a worked example`_
-
-.. _doctests for a worked example: ./src/collective/listingviews/tests/listingviews.rst
+See the doctests for a worked example:
+``./src/collective/listingviews/tests/listingviews.rst`` 
 
 Contributing
 ============
