@@ -4,8 +4,6 @@ from plone.app.registry.browser import controlpanel
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingControlSettings, IListingDefinition,\
     IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition
-from plone.schemaeditor.browser.schema.traversal import SchemaContext
-from plone.schemaeditor.interfaces import ISchemaContext
 from zope.interface import implements
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
@@ -276,7 +274,7 @@ class ListingViewControlPanel(SimpleItem):
 class ListingViewEditContext(SimpleItem):
     # Implementing IBrowserPublisher tells the Zope 2 publish traverser to pay attention
     # to the publishTraverse and browserDefault methods.
-    implements(ISchemaContext, IBrowserPublisher)
+    implements(IBrowserPublisher)
 
 
     def __init__(self, context, request, name=u'schema', title=None):

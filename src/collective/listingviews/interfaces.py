@@ -8,10 +8,6 @@ try:
     from plone.autoform import directives as form
 except:
     from plone.directives import form
-#from collective.z3cform.widgets.token_input_widget import TokenInputFieldWidget
-from collective.z3cform.chosen import ChosenMultiFieldWidget
-#from plone.formwidget.contenttree import AutocompleteMultiSelectionFieldWidget
-from zope.interface import implements
 from z3c.formwidget.query.interfaces import IQuerySource
 from zope.schema.interfaces import IContextSourceBinder, IVocabularyFactory
 from utils import ComplexRecordsProxy
