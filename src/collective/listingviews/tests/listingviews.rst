@@ -1,6 +1,4 @@
 
->>> browser = layer['manager']
-
 Creating a custom field
 -----------------------
 
@@ -20,6 +18,7 @@ First we need to create a custom field using TAL since we want a custom date for
 
 Go to ``Site Setup > Listing Custom Fields > Add``
 
+>>> browser = layer['manager']
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
 >>> browser.getControl('Add').click()
@@ -480,8 +479,5 @@ We just copy our listing view and give it a new class. Add the following to your
         </table>
     </replace>
 
-
-
-#>>> layer.errorlog()
 
 
