@@ -34,7 +34,7 @@ setup(name='collective.listingviews',
           'setuptools',
           # -*- Extra requirements: -*-
           'plone.app.z3cform',
-          'plone.app.testing',
+#          'plone.app.testing',
 #          'plone.directives.form', # older directives
 #          'collective.z3cform.chosen'
       ],

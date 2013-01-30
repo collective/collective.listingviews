@@ -161,7 +161,7 @@ class IListingDefinition(Interface):
     )
 
     #    form.widget(restricted_to_types=AutocompleteMultiSelectionFieldWidget)
-    restricted_to_types = schema.List(title=_(u"Restricted To Types"),
+    restricted_to_types = schema.List(title=_(u"Enabled on Types"),
                                       description=_(u"Show in display menu or make portlet visible only for these types"),
                                       required=True,
                                       defaultFactory=friendly_types,

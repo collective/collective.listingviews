@@ -48,21 +48,15 @@ To include publication date with the custom format in the news listing
 Can can get the view to list information about the context item and also each item in it contains.
 We'll show the ``Title`` of the item
 
-# HACK: widget creates control using js so have to fake it
->>> form = browser.getControl('Add').mech_form
->>> form.new_control('text','crud.add.form.widgets.item_fields:list', {'value':'Title:'})
+>>> layer.setInAndOut(browser, ['Title'], index=1)
 
 and  ``Title``, ``Location``, ``Effective Date`` and ``Local Publication Date`` for each of the content items
 
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:'}, index=1)
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'Title:tolink'}, index=2)
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':'EffectiveDate:localshort'}, index=3)
->>> form.new_control('text','crud.add.form.widgets.listing_fields:list', {'value':':pubdate'}, index=4)
->>> #form.fixup()
+>>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
 
 By default the view will be enabled for all types. We'll enable it for folders.
 
->>> form.new_control('text','crud.add.form.widgets.restricted_to_types:list', {'value':'Folder'}, index=1)
+>>> layer.setInAndOut(browser, ['Folder'])
 
 
 5. Specify a ``View Batch Size`` of 3 and then ``Add``.
@@ -244,8 +238,8 @@ Finally we only want this to be applied to a Page content type
 >>> browser.getLink('Home').click()
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('Manage portlets').click()
->>> browser.getControl('Listing Portlet', index=1).click()
->>> layer.getFormFromControl(browser.getControl('Listing Portlet', index=1)).submit()
+>>> browser.getControl('ListingView Portlet', index=1).click()
+>>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 
 
 4. Enter ``News Item Info`` as the Portlet header.
@@ -370,6 +364,51 @@ We will now see the portlet at the folder level
 Listing Views for collections
 =============================
 
+We'll create a collection in our folder1
+
+>>> browser.getLink('folder1').click()
+
+>>> browser.getLink('Collection').click()
+>>> browser.getControl('Title', index=0).value = "collection1"
+>>> browser.getControl('Location', index=0).click()
+>>> form = browser.getControl('Location', index=0).mech_form
+>>> form.new_control('text','query.i:records', {'value':'path'})
+>>> form.new_control('text','query.o:records', {'value':'plone.app.querystring.operation.string.relativePath'})
+>>> form.new_control('text','query.v:records', {'value':'..'})
+>>> browser.getControl('Save').click()
+
+>>> browser.getLink('item1')
+<Link text='item1' url='http://nohost/plone/folder1/item1'>
+
+Switch to our publication view
+
+7. Select ``Display > 'News with publication'``.
+
+>>> browser.getLink('folder1').click()
+>>> browser.getLink('News with publication').click()
+>>> browser.contents
+'...View changed...'
+
+And we'll still see item1
+
+>>> browser.getLink('item1')
+<Link text='item1' url='http://nohost/plone/folder1/item1'>
+
+and our custom field
+
+>>> print browser.contents
+<...
+<dt class="listing-field pubdate">Local Publication Date</dt>
+<dd class="listing-field pubdate">.../.../...</dd>
+...
+
+and we can switch our portlet to also display the collection matched items.
+
+>>> browser.getLink('Manage portlets').click()
+>>> browser.getControl('ListingView Portlet', index=1).click()
+>>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
+>>> browser.getLink('News Item Info').click()
+>>> browser.getControl('Save').click()
 
 
 
