@@ -133,7 +133,7 @@ class IListingDefinition(Interface):
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
 #    form.widget(item_fields=ChosenMultiFieldWidget)
-    item_fields = schema.List(title=_(u"Fields of Item"),
+    item_fields = schema.List(title=_(u"Item Fields"),
                               description=_(
                                   u"Display the following fields at of current content item. Sort to change order."),
                               required=False,
@@ -145,7 +145,7 @@ class IListingDefinition(Interface):
     )
 
 #    form.widget(listing_fields=ChosenMultiFieldWidget)
-    listing_fields = schema.List(title=_(u"Fields of Contents"),
+    listing_fields = schema.List(title=_(u"Listing Fields"),
                                  description=_(
                                      u"Folders/Collections and other listable items will list contents displaying these fields for each"),
                                  required=False,
@@ -167,7 +167,7 @@ class IListingDefinition(Interface):
     )
 
     batch_size = schema.Int(
-        title=_(u"label_batch_size", default=u"View Batch Size"),
+        title=_(u"label_batch_size", default=u"Batch Size"),
         description=_(u"description_batch_size",
                       default=u"The amount of items shown in one page. "
                               u"Enter zero if you want to disable view batching."
@@ -212,7 +212,7 @@ class IListingControlPanel(Interface):
 class IListingCustomFieldControlPanel(Interface):
     fields = schema.Tuple(
         title=_(u'Names of custom listing fields'),
-        description=(
+        description=_(
         u"Create new fields to insert into your Listing Views based on existing fields of data from your content"),
         value_type=schema.Object(ICustomFieldDefinition,
                                  title=_(u"Custom Field Definition")),
