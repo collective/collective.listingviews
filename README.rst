@@ -61,11 +61,8 @@ By default Fields that can make up a ListingView are :
 Worked Examples
 ===============
 
-.. include:: ./src/collective/listingviews/tests/listingviews.rst
-
-See the `doctests for a worked example`_
-
-.. _doctests for a worked example: ./src/collective/listingviews/tests/listingviews.rst
+See the doctests for a worked example:
+``./src/collective/listingviews/tests/listingviews.rst`` 
 
 Contributing
 ============
