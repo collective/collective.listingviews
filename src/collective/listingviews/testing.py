@@ -39,6 +39,34 @@ class BrowserIntegrationTesting(IntegrationTesting):
         browser.getControl(name='submit').click()
         self['manager'] = browser
 
+        # create dummy content
+
+        browser.getLink('Home').click()
+        browser.getLink('Folder').click()
+        browser.getControl('Title').value = 'folder1'
+        browser.getControl('Save').click()
+
+        #Add an item
+        browser.getLink('Page').click()
+        browser.getControl('Title').value = 'item1'
+        browser.getControl('Save').click()
+        browser.getLink('Publish').click()
+
+
+        browser.getLink('folder1').click()
+
+        browser.getLink('Collection').click()
+        browser.getControl('Title', index=0).value = "collection1"
+        browser.getControl('Location', index=0).click()
+        form = browser.getControl('Location', index=0).mech_form
+        form.new_control('text','query.i:records', {'value':'path'})
+        form.new_control('text','query.o:records', {'value':'plone.app.querystring.operation.string.relativePath'})
+        form.new_control('text','query.v:records', {'value':'..'})
+        browser.getControl('Save').click()
+
+        browser.getLink('Home').click()
+
+
     def getFormFromControl(self, control):
         browser = control.browser
         index = 0
