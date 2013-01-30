@@ -3,6 +3,9 @@
 Introduction
 ============
 
+.. image:: https://secure.travis-ci.org/collective/collective.listingviews.png
+    :target: http://travis-ci.org/collective/collective.listingviews
+
 ``collective.listingviews`` allows a Plone site administrator to create
 new views through the web.  They can use this to:
 
@@ -36,8 +39,7 @@ to your needs using CSS or Diazo. Each view consists of:
   collection items;
 - unique CSS classes for the lists and each field type.
 
-By default the fields that make up a ListingView definition can be one of
-the following:
+By default Fields that can make up a ListingView are :
 
 - Creation Date (Date, Date & Time)
 - Creator
@@ -106,3 +108,4 @@ We have some ideas on where this could go:
 .. _plone.app.contentlistingtile: https://github.com/plone/plone.app.contentlistingtile
 .. _plone.app.collection: https://github.com/plone/plone.app.collection
 .. _PretaWeb: http://www.pretaweb.com
+.. _TAL expressions: http://developer.plone.org/functionality/expressions.html

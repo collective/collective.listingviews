@@ -5,11 +5,12 @@ version = '1.0beta1'
 long_description = (
     open('README.rst').read()
     + '\n' +
-    'Contributors\n'
-    '============\n'
-    + '\n' +
     open('CHANGES.txt').read()
     + '\n')
+
+long_description = long_description.replace('.. include:: ./src/collective/listingviews/tests/listingviews.rst',
+                         open('./src/collective/listingviews/tests/listingviews.rst').read())
+
 
 setup(name='collective.listingviews',
       version=version,
@@ -34,7 +35,7 @@ setup(name='collective.listingviews',
           'setuptools',
           # -*- Extra requirements: -*-
           'plone.app.z3cform',
-          'plone.app.testing',
+#          'plone.app.testing',
 #          'plone.directives.form', # older directives
 #          'collective.z3cform.chosen'
       ],
