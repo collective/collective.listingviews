@@ -93,9 +93,23 @@ and  ``Title``, ``Location``, ``Effective Date`` and ``Local Publication Date`` 
 
 >>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
 
-By default the view will be enabled for all types. We'll enable it for folders and collections
+By default the view will be enabled for standard content types. These are
 
->>> layer.setInAndOut(browser, ['Folder', 'Collection'])
+>>> print '\n'.join( browser.getControl('Page').control.displayOptions )
+Collection
+Collection (old-style)
+Comment
+Event
+File
+Folder
+Image
+Link
+News Item
+Page
+
+We'll enable it for everything
+
+>>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
 We can manage our existing listing views including a link to edit the view we just created.

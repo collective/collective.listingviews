@@ -30,7 +30,7 @@ class ICustomFieldDefinition(Interface):
 
     tal_statement = schema.ASCIILine(title=_(u"TAL expression"),
                                      required=True,
-                                     description=_(u'variables available include "item":catalog brain, "object": context object, "folder": parent of object if object is not a folder. e.g. "python:item.getObject().getBocy()"'),
+                                     description=_(u'variables available include "item":catalog brain, "object": context object, "folder": parent of object if object is not a folder. e.g. "python:item.getObject().getBody()"'),
                                      constraint=validate_tal)
 
     css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),

@@ -65,6 +65,10 @@ def addView(portal, view):
     # add view to the relevent types
     for type_ in view.restricted_to_types:
         fti = portal_types.getTypeInfo(type_)
+        if getattr(fti,'view_methods',None) is None:
+            #raise Exception("No dynamic view enabled for %s"%type_)
+            #TODO we need to warn user that only portlets will work for this type
+            continue
         if view_name not in fti.view_methods:
             fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
 
