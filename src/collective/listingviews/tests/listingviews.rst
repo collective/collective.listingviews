@@ -442,9 +442,6 @@ Example: News listing in table view
 -----------------------------------
 
 Let's say have a design that demands that has a news folder that displays the publication date for each news item in table form.
-e.g.
-
-.. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-table-view.png
 
 We just copy our listing view and give it a new class. Add the following to your diazo rules.xml to turn the plain view into a table::
 
