@@ -1,8 +1,8 @@
 
 >>> browser = layer['manager']
 
-Example: Adding publication date news listing
-=============================================
+Creating a custom field
+-----------------------
 
 Let's say have a design that demands that has a folder displaying the publication date for each item.
 
@@ -16,37 +16,77 @@ overriden template.
 
 Instead here is how you do it using a ListingView.
 
-To include publication date with the custom format in the news listing
+First we need to create a custom field using TAL since we want a custom date format rather than Plones default
 
-1. Go to ``Site Setup > Listing Custom Fields > Add``
+Go to ``Site Setup > Listing Custom Fields > Add``
 
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
 >>> browser.getControl('Add').click()
 
-
-2. Name it ``Local Publication Date``, enter ``custom-date`` for ``Style class in CSS`` and enter
-   a ``TAL expression`` and then ``Save``.
+The ``Id`` is unique and is also used as a CSS class in the final html
 
 >>> browser.getControl('Id').value = "pubdate"
+
+The ``Title`` is what the editor picks from the ``Display Menu`` or in the ``ListingView Portlet``
+
 >>> browser.getControl('Title').value = "Local Publication Date"
+
+Finally the TAL Expression that is evaluated when showing the field. ``item`` is the catalog brain.
+``object`` or ``here`` is the context object.
+
 >>> browser.getControl('TAL expression').value = \
 ...   "python:item.effective.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
 >>> browser.getControl('Save').click()
 
 
-3. Go to ``Site Setup > Listing View > Add``
+Creating a listing view
+-----------------------
+
+Now that we've created our custom field we can add a new Listing View via
+``Site Setup > Listing View > Add``
 
 >>> browser.getLink('Listing View').click()
 >>> browser.getControl('Add').click()
 
-4. Name it "News with publication".
+Name it "News with publication".
 
 >>> browser.getControl('Id').value = "pubnews"
->>> browser.getForm(id='crud-add-form').getControl('Title', index=0).value = "News with publication"
+>>> browser.getControl('Title', index=0).value = "News with publication"
 
-Can can get the view to list information about the context item and also each item in it contains.
-We'll show the ``Title`` of the item
+There are two kinds of information a listing view display. Information about the context object called
+``Item Fields`` and information about the contents or matched items called ``Listing Fields``.
+
+These fields come from either standard metadata or the custom fields we add.
+
+>>> print '\n'.join( browser.getControl('Title', index=1).control.displayOptions )
+Creation Date (Date)
+Creation Date (Date & Time)
+Creator
+Description
+Effective Date (Date)
+Effective Date (Date & Time)
+End Date (Date)
+End Date (Date & Time)
+Expiration Date (Date)
+Expiration Date (Date & Time)
+Short Name
+Short Name (Link)
+Size
+Location
+Modification Date (Date)
+Modification Date (Date & Time)
+State
+Start Date (Date)
+Start Date (Date & Time)
+Tags
+Title
+Title (Link)
+Total number of comments
+Item Type
+Local Publication Date (Custom)
+
+We want to show the ``Title`` of the context object
 
 >>> layer.setInAndOut(browser, ['Title'], index=1)
 
@@ -58,20 +98,22 @@ By default the view will be enabled for all types. We'll enable it for folders a
 
 >>> layer.setInAndOut(browser, ['Folder', 'Collection'])
 
-
-5. Specify a ``View Batch Size`` of 3 and then ``Add``.
-
->>> browser.getControl('View Batch Size').value = '3'
 >>> browser.getControl('Add').click()
 
-We should have a crud form with a link to edit the listing view we just added
+We can manage our existing listing views including a link to edit the view we just created.
+
 >>> browser.getLink('pubnews')
 <Link text='pubnews' url='http://nohost/plone/listingviews_controlpanel/pubnews'>
 
+Using a listing view on a folder
+--------------------------------
 
-We have a folder with an Page in it
+We have a folder with some pages in it
 
-7. Select ``Display > 'News with publication'``. This will change the folder view to our new view we created.
+>>> browser.getLink('folder1').click()
+>>> browser.getLink('item1').click()
+
+Select ``Display > 'News with publication'``. This will change the folder view to our new view we created.
 
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('News with publication').click()
@@ -79,11 +121,8 @@ We have a folder with an Page in it
 '...View changed...'
 
 
-You will now have a listing that contains all the information you need but doesn't look very nice. It will look
-like this
-
-
-We have a definition for the fields of the folder
+You will now have a listing that contains all the information you need.
+We have a definition for the fields of the folder (the context item)
 
 >>> print browser.contents
 <...
@@ -96,6 +135,7 @@ We have a definition for the fields of the folder
 ...
 
 There is an unordered list of definition lists for every item contained in the folder.
+
 >>> print browser.contents
 <...
       <ul class="pubnews-listing listing-items-view">
@@ -107,7 +147,7 @@ There is an unordered list of definition lists for every item contained in the f
       </ul>
 ...
 
-The title of item1
+The title of ``item1``
 
 >>> print browser.contents
 <...
@@ -115,7 +155,7 @@ The title of item1
 <dd class="listing-field field-Title">item1</dd>
 ...
 
-A title made into a link to item1
+A title made into a link to ``item1``
 
 >>> print browser.contents
 <...
@@ -140,10 +180,10 @@ and finally our custom version of the effective date
 <dd class="listing-field pubdate">.../.../...</dd>
 ...
 
-Next you will need to use diazo rules like the following to turn the bare listing view into the final result
+The styling of this view is very basic. With ``Diazo`` we can turn this into a much nicer looking view by
+matching against the CSS class ``pubnews-listing``::
 
-::
-    <replace css:content="ul.listing-items-view">
+    <replace css:content="ul.pubnews-listing">
         <xsl:for-each select="./li[contains(@class, 'listing-item')]">
             <div class="span8">
                 <div class="headline">
@@ -164,50 +204,22 @@ Next you will need to use diazo rules like the following to turn the bare listin
         </xsl:for-each>
     </replace>
 
-If you want to change the batching as well, there is an example
 
-::
-    <replace css:content="div.listingBar">
-        <xsl:for-each css:select="div.listingBar span">
-            <xsl:choose>
-                <xsl:when test="./@class='previous'">
-                    <xsl:element name="span">
-                        <xsl:attribute name="class"><xsl:value-of select="./@class"/> prev-news-link</xsl:attribute>
-                        <xsl:element name="a">
-                            <xsl:attribute name="href"><xsl:value-of select="./a/@href"/></xsl:attribute>
-                            &lt;&lt; Prev News
-                        </xsl:element>
-                    </xsl:element>
-                </xsl:when>
-                <xsl:when test="./@class='next'">
-                    <xsl:element name="span">
-                        <xsl:attribute name="class"><xsl:value-of select="./@class"/> more-news-link</xsl:attribute>
-                        <xsl:element name="a">
-                            <xsl:attribute name="href"><xsl:value-of select="./a/@href"/></xsl:attribute>
-                            More News &gt;&gt;
-                        </xsl:element>
-                    </xsl:element>
-                </xsl:when>
-            </xsl:choose>
-        </xsl:for-each>
-    </replace>
+Adding publication date to a Page using a portlet
+-------------------------------------------------
 
+We can use the same custom publication date field when viewing Page items.
 
-Example: Adding publication date to a Page only via a Portlet
-=============================================================
-
-Next you'd like to use this same publication date on the view of your news item itself.
-
-1. Go to ``Site Setup > Listing View > Add``
+We'll create a new Listing View
 
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing View').click()
 >>> browser.getControl('Add').click()
 
-2. Name it ``News Item Info``, .
+called ``Publication Info``, .
 
 >>> browser.getControl('Id').value = "pubnewsitem"
->>> browser.getControl('Title', index=0).value = "News Item Info"
+>>> browser.getControl('Title', index=0).value = "Publication Info"
 
 
 add ``Local Publication Date`` to the 'item' fields, rather than the listing fields.
@@ -222,7 +234,7 @@ Finally we only want this to be applied to a Page content type
 >>> browser.getControl('Add').click()
 
 
-3. Go to your  folder where all the pages are located and Add a ``Listing Portlet`` portlet to the left side using
+Go to your  folder where all the pages are located and Add a ``Listing Portlet`` portlet to the left side using
   ``Manage porlets``. Alternatively you can go to
   ``Site Setup > Types > News Item > Manage Portlets assigned to this content type``.
 
@@ -234,17 +246,18 @@ Finally we only want this to be applied to a Page content type
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 
 
-4. Enter ``News Item Info`` as the Portlet header.
+Enter ``Publication Info`` as the Portlet header.
 
->>> browser.getControl('Portlet header').value = 'News Item Info'
+>>> browser.getControl('Portlet header').value = 'Publication Info'
 
-5. Select ``News Item Info`` as the ``Listing views``.
+Select ``Publication Info`` as the ``Listing views``.
 
->>> browser.getControl('News Item Info').click()
+>>> browser.getControl('Publication Info').click()
 
 
-6. Leave ``Target`` target blank as you want portlet to show information of the current item.
-7. Click ``Save``.
+Leave ``Target`` target blank as you want portlet to show information of the current item.
+
+Click ``Save``.
 
 >>> browser.getControl('Save').click()
 
@@ -266,7 +279,7 @@ False
 
 We also aren't able to select that view from the display menu because this is a folder not a Page
 
->>> browser.getLink('News Item Info')
+>>> browser.getLink('Publication Info')
 Traceback (most recent call last):
 ...
 LinkNotFoundError
@@ -276,19 +289,19 @@ However on the item we can see a listing portlet
 >>> browser.getLink('item1').click()
 >>> print browser.contents
 <...
-    <dl class="portlet portletListing portlet-listing-news-item-info">
+    <dl class="portlet portletListing portlet-listing-publication-info">
     ...
     </dl>
 ...
 
-We can see a portlet with the heading ``News Item Info``
+We can see a portlet with the heading ``Publication Info``
 
 >>> print browser.contents
 <...
     <dt class="portletHeader">
         <span class="portletTopLeft"></span>
         <span>
-           News Item Info
+           Publication Info
         </span>
         <span class="portletTopRight"></span>
     </dt>
@@ -325,20 +338,21 @@ and remove the portlet completely::
 
 We are also able to select this as a view for the item main content as well
 
->>> browser.getLink('News Item Info')
-<Link text='News Item Info' url='...'>
+>>> browser.getLink('Publication Info')
+<Link text='Publication Info' url='...'>
 
 It's also possible to fix a portlet to show information on particular item instead of the current content context.
 Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
->>> browser.getLink('News Item Info').click()
+>>> browser.getLink('Publication Info').click()
 >>> browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/item1'})
 >>> browser.getControl('Save').click()
 
 #TODO show what happens if we pick an item of invalid type
 
 We will now see the portlet at the folder level
+
 >>> browser.getLink('folder1').click()
 
 >>> print browser.contents
@@ -352,7 +366,7 @@ We will now see the portlet at the folder level
 ...
 
 Listing Views for collections
-=============================
+-----------------------------
 
 We have create a collection in our folder1 called collection1
 
@@ -363,7 +377,7 @@ We have create a collection in our folder1 called collection1
 
 Switch to our publication view
 
-7. Select ``Display > 'News with publication'``.
+Select ``Display > 'News with publication'``.
 
 >>> browser.getLink('collection1').click()
 >>> browser.getLink('News with publication').click()
@@ -385,7 +399,7 @@ and our custom field
 
 
 Collection Portlets
-===================
+-------------------
 
 We can also create a portlet on the home page listing the contents of this collection
 
@@ -411,7 +425,7 @@ Give the portlet a header.
 We have a choice of Listing Views to pick from
 
 >>> browser.getControl('Listing views').displayOptions
-['(nothing selected)', 'News with publication', 'News Item Info']
+['(nothing selected)', 'News with publication', 'Publication Info']
 
 Select ``News with publication`` as the ``Listing views``.
 
@@ -431,16 +445,15 @@ New when we view home we  see the items inside folder1 based on criteria in coll
 
 
 Example: News listing in table view
-===================================
+-----------------------------------
 
 Let's say have a design that demands that has a news folder that displays the publication date for each news item in table form.
 e.g.
 
 .. image:: https://github.com/collective/collective.listingviews/raw/master/docs/listing-table-view.png
 
-We just copy our listing view and give it a new class. Add the following to your diazo rules.xml to turn the plain view into a table
+We just copy our listing view and give it a new class. Add the following to your diazo rules.xml to turn the plain view into a table::
 
-::
     <replace css:content="ul.listing-items-view">
         <table>
             <tr>

@@ -61,7 +61,7 @@ By default Fields that can make up a ListingView are :
 Worked Examples
 ===============
 
-.. include:: ./tree/master/src/collective/listingviews/tests/listingviews.rst
+.. include:: ./src/collective/listingviews/tests/listingviews.rst
 
 See the `doctests for a worked example`_
 
@@ -111,3 +111,4 @@ We have some ideas on where this could go:
 .. _plone.app.contentlistingtile: https://github.com/plone/plone.app.contentlistingtile
 .. _plone.app.collection: https://github.com/plone/plone.app.collection
 .. _PretaWeb: http://www.pretaweb.com
+.. _TAL expressions: http://developer.plone.org/functionality/expressions.html

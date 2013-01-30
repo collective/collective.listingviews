@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0beta1 (unreleased)
+1.0beta1 (2013-01-30)
 ---------------------
 
 - Renamed TAL attributes. object->item (catalog metadata), context->object [Dylan Jay]
