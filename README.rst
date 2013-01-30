@@ -41,22 +41,9 @@ to your needs using CSS or Diazo. Each view consists of:
 
 By default Fields that can make up a ListingView are :
 
-- Creation Date (Date, Date & Time)
-- Creator
-- Description
-- Effective Date (Date, Date & Time)
-- End Date (Date, Date & Time)
-- Expiration Date (Date, Date & Time)
-- Short Name (with or without Link)
-- Size
-- Location
-- Modification Date (Date, Date & Time)
-- State
-- Start Date (Date, Date & Time)
-- Tags
-- Title (with or without Link)
-- Total number of comments
-- plus any custom TAL expressions
+- Any Metadata fields stored in the catalog (e.g. Title, Effective Date)
+- Some Metadata fields with formatting applied (e.g. Title (Link), Effective Date (Date & Time))
+- Any custom TAL expressions
 
 Worked Examples
 ===============
