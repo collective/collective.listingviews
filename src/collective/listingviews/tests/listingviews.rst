@@ -14,28 +14,24 @@ overriden template.
 
 Instead here is how you do it using a ListingView.
 
-First we need to create a custom field using TAL since we want a custom date format rather than Plones default
+First we need to create a custom field using TAL since we want a custom date format rather than Plones default.
+A TAL Expression like the following will work.
 
-Go to ``Site Setup > Listing Custom Fields > Add``
+>>> tal = "python:item.effective.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
+
+- Go to ``Site Setup > Listing Custom Fields > Add``
+- The ``Id`` is unique and is also used as a CSS class in the final html
+- The ``Title`` is what the editor picks from the ``Display Menu`` or in the ``ListingView Portlet``
+- Finally the TAL Expression that is evaluated when showing the field. ``item`` is the catalog brain.
+  ``object`` or ``here`` is the context object. Below is the TAL we are going to use.
 
 >>> browser = layer['manager']
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
 >>> browser.getControl('Add').click()
-
-The ``Id`` is unique and is also used as a CSS class in the final html
-
 >>> browser.getControl('Id').value = "pubdate"
-
-The ``Title`` is what the editor picks from the ``Display Menu`` or in the ``ListingView Portlet``
-
 >>> browser.getControl('Title').value = "Local Publication Date"
-
-Finally the TAL Expression that is evaluated when showing the field. ``item`` is the catalog brain.
-``object`` or ``here`` is the context object.
-
->>> browser.getControl('TAL expression').value = \
-...   "python:item.effective.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
+>>> browser.getControl('TAL expression').value = tal
 >>> browser.getControl('Save').click()
 
 
@@ -43,19 +39,14 @@ Creating a listing view
 -----------------------
 
 Now that we've created our custom field we can add a new Listing View via
-``Site Setup > Listing View > Add``
+``Site Setup > Listing View > Add``.
 
+>>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing View').click()
 >>> browser.getControl('Add').click()
 
-Name it "News with publication".
-
->>> browser.getControl('Id').value = "pubnews"
->>> browser.getControl('Title', index=0).value = "News with publication"
-
 There are two kinds of information a listing view display. Information about the context object called
 ``Item Fields`` and information about the contents or matched items called ``Listing Fields``.
-
 These fields come from either standard metadata or the custom fields we add.
 
 >>> print '\n'.join( browser.getControl('Title', index=1).control.displayOptions )
@@ -85,14 +76,6 @@ Total number of comments
 Item Type
 Local Publication Date (Custom)
 
-We want to show the ``Title`` of the context object
-
->>> layer.setInAndOut(browser, ['Title'], index=1)
-
-and  ``Title``, ``Location``, ``Effective Date`` and ``Local Publication Date`` for each of the content items
-
->>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
-
 By default the view will be enabled for standard content types. These are
 
 >>> print '\n'.join( browser.getControl('Page').control.displayOptions )
@@ -107,8 +90,24 @@ Link
 News Item
 Page
 
-We'll enable it for everything
+In this case we'll create a view called ``News with publication``.
+For the context object we'll show
 
+ - ``Title``
+
+for each of the content items
+
+ - ``Title``
+ - ``Title (Link)``
+ - ``Effective Date``
+ - ``Local Publication Date``
+
+and finally we'll enable the view for all content types
+
+>>> browser.getControl('Id').value = "pubnews"
+>>> browser.getControl('Title', index=0).value = "News with publication"
+>>> layer.setInAndOut(browser, ['Title'], index=1)
+>>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
 >>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
@@ -122,11 +121,11 @@ Using a listing view on a folder
 
 We have a folder with some pages in it
 
->>> browser.getLink('folder1').click()
->>> browser.getLink('item1').click()
-
 Select ``Display > 'News with publication'``. This will change the folder view to our new view we created.
 
+>>> browser.getLink('folder1').click()
+>>> browser.getLink('item1')
+<Link text='item1' url='http://nohost/plone/folder1/item1'>
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('News with publication').click()
 >>> browser.contents
@@ -223,78 +222,60 @@ Adding publication date to a Page using a portlet
 We can use the same custom publication date field when viewing Page items.
 
 We'll create a new Listing View
+called ``Publication Info``, .
+add ``Local Publication Date`` to the 'item' fields, rather than the listing fields.
+
+Finally we only want this to be applied to a Page content type
 
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing View').click()
 >>> browser.getControl('Add').click()
-
-called ``Publication Info``, .
-
 >>> browser.getControl('Id').value = "pubnewsitem"
 >>> browser.getControl('Title', index=0).value = "Publication Info"
-
-
-add ``Local Publication Date`` to the 'item' fields, rather than the listing fields.
-
 >>> layer.setInAndOut(browser, ['Local Publication Date (Custom)'], index=0)
-
-
-Finally we only want this to be applied to a Page content type
-
 >>> layer.setInAndOut(browser, ['Page'])
 >>> browser.getControl('Add').click()
 
 
 Go to your  folder where all the pages are located
+and
+
+1. Add a ``ListingView Portlet`` portlet to the left side using
+``Manage porlets``.
+2. Enter ``Publication Info`` as the Portlet header.
+3. Select ``Publication Info`` as the ``Listing views``.
+4. Leave ``Target`` target blank as you want portlet to show information of the current item. Click ``Save``.
+
+Alternatively you can also add the portlet as a Content Type portlet which also ensures it will only be shown only when
+viewing this content type. (e.g. ``Site Setup > Types > News Item > Manage Portlets assigned to this content type``).
 
 >>> browser.getLink('Home').click()
 >>> browser.getLink('folder1').click()
-
-and Add a ``Listing Portlet`` portlet to the left side using
-``Manage porlets``. (Alternatively you can go to
-``Site Setup > Types > News Item > Manage Portlets assigned to this content type``).
-
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
-
-Enter ``Publication Info`` as the Portlet header.
-
 >>> browser.getControl('Portlet header').value = 'Publication Info'
-
-Select ``Publication Info`` as the ``Listing views``.
-
 >>> browser.getControl('Publication Info').click()
-
-
-Leave ``Target`` target blank as you want portlet to show information of the current item. Click ``Save``.
-
 >>> browser.getControl('Save').click()
 
 
-Now whenever you view a news item you will get a portlet on the left hand side
+Because we restricted which types the view can be applied to we won't see the portlet on the folder.
+We also aren't able to select that view from the display menu because this is a folder not a Page.
 
 >>> browser.getLink('folder1').click()
-
-Because we restricted which types the view can be applied to we won't see the portlet on the folder
-
 >>> 'portlet-listing-news-item-info' in browser.contents
 False
-
-and not because there is an error
-
 >>> 'There was an error while rendering the portlet' in browser.contents
 False
-
-
-We also aren't able to select that view from the display menu because this is a folder not a Page
-
 >>> browser.getLink('Publication Info')
 Traceback (most recent call last):
 ...
 LinkNotFoundError
 
-However on the item we can see a listing portlet
+Now whenever you view a news item you will get a portlet on the left hand side.
+We can see a portlet with the heading ``Publication Info``.
+Our portlet shows data about the context item (in this case item1)
+and because item1 has no contents we have an empty list in the listing part of the portlet.
 
 >>> browser.getLink('item1').click()
 >>> print browser.contents
@@ -303,9 +284,6 @@ However on the item we can see a listing portlet
     ...
     </dl>
 ...
-
-We can see a portlet with the heading ``Publication Info``
-
 >>> print browser.contents
 <...
     <dt class="portletHeader">
@@ -316,9 +294,6 @@ We can see a portlet with the heading ``Publication Info``
         <span class="portletTopRight"></span>
     </dt>
 ...
-
-Our portlet shows data about the context item (in this case item1)
-
 >>> print browser.contents
 <...
   <div class="listing-item-fields-portlet">
@@ -328,9 +303,6 @@ Our portlet shows data about the context item (in this case item1)
             </dl>
   </div>
 ...
-
-and because item1 has no contents we have an empty list
-
 >>> print browser.contents
 <...
     <ul class="pubnewsitem-listing listing-items-view">
@@ -346,11 +318,20 @@ and remove the portlet completely::
         <div id="publishedDets" class="publishDate">Published <xsl:value-of select="//dl[contains(@class, 'portlet-listing-news-item')]//dd[contains(@class, 'custom-date')]"/></div>
     </replace>
 
-We are also able to select this as a view for the item main content as well
+Item View on content
+--------------------
 
+We are also able to select our ``Publication Info`` view as a view for the ``item1`` main content as well
+via the ``Display > Publication Info`` menu.
+
+>>> browser.getLink('folder1').click()
+>>> browser.getLink('item1').click()
 >>> browser.getLink('Publication Info')
-<Link text='Publication Info' url='...'>
+<Link text='Publication Info' url='.../folder1/item1/selectViewTemplate?templateId=collective.listingviews.pubnewsitem'>
 
+
+Item View portlet for fixed item
+--------------------------------
 It's also possible to fix a portlet to show information on particular item instead of the current content context.
 Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
@@ -394,12 +375,10 @@ Select ``Display > 'News with publication'``.
 '...View changed...'
 
 And we'll still see item1
+and our custom field
 
 >>> browser.getLink('item1')
 <Link text='item1' url='http://nohost/plone/folder1/item1'>
-
-and our custom field
-
 >>> print browser.contents
 <...
 <dt class="listing-field pubdate">Local Publication Date</dt>
@@ -420,32 +399,25 @@ Traceback (most recent call last):
 ...
 LinkNotFoundError
 
-We'll create a portlet to give us links
+We'll create a portlet to give us links.
+Give the portlet a header.
+We have a choice of Listing Views to pick from.
+Select ``News with publication`` as the ``Listing views``.
+We can select a specific collection to display by searching by
+name for ``collection1`` in the ``Target`` field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
-
-
-Give the portlet a header.
-
 >>> browser.getControl('Portlet header').value = 'Collection Portlet'
-
-We have a choice of Listing Views to pick from
-
 >>> browser.getControl('Listing views').displayOptions
 ['(nothing selected)', 'News with publication', 'Publication Info']
-
-Select ``News with publication`` as the ``Listing views``.
-
 >>> browser.getControl('News with publication').click()
-
-We'll make it display collection1
-
 >>> browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
 >>> browser.getControl('Save').click()
 
-New when we view home we  see the items inside folder1 based on criteria in collection1
+New when we view home we  see the items inside ``folder1` based on criteria in ``collection1``, so we'll see
+a link to the ``item1``
 
 >>> browser.getLink('Home').click()
 >>> browser.getLink('item1')
