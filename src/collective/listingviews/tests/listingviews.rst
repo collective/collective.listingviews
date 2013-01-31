@@ -119,9 +119,9 @@ We can manage our existing listing views including a link to edit the view we ju
 Using a listing view on a folder
 --------------------------------
 
-We have a folder with some pages in it
-
-Select ``Display > 'News with publication'``. This will change the folder view to our new view we created.
+We have a ``folder1`` with some pages in including a Page called ``item1``.
+Using the ``Display > News with publication`` menu we will change the folder view to
+``News with publication`` view we created.
 
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('item1')
@@ -133,7 +133,18 @@ Select ``Display > 'News with publication'``. This will change the folder view t
 
 
 You will now have a listing that contains all the information you need.
-We have a definition for the fields of the folder (the context item)
+We have
+
+- a definition for the fields of the folder (the context item)
+- an unordered list of definition lists for every item contained in the folder.
+
+  - the title of ``item1``
+  - a title made into a link to ``item1``
+  - the ``EffectiveDate`` using Plone's default Date format
+  - and finally our custom version of the effective date
+
+Note the html is in exactly the same order as we specifed in our view definition
+
 
 >>> print browser.contents
 <...
@@ -144,9 +155,6 @@ We have a definition for the fields of the folder (the context item)
         </dl>
       </div>
 ...
-
-There is an unordered list of definition lists for every item contained in the folder.
-
 >>> print browser.contents
 <...
       <ul class="pubnews-listing listing-items-view">
@@ -157,39 +165,37 @@ There is an unordered list of definition lists for every item contained in the f
           </li>
       </ul>
 ...
-
-The title of ``item1``
-
 >>> print browser.contents
 <...
 <dt class="listing-field field-Title">Title</dt>
 <dd class="listing-field field-Title">item1</dd>
 ...
-
-A title made into a link to ``item1``
-
 >>> print browser.contents
 <...
 <dt class="listing-field field-Title-tolink">Title</dt>
 <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
 ...
-
-
-How the default effective date field looks
-
 >>> print browser.contents
 <...
 <dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
 <dd class="listing-field field-EffectiveDate-localshort">..., ...</dd>
 ...
-
-and finally our custom version of the effective date
-
 >>> print browser.contents
 <...
 <dt class="listing-field pubdate">Local Publication Date</dt>
 <dd class="listing-field pubdate">.../.../...</dd>
 ...
+>>> print browser.contents
+<...
+<dt class="listing-field field-Title">Title</dt>
+...
+<dt class="listing-field field-Title-tolink">Title</dt>
+...
+<dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
+...
+<dt class="listing-field pubdate">Local Publication Date</dt>
+...
+
 
 The styling of this view is very basic. With ``Diazo`` we can turn this into a much nicer looking view by
 matching against the CSS class ``pubnews-listing``::
@@ -240,8 +246,7 @@ Finally we only want this to be applied to a Page content type
 Go to your  folder where all the pages are located
 and
 
-1. Add a ``ListingView Portlet`` portlet to the left side using
-``Manage porlets``.
+1. Add a ``ListingView Portlet`` portlet to the left side using ``Manage porlets``.
 2. Enter ``Publication Info`` as the Portlet header.
 3. Select ``Publication Info`` as the ``Listing views``.
 4. Leave ``Target`` target blank as you want portlet to show information of the current item. Click ``Save``.
@@ -259,24 +264,14 @@ viewing this content type. (e.g. ``Site Setup > Types > News Item > Manage Portl
 >>> browser.getControl('Save').click()
 
 
-Because we restricted which types the view can be applied to we won't see the portlet on the folder.
-We also aren't able to select that view from the display menu because this is a folder not a Page.
+Now whenever you view a news item you will get a portlet on the left hand side.
+We can see
+
+- a portlet with the heading ``Publication Info``.
+- Our portlet shows data about the context item (in this case item1)
+- and because item1 has no contents we have an empty list in the listing part of the portlet.
 
 >>> browser.getLink('folder1').click()
->>> 'portlet-listing-news-item-info' in browser.contents
-False
->>> 'There was an error while rendering the portlet' in browser.contents
-False
->>> browser.getLink('Publication Info')
-Traceback (most recent call last):
-...
-LinkNotFoundError
-
-Now whenever you view a news item you will get a portlet on the left hand side.
-We can see a portlet with the heading ``Publication Info``.
-Our portlet shows data about the context item (in this case item1)
-and because item1 has no contents we have an empty list in the listing part of the portlet.
-
 >>> browser.getLink('item1').click()
 >>> print browser.contents
 <...
@@ -317,6 +312,21 @@ and remove the portlet completely::
         <xsl:copy-of select="." />
         <div id="publishedDets" class="publishDate">Published <xsl:value-of select="//dl[contains(@class, 'portlet-listing-news-item')]//dd[contains(@class, 'custom-date')]"/></div>
     </replace>
+
+
+Because we restricted which types the view can be applied to we won't see the portlet on the folder.
+We also aren't able to select that view from the display menu because this is a folder not a Page.
+
+>>> browser.getLink('folder1').click()
+>>> 'portlet-listing-news-item-info' in browser.contents
+False
+>>> 'There was an error while rendering the portlet' in browser.contents
+False
+>>> browser.getLink('Publication Info')
+Traceback (most recent call last):
+...
+LinkNotFoundError
+
 
 Item View on content
 --------------------
