@@ -15,7 +15,10 @@ from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import queryUtility, getUtility
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
-from zope.app.component.hooks import getSite
+try:
+    from zope.app.component.hooks import getSite
+except ImportError:
+    from zope.component.hooks import getSite
 
 
 class ICustomFieldDefinition(Interface):

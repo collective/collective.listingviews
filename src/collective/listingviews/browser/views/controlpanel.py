@@ -2,8 +2,8 @@ from OFS.SimpleItem import SimpleItem
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 from plone.app.registry.browser import controlpanel
 from collective.listingviews import LVMessageFactory as _
-from collective.listingviews.interfaces import IListingControlSettings, IListingDefinition,\
-    IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition
+from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
+    IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition)
 from zope.interface import implements
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
