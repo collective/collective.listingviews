@@ -14,29 +14,29 @@ new views through the web.  They can use this to:
 - create custom listing portlets with additional information such as
   lead images, publication dates or authors;
 - create listing views with subqueries or python via `TAL expressions`_;
-- create additional views of content items, showing other aspects of the
+- create additional views of non-folderish content items, showing other aspects of the
   content;
 - create portlets to display information about the current item such as last
-  updated date;
-- use an ItemView type portlet to display a whole item in a portlet;
+  updated date, or even the whole content replacing plugins like ItemViewPortlet;
 - create carousel portlets which pull content or images from collections or
-  folders and apply javascript to them.
+  folders and apply javascript to them, replacing collective.carousel are related
+  plugins;
 
 Listing Views are designed to be simple to create quickly on a Plone site
 and avoid the complexity of creating custom page templates or overridden
 views for many common cases.
 
-View definitions are created inside the Plone Site setup for particular
-content types. Content editors can apply the views to content items via the
-``Display Menu`` in a ``Listing View Portlet`` (and in the future in a
-``Content Listing Tile``).
+View definitions are created inside the Plone Site setup by TTW developers. 
+Content editors can apply the views to content items via the
+``Display Menu`` for content or in a ``Listing View Portlet`` for portlets 
+(and in the future in a ``Content Listing Tile``).
 
 The HTML markup used by the view is simple and designed to be easily adapted
 to your needs using CSS or Diazo. Each view consists of:
 
-- a definition list of fields of the content item;
-- a list of definition lists of fields for each the items in the folder, or
-  collection items;
+- a definition list of fields of the target or context content item;
+- a list of definition lists of fields for each the listed items if the
+  target or context is a folder, or collection;
 - unique CSS classes for the lists and each field type.
 
 By default Fields that can make up a ListingView are :
