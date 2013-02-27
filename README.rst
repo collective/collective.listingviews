@@ -21,6 +21,7 @@ new views through the web.  They can use this to:
 - create carousel portlets which pull content or images from collections or
   folders and apply javascript to them, replacing collective.carousel are related
   plugins;
+- create custom listings for ``eea.facetednavigation``;
 
 Listing Views are designed to be simple to create quickly on a Plone site
 and avoid the complexity of creating custom page templates or overridden
