@@ -78,9 +78,10 @@ Local Publication Date (Custom)
 
 By default the view will be enabled for standard content types. These are
 
->>> print '\n'.join( browser.getControl('Page').control.displayOptions )
+>>> options = browser.getControl('Page').control.displayOptions
+>>> options = [o for o in options if 'old-style' not in o]
+>>> print '\n'.join( options )
 Collection
-Collection (old-style)
 Comment
 Event
 File

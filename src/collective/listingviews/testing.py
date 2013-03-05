@@ -7,6 +7,9 @@ from plone.testing.z2 import Browser
 from zope.testbrowser.browser import controlFactory
 from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD, setRoles, login
 from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
+from plone.app.testing import ploneSite
+from Products.CMFCore.utils import getToolByName
+from plone.app.testing import helpers
 
 
 class CollectiveListingviews(PloneSandboxLayer):
@@ -24,11 +27,27 @@ class CollectiveListingviews(PloneSandboxLayer):
         portal.portal_workflow.setDefaultChain("simple_publication_workflow")
         applyProfile(portal, 'collective.listingviews:default')
 
+        setRoles(portal, TEST_USER_ID, ['Manager'])
+        login(portal, TEST_USER_NAME)
+
+        portal.invokeFactory('Folder', 'folder1', title=u"folder1")
+        portal.folder1.invokeFactory('Document', 'item1', title=u"item1")
+        workflowTool = getToolByName(portal, 'portal_workflow')
+        workflowTool.doActionFor(portal.folder1.item1, 'publish')
+        portal.folder1.item1.setEffectiveDate('1/1/2001')
+        portal.folder1.item1.reindexObject()
+
+        portal.folder1.invokeFactory('Topic', 'collection1', title=u"collection1")
+        topic = portal.folder1.collection1
+
+        path_crit = topic.addCriterion('path', 'ATRelativePathCriterion')
+        path_crit.setRelativePath('..')   # should give the parent==folderA1
+
 class BrowserIntegrationTesting(IntegrationTesting):
 
     def setUpEnvironment(self, portal):
         super(BrowserIntegrationTesting, self).setUpEnvironment(portal)
-        portal = self['portal']
+        #portal = self['portal']
 
         browser = Browser(portal)
         portalURL = portal.absolute_url()
@@ -41,30 +60,34 @@ class BrowserIntegrationTesting(IntegrationTesting):
 
         # create dummy content
 
+        # browser.getLink('Home').click()
+        # browser.getLink('Folder').click()
+        # browser.getControl('Title').value = 'folder1'
+        # browser.getControl('Save').click()
+        #
+        # #Add an item
+        # browser.getLink('Page').click()
+        # browser.getControl('Title').value = 'item1'
+        # browser.getControl('Save').click()
+        # browser.getLink('Publish').click()
+        #
+        #
+        # browser.getLink('folder1').click()
+        #
+        # self.createATTopic(portal)
+
+        # browser.getLink('Collection').click()
+        # browser.getControl('Title', index=0).value = "collection1"
+        # browser.getControl('Location', index=0).click()
+        # form = browser.getControl('Location', index=0).mech_form
+        # form.new_control('text','query.i:records', {'value':'path'})
+        # form.new_control('text','query.o:records', {'value':'plone.app.querystring.operation.string.relativePath'})
+        # form.new_control('text','query.v:records', {'value':'..'})
+        # browser.getControl('Save').click()
+
         browser.getLink('Home').click()
-        browser.getLink('Folder').click()
-        browser.getControl('Title').value = 'folder1'
-        browser.getControl('Save').click()
-
-        #Add an item
-        browser.getLink('Page').click()
-        browser.getControl('Title').value = 'item1'
-        browser.getControl('Save').click()
-        browser.getLink('Publish').click()
 
 
-        browser.getLink('folder1').click()
-
-        browser.getLink('Collection').click()
-        browser.getControl('Title', index=0).value = "collection1"
-        browser.getControl('Location', index=0).click()
-        form = browser.getControl('Location', index=0).mech_form
-        form.new_control('text','query.i:records', {'value':'path'})
-        form.new_control('text','query.o:records', {'value':'plone.app.querystring.operation.string.relativePath'})
-        form.new_control('text','query.v:records', {'value':'..'})
-        browser.getControl('Save').click()
-
-        browser.getLink('Home').click()
 
 
     def getFormFromControl(self, control):
