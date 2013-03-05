@@ -3,7 +3,7 @@ from ZPublisher.BaseRequest import DefaultPublishTraverse
 from plone.app.registry.browser import controlpanel
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
-    IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition)
+    IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition, all_types)
 from zope.interface import implements
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
@@ -156,11 +156,12 @@ class ListingViewAddForm(crud.AddForm, AutoExtensibleForm):
         schema =  self.context.add_schema
         return schema
 
-    # @property
-    # def fields(self):
-    #     fields = field.Fields(self.context.add_schema)
-    #     import pdb; pdb.set_trace()
-    #     return fields
+    @property
+    def fields(self):
+        fields = field.Fields(self.context.add_schema)
+        #Override to select all types
+        fields['restricted_to_types'].field.default = all_types()
+        return fields
 
     # fixes bug with OrderedSelect widget which turns crud-add.form into crud.add.form
     prefix = 'crud.add.form.'

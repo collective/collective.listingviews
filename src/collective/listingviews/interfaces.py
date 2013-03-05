@@ -116,7 +116,7 @@ class MetadataSourceBinder(object):
      def __call__(self, context):
          return VocabularySource(MetadataVocabulary(context))
 
-def friendly_types():
+def all_types():
 
     portal = getSite()
     vocab = getUtility(IVocabularyFactory, name="plone.app.vocabularies.ReallyUserFriendlyTypes")
@@ -163,7 +163,7 @@ class IListingDefinition(Interface):
     restricted_to_types = schema.List(title=_(u"Enabled on Types"),
                                       description=_(u"Show in display menu or make portlet visible only for these types"),
                                       required=True,
-                                      defaultFactory=friendly_types,
+#                                      defaultFactory=all_types,
                                       value_type=schema.Choice(
                                           vocabulary="plone.app.vocabularies.ReallyUserFriendlyTypes"
                                       ),

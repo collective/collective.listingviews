@@ -1,7 +1,6 @@
 language: python
 python:
   - "2.7"
-  - "2.6"
 env:
   - PLONE=4.1
   - PLONE=4.2
