@@ -20,11 +20,14 @@
             tal:attributes="class string:${class_name} listing-collection-view">
 
               <div class="listing-item-fields">
-                <dl class="item-fields" tal:attributes="class string:${class_name}-item item-fields" metal:define-macro="item_fields"><tal:fields
+                <dl class="item-fields" tal:attributes="class string:${class_name}-item item-fields" metal:define-macro="item_fields">
+                    <tal:fields
                         tal:repeat="field fields">
-                      <dt tal:content="string:${field/title}" tal:attributes="class string:listing-field ${field/css_class}"></dt>
-                      <dd tal:content="structure field/value" tal:attributes="class string:listing-field ${field/css_class}"></dd></tal:fields
-                     >
+                      <tal:condition condition="field">
+                          <dt tal:content="string:${field/title}" tal:attributes="class string:listing-field ${field/css_class}"></dt>
+                          <dd tal:content="structure field/value" tal:attributes="class string:listing-field ${field/css_class}"></dd>
+                      </tal:condition>
+                    </tal:fields>
                 </dl>
               </div>
               <tal:core-macro metal:define-macro="content-core"
@@ -34,11 +37,14 @@
 
               <ul class="listing-items-view" tal:attributes="class string:${class_name}-listing listing-items-view" metal:define-macro="listing_items">
                   <li class="listing-item" tal:repeat="item_object batch">
-                      <dl class="listing-fields"><tal:fields
-                          tal:repeat="field python:adapter.assemble_listing_information(item_object, True)">
+                      <dl class="listing-fields">
+                        <tal:fields repeat="field python:adapter.assemble_listing_information(item_object, True)">
+                          <tal:condition condition="field">
                               <dt tal:content="string:${field/title}" tal:attributes="class string:listing-field ${field/css_class}"></dt>
                               <dd tal:content="structure field/value" tal:attributes="class string:listing-field ${field/css_class}"></dd>
-                      </tal:fields></dl>
+                          </tal:condition>
+                        </tal:fields>
+                      </dl>
                   </li>
               </ul>
 
