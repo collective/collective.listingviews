@@ -34,14 +34,13 @@ class CollectiveListingviews(PloneSandboxLayer):
         portal.folder1.invokeFactory('Document', 'item1', title=u"item1")
         workflowTool = getToolByName(portal, 'portal_workflow')
         workflowTool.doActionFor(portal.folder1.item1, 'publish')
+        portal.folder1.reindexObject()
         portal.folder1.item1.setEffectiveDate('1/1/2001')
         portal.folder1.item1.reindexObject()
-
-        portal.folder1.invokeFactory('Topic', 'collection1', title=u"collection1")
+        portal.folder1.invokeFactory('Collection', 'collection1', title=u"collection1")
         topic = portal.folder1.collection1
-
-        path_crit = topic.addCriterion('path', 'ATRelativePathCriterion')
-        path_crit.setRelativePath('..')   # should give the parent==folderA1
+        topic.setQuery([{'i': 'path', 'o': 'plone.app.querystring.operation.string.relativePath', 'v': '..'}])
+        topic.reindexObject()
 
 class BrowserIntegrationTesting(IntegrationTesting):
 
