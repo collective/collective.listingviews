@@ -14,12 +14,7 @@ class LVVocabulary(SimpleVocabulary):
     """
 
     def __init__(self, terms, *interfaces, **config):
-        try:
-            super(LVVocabulary, self).__init__(terms, *interfaces)
-        except:
-            import pdb
-            pdb.set_trace()
-            raise
+        super(LVVocabulary, self).__init__(terms, *interfaces)
         if 'default' in config:
             self.default = config['default']
         else:
@@ -31,6 +26,8 @@ class LVVocabulary(SimpleVocabulary):
             return self.by_value[value]
         except KeyError:
             return self.by_value[self.default]
+        except ConflictError:
+            raise
         except:
             raise LookupError(value)
 
