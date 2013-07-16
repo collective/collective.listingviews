@@ -6,7 +6,7 @@ from collective.listingviews.interfaces import IListingAdapter\
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout
     from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
-except:
+except ImportError:
     IFacetedLayout = None
     IFacetedNavigable = None
     IFacetedSearchMode = None

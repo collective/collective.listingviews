@@ -6,7 +6,7 @@ from collective.listingviews import LVMessageFactory as _
 from validation import validate_id, validate_class, validate_tal
 try:
     from plone.autoform import directives as form
-except:
+except ImportError:
     from plone.directives import form
 from z3c.formwidget.query.interfaces import IQuerySource
 from zope.schema.interfaces import IContextSourceBinder, IVocabularyFactory
