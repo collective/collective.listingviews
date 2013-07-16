@@ -237,7 +237,7 @@ class BaseListingInformationRetriever(BrowserView):
             expression_context.setLocal('item', item)
             try:
                 val = expression(expression_context)
-            except KeyError:
+            except (AttributeError, IndexError, KeyError, NameError, TypeError, ValueError, ZeroDivisionError):
                 portal_membership = getToolByName(self, 'portal_membership')
                 if not portal_membership.checkPermission('Manage portal', self.context):
                     return None
