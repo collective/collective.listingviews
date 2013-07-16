@@ -241,10 +241,8 @@ class BaseListingInformationRetriever(BrowserView):
                 portal_membership = getToolByName(self, 'portal_membership')
                 if not portal_membership.checkPermission('Manage portal', self.context):
                     return None
-                css_class = 'field error'
                 val = 'The custom field expression has an error: %s.' % expression.text
             return {'title': field.name, 'css_class': css_class, 'value': val, 'is_custom': True}
         return value
 
 # Override context creation
-
