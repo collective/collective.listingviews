@@ -174,6 +174,8 @@ class ListingRenderer(base.Renderer):
                 path = path[1:]
 
             return portal.restrictedTraverse(path, default=False)
+        except ConflictError:
+            raise
         except:
             return False
 
