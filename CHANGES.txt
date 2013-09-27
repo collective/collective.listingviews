@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0beta3 (unreleased)
+1.0beta3 (2013-09-11)
 ---------------------
 
 - fix import of getSite to work with Plone 4.3
