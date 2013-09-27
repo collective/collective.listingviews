@@ -6,6 +6,6 @@ env:
   - PLONE=4.2
   - PLONE=4.3
 install:
-  - python bootstrap.py -c buildout.cfg
+  - python bootstrap.py -c travis-$PLONE.cfg
   - bin/buildout -t 3 -c travis-$PLONE.cfg -q
 script: bin/test -m collective.listingviews

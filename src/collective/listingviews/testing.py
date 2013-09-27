@@ -37,11 +37,31 @@ class CollectiveListingviews(PloneSandboxLayer):
         portal.folder1.item1.setEffectiveDate('1/1/2001')
         portal.folder1.item1.reindexObject()
 
-        portal.folder1.invokeFactory('Topic', 'collection1', title=u"collection1")
-        topic = portal.folder1.collection1
+        try:
+            portal.folder1.invokeFactory('Collection', 'collection1', title=u"collection1")
+            collection = portal.folder1.collection1
+            query = [{
+                        'i': 'Path',
+                        'o': 'plone.app.querystring.operation.string.relativePath',
+                        'v': '..',
+                    }]
+                    # set the query and publish the collection
+            collection.setQuery(query)
 
-        path_crit = topic.addCriterion('path', 'ATRelativePathCriterion')
-        path_crit.setRelativePath('..')   # should give the parent==folderA1
+        # browser.getLink('Collection').click()
+        # browser.getControl('Title', index=0).value = "collection1"
+        # browser.getControl('Location', index=0).click()
+        # form = browser.getControl('Location', index=0).mech_form
+        # form.new_control('text','query.i:records', {'value':'path'})
+        # form.new_control('text','query.o:records', {'value':'plone.app.querystring.operation.string.relativePath'})
+        # form.new_control('text','query.v:records', {'value':'..'})
+        # browser.getControl('Save').click()
+        except:
+            portal.folder1.invokeFactory('Topic', 'collection1', title=u"collection1")
+            topic = portal.folder1.collection1
+
+            path_crit = topic.addCriterion('path', 'ATRelativePathCriterion')
+            path_crit.setRelativePath('..')   # should give the parent==folderA1
 
 class BrowserIntegrationTesting(IntegrationTesting):
 
