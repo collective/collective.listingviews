@@ -8,4 +8,4 @@ env:
 install:
   - python bootstrap.py -c travis-$PLONE.cfg
   - bin/buildout -t 3 -c travis-$PLONE.cfg -q
-script: bin/test -m collective.listingviews
+script: bin/test
