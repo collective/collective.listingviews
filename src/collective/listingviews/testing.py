@@ -47,7 +47,7 @@ class CollectiveListingviews(PloneSandboxLayer):
         if not is_topic:
             collection = portal.folder1.collection1
             query = [{
-                        'i': 'Path',
+                        'i': 'path',
                         'o': 'plone.app.querystring.operation.string.relativePath',
                         'v': '..',
                     }]

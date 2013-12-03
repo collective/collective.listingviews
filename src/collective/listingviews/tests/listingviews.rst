@@ -375,7 +375,7 @@ We have create a collection in our folder1 called collection1
 >>> print browser.contents
 <...collection1...>
 >>> browser.getLink('collection1').click()
->>> assert "There are currently no items in this folder." is not in browser.contents
+>>> assert "There are currently no items in this folder." not in browser.contents
 >>> print browser.contents
 <...item1...>
 >>> browser.getLink('item1')
