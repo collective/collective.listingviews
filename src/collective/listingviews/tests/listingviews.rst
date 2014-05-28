@@ -206,7 +206,7 @@ matching against the CSS class ``pubnews-listing``::
             <div class="span8">
                 <div class="headline">
                     <xsl:element name="a">
-                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]/a/@href"/></xsl:attribute>
                         <xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]"/>
                     </xsl:element>
                 </div>
@@ -214,7 +214,7 @@ matching against the CSS class ``pubnews-listing``::
                 <div class="description"><xsl:value-of select="./dl/dd[contains(@class, 'field-Description')]"/></div>
                 <div class="newsLink">
                     <xsl:element name="a">
-                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]/a/@href"/></xsl:attribute>
                         <xsl:text>Read Full Article</xsl:text>
                     </xsl:element>
                 </div>

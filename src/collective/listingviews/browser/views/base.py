@@ -188,19 +188,10 @@ class BaseListingInformationRetriever(BrowserView):
             css_class = "field-%s-%s" % (field_name, filter_name)
 
         def value(item):
-            # metadata does not have location
-
-#            if field_name == 'location':
-#                attr_value = getattr(item, 'getURL', None)
-#                if attr_value:
-#                    attr_value = attr_value()
-#            else:
             attr_value = getattr(item, field_name, None)
 
             if attr_value == None or attr_value == Missing.Value:
                 value = None
-#            elif isinstance(attr_value, DateTime):
-#                value = plone.toLocalizedTime(attr_value, long_format=1)
             elif isinstance(attr_value, basestring):
                 value = attr_value.decode("utf-8")
             else:
