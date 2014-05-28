@@ -43,9 +43,10 @@
               </ul>
 
               <!-- Navigation -->
-              <div metal:use-macro="view/context/batch_macros/macros/navigation"> 
-                Navigation
-              </div>
+              <tal:batch condition="python: adapter.is_container and adapter.listing_view_batch_size"> 
+                <div metal:use-macro="view/context/batch_macros/macros/navigation">Navigation</div>
+              </tal:batch>
+
               </tal:core-macro>
         </div>
       </div>
