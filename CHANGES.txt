@@ -10,6 +10,7 @@ Changelog
 ---------------------
 
 - fix import of getSite to work with Plone 4.3
+- removed 'location' field as it has other meaning in catalog and 'Title' gives you the same info
 
 1.0beta2 (2013-01-31)
 ---------------------
