@@ -1,23 +1,19 @@
 language: python
-python:
-  - 2.6
-  - 2.7
+python: 2.7
 env:
-  - PLONE=4.1
-  - PLONE=4.2
-  - PLONE=4.3
+  - PLONE_VERSION=4.2
+  - PLONE_VERSION=4.3 QA=true
 matrix:
-  exclude:
-    - python: 2.7
-      env: PLONE=4.1
+  include:
     - python: 2.6
-      env: PLONE=4.2
-    - python: 2.6
-      env: PLONE=4.3
-before_install:
-  - pip install http://effbot.org/downloads/Imaging-1.1.6.tar.gz
-  - sudo apt-get install -qq libxml2-dev libxslt-dev
+      env: PLONE_VERSION=4.1
 install:
-  - python bootstrap.py -c travis-$PLONE.cfg
-  - bin/buildout -t 3 -c travis-$PLONE.cfg -q
-script: bin/test
+  - sed -ie "s#travis-4.x.cfg#travis-$PLONE_VERSION.x.cfg#" travis.cfg
+  - sed -ie "s#versions-$PLONE_VERSION.x#versions#" travis.cfg
+  - mkdir -p buildout-cache/downloads
+  - python bootstrap.py -c travis.cfg
+  - bin/buildout -c travis.cfg annotate
+  - bin/buildout -c travis.cfg -N -q
+script: bin/code-analysis && bin/test
+after_success:
+  - test $QA && bin/coverage.sh && pip install -q coveralls && coveralls || true
