@@ -11,11 +11,11 @@ view their content types, folders, collections and eea.facetnavigation. It will 
 custom portlets.
 
 1. Go to Site Setup > Listing Views
-2. Select the fields you want to display and give your view a name and class tag. Pick which content types this view will
-be available to.
+2. Select the fields you want to display and give your view a name and class tag. Pick which content types this view will be 
+   available to.
 3. click "Add new listing view".
-4. Now you can use the "Display Menu" or "Listing view portlet" to apply this view where you want. You can use diazo to customise 
-the layout of your fields and you can use custom field types if you scripted forumlas displayed on a page.
+4. Now you can use the "Display Menu" or "Listing view portlet" to apply this view where you want. You can use diazo to 
+   customise the layout of your fields and you can use custom field types if you scripted forumlas displayed on a page.
 
 This plugin is very flexible and can be used to:
 
