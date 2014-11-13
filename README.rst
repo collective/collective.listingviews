@@ -14,8 +14,12 @@ custom portlets.
 2. Select the fields you want to display and give your view a name and class tag. Pick which content types this view will be 
    available to.
 3. click "Add new listing view".
-4. Now you can use the "Display Menu" or "Listing view portlet" to apply this view where you want. You can use diazo to 
-   customise the layout of your fields and you can use custom field types if you scripted forumlas displayed on a page.
+4. Now you can use the "Display Menu" or "Listing view portlet" to apply this view where you want. If you use it on a folder or
+   collection it display a list items with just the fields you defined. If you use your view on a single item, it will display a list
+   with a single set of fields. If you use a portlet, you can either point it to a item, folder or collection, or it will display
+   the content of the current context.
+5. If you require further customisation youc an use diazo diazo to customise the layout or html of your fields or you can 
+   use custom field types via "Site setup" if you need combine field values, format a value or access plone api's. 
 
 This plugin is very flexible and can be used to:
 
