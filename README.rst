@@ -6,8 +6,18 @@ Introduction
 .. image:: https://secure.travis-ci.org/collective/collective.listingviews.png
     :target: http://travis-ci.org/collective/collective.listingviews
 
-``collective.listingviews`` allows a Plone site administrator to create
-new views through the web.  They can use this to:
+``collective.listingviews`` allows a Plone site administrator to quickly create a new display
+view their content types, folders, collections and eea.facetnavigation. It will also let you create
+custom portlets.
+
+1. Go to Site Setup > Listing Views
+2. Select the fields you want to display and give your view a name and class tag. Pick which content types this view will
+be available to.
+3. click "Add new listing view".
+4. Now you can use the "Display Menu" or "Listing view portlet" to apply this view where you want. You can use diazo to customise 
+the layout of your fields and you can use custom field types if you scripted forumlas displayed on a page.
+
+This plugin is very flexible and can be used to:
 
 - create custom views of folders or collections that include metadata and
   content from contained or matching items;
@@ -55,24 +65,18 @@ See the `doctests for a worked example`_
 Contributing
 ============
 
-``collective.listingviews`` is an initial attempt to create a Plone plugin
-that is flexible yet simple to understand.  To make it even more useful we
-need feedback and pull requests to enable it to replace custom Page
-Templates in more cases, while keeping it easy to understand.
-
 Development is at http://github.com/collective/collective.listingviews
 
 Initial development was funded by `PretaWeb`_.
 
 We have some ideas on where this could go:
 
+- Nicer GS import/export. Currently uses plone.app.registry.
 - Safe HTML filtering for all fields. Currently not implemented.
 - Support `plone.app.contentlistingtile`_ for Deco or ``collective.cover``.
   ``contentlistingtile`` allows custom views to be selected so this should
   be simple.
-- Support `plone.app.collection`_. Currently only old-style collections
-  are supported.
-- Preview view as ZPT. This provides a way to learn ZPT and a base to start
+- Preview/export as ZPT. This provides a way to learn ZPT and a base to start
   from when more complex views are needed.
 - Debug custom fields. Allow selection of content to test fields quickly.
 - Migration of views. Provide a way to make bulk changes in content from one
