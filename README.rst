@@ -10,16 +10,39 @@ Introduction
 view their content types, folders, collections and eea.facetnavigation. It will also let you create
 custom portlets.
 
-1. Go to Site Setup > Listing Views
+.. |listingviews| image:: https://cloud.githubusercontent.com/assets/41700/5023294/b6f6e9e0-6b27-11e4-8516-2b4a50ef66c5.png
+  :width: 50pt  
+.. |edit listing view| image:: https://cloud.githubusercontent.com/assets/41700/5023298/bdd25150-6b27-11e4-8be8-010e3c2cc6d0.png
+  :scale: 50 %
+.. |display menu| image:: https://cloud.githubusercontent.com/assets/41700/5023300/c1546ad4-6b27-11e4-844e-e3d658009731.png
+  :scale: 50 %
+.. |unthemed| image:: https://cloud.githubusercontent.com/assets/41700/5023303/c5cdc2f4-6b27-11e4-9a0d-e89e5b99b71e.png
+  :scale: 50 %
+.. |themed|  image:: https://cloud.githubusercontent.com/assets/41700/5023306/c9e2f918-6b27-11e4-86aa-efd49d202ec8.png
+  :scale: 50 %
+
+
+1. Go to Site Setup > Listing Views. |listingviews|
 2. Select the fields you want to display and give your view a name and class tag. Pick which content types this view will be 
-   available to.
-3. click "Add new listing view".
-4. Now you can use the "Display Menu" or "Listing view portlet" to apply this view where you want. If you use it on a folder or
+   available to. 
+   |edit listing view|
+4. Once you've added your view definition you can use the "Display Menu" or "Listing view portlet" to apply this view where you want. 
+   If you use it on a folder or
    collection it display a list items with just the fields you defined. If you use your view on a single item, it will display a list
-   with a single set of fields. If you use a portlet, you can either point it to a item, folder or collection, or it will display
-   the content of the current context.
-5. If you require further customisation youc an use diazo diazo to customise the layout or html of your fields or you can 
-   use custom field types via "Site setup" if you need combine field values, format a value or access plone api's. 
+   with a single set of fields. If you use a portlet, you can either point it to a fixed item, folder or collection, or it will display
+   the content of the current context. 
+   |display menu| 
+   |unthemed| 
+5. If you require further customisation: use diazo to customise the layout/html of your fields or you can 
+   use custom fields via "Site setup" if you need combine field values, format a value or access plone api's.
+   |themed| 
+   
+For example you could
+
+- create a news listing which displays the first sentance and publish date of each news item
+- create a footer portlet for each page which displays the last updated date of the current content
+- create a portlet which grabs a random image from a folder
+- create a listing of folders which contain pdfs of different languages and display links to each version of the pdf.
 
 This plugin is very flexible and can be used to:
 
