@@ -10,10 +10,8 @@ matrix:
 install:
   - sed -ie "s#travis-4.x.cfg#travis-$PLONE_VERSION.x.cfg#" travis.cfg
   - sed -ie "s#versions-$PLONE_VERSION.x#versions#" travis.cfg
-  - virtualenv test-env --no-setuptools
   - mkdir -p buildout-cache/downloads
-  - test-env/bin/pip install zc.buildout
-  - bin/buildout init
+  - bin/buildout bootstrap travis.cfg
   - bin/buildout -c travis.cfg annotate
   - bin/buildout -c travis.cfg -N -t 3 -q
 script: bin/code-analysis && bin/test
