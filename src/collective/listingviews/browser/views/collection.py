@@ -20,7 +20,6 @@ class BasicCollectionListingInformationRetriever(
         are a large number of fields in the view. No need
         to wake up all the objects.
         """
-        #import pdb;pdb.set_trace()
         limit = self.context.limit
         query = queryparser.parseFormquery(self.context,
             self.context.getRawQuery())
