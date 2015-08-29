@@ -11,27 +11,21 @@ be placed after `item2` with an earlier effective date of 12/31/2000
 >>> print browser.contents
 <...collection1...>
 >>> browser.getLink('collection1').click()
->>> browser.contents
-<...
-<li class="listing-item">
-  <dl class="listing-fields">
-    <dt class="listing-field field-Title">Title</dt>
-    <dd class="listing-field field-Title">item2</dd> 
-    <dt class="listing-field field-Title-tolink">Title</dt>
-    <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item2">item1</a></dd>
-    <dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
-    <dd class="listing-field field-EffectiveDate-localshort">Dec 31, 2000</dd>
-    <dt class="listing-field pubdate">Local Publication Date</dt>
-    <dd class="listing-field pubdate">31/12/2000</dd>
-  </dl>
-</li>
-<li class="listing-item">
-  <dl class="listing-fields">
-    <dt class="listing-field field-Title">Title</dt>
-    <dd class="listing-field field-Title">item1</dd> 
-    <dt class="listing-field field-Title-tolink">Title</dt>
-    <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
-    <dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
-    <dd class="listing-field field-EffectiveDate-localshort">Jan 01, 2001</dd>
-    <dt class="listing-field pubdate">Local Publication Date</dt>
-...
+
+If sorted as expected the effective date of item1 
+will show before the effective date of item2
+
+>>> item2_date_pos = browser.contents.find("31/12/2000")
+>>> item1_date_pos = browser.contents.find("01/01/2001")
+
+Make sure they are actually present
+
+>>> item1_date_pos == -1
+False
+>>> item2_date_pos == -1
+False
+
+Check that item2's effective date occurs before item1's effective date
+
+>>> item2_date_pos < item1_date_pos
+True
