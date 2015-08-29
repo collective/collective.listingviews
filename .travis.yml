@@ -11,9 +11,10 @@ install:
   - sed -ie "s#travis-4.x.cfg#travis-$PLONE_VERSION.x.cfg#" travis.cfg
   - sed -ie "s#versions-$PLONE_VERSION.x#versions#" travis.cfg
   - mkdir -p buildout-cache/downloads
-  - python bootstrap.py -c travis.cfg
+  - pip install zc.buildout
+  - buildout init
   - bin/buildout -c travis.cfg annotate
-  - bin/buildout -c travis.cfg -N -q
+  - bin/buildout -c travis.cfg -N -t 3 -q
 script: bin/code-analysis && bin/test
 after_success:
   - test $QA && bin/coverage.sh && pip install -q coveralls && coveralls || true
