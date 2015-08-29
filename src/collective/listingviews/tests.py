@@ -17,6 +17,7 @@ def test_suite():
     layer = COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
     suite.addTests([
         doctest.DocFileSuite('tests/listingviews.rst', optionflags=OPTIONFLAGS, globs=dict(layer=layer)),
+        doctest.DocFileSuite('tests/listingviews_sortable_collections.rst', optionflags=OPTIONFLAGS, globs=dict(layer=layer)),
     ])
     suite.layer = COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
     return suite

@@ -20,10 +20,15 @@ class BasicCollectionListingInformationRetriever(
         are a large number of fields in the view. No need
         to wake up all the objects.
         """
+        #import pdb;pdb.set_trace()
         limit = self.context.limit
         query = queryparser.parseFormquery(self.context,
             self.context.getRawQuery())
         query['sort_limit'] = limit
+        if self.context.sort_on:
+            query['sort_on'] = self.context.sort_on
+        if self.context.sort_reversed:
+            query['sort_order'] = 'reversed'
         catalog = getToolByName(self.context, 'portal_catalog')
         items = catalog(query)
         items = items[:limit]
