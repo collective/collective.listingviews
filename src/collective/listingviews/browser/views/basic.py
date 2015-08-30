@@ -104,15 +104,16 @@ class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
         """
         query = self.context.buildQuery()
         # preserver sort order and sort criteria
-        if self.context.getSortCriterion():
-            sort_crit = self.context.getSortCriterion()
-            sort_crit_items = dict(sort_crit.getCriteriaItems())
-            if sort_crit.reversed:
-                query['sort_order'] = 'reversed'
-            if sort_on in sort_crit_items.keys():
-                query['sort_on'] = self.context.sort_on
         
         if query is not None:
+            if self.context.getSortCriterion():
+                sort_crit = self.context.getSortCriterion()
+                sort_crit_items = dict(sort_crit.getCriteriaItems())
+                if sort_crit.reversed:
+                    query['sort_order'] = 'reversed'
+                if 'sort_on' in sort_crit_items.keys():
+                    query['sort_on'] = sort_crit_items['sort_on']
+
             should_limit = self.context.getLimitNumber()
             limit = self.context.getItemCount()
             if not limit:  # also make sure we have more than 0 items
