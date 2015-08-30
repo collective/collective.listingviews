@@ -26,5 +26,5 @@ script:
 
 after_success:
   - pip install -q coveralls
-  - coveralls
+  - test $QA && bin/coverage.sh && pip install -q coveralls && coveralls || true
   
