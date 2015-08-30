@@ -66,6 +66,7 @@ class CollectiveListingviews(PloneSandboxLayer):
 
             path_crit = topic.addCriterion('path', 'ATRelativePathCriterion')
             path_crit.setRelativePath('..')   # should give the parent==folderA1
+            topic.setSortCriterion('effective', reversed=True) # 
 
         portal.folder1.collection1.reindexObject()
 
