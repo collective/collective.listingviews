@@ -27,5 +27,5 @@ False
 
 Check that item2's effective date occurs before item1's effective date
 
->>> item2_date_pos < item1_date_pos
-True
+>>> (item2_date_pos,item1_date_pos), item2_date_pos < item1_date_pos
+(...,...), True
