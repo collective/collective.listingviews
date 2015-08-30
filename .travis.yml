@@ -27,3 +27,4 @@ script:
 after_success:
   - pip install -q coveralls
   - coveralls
+  
