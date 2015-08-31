@@ -83,8 +83,9 @@ By default Fields that can make up a ListingView are :
 - Some Metadata fields with formatting applied (e.g. Title (Link), Effective Date (Date & Time))
 - Any custom TAL expressions
 
-Plone 4.3.5 or newer issues
-===========================
+Plone 4.3.5/4.3.6 issues
+========================
+
 There is a known issue which breaks widgets when editing listing views.
 This is due to regression bug in z3c.form 3.2.3 which ships with Plone 4.3.5+.
 
