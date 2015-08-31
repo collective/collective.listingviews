@@ -30,12 +30,18 @@ class CollectiveListingviews(PloneSandboxLayer):
         setRoles(portal, TEST_USER_ID, ['Manager'])
         login(portal, TEST_USER_NAME)
 
+        workflowTool = getToolByName(portal, 'portal_workflow')
+
         portal.invokeFactory('Folder', 'folder1', title=u"folder1")
         portal.folder1.invokeFactory('Document', 'item1', title=u"item1")
-        workflowTool = getToolByName(portal, 'portal_workflow')
         workflowTool.doActionFor(portal.folder1.item1, 'publish')
         portal.folder1.item1.setEffectiveDate('1/1/2001')
         portal.folder1.item1.reindexObject()
+
+        portal.folder1.invokeFactory('Document', 'item2', title=u"item2")
+        workflowTool.doActionFor(portal.folder1.item2, 'publish')
+        portal.folder1.item2.setEffectiveDate('12/31/2000')
+        portal.folder1.item2.reindexObject()
 
         is_topic = False
         try:
@@ -53,12 +59,16 @@ class CollectiveListingviews(PloneSandboxLayer):
                     }]
                     # set the query and publish the collection
             collection.setQuery(query)
+            collection.sort_on = u'effective'
+            collection.reversed = True
         else:
             topic = portal.folder1.collection1
 
             path_crit = topic.addCriterion('path', 'ATRelativePathCriterion')
             path_crit.setRelativePath('..')   # should give the parent==folderA1
-
+            sort_crit = topic.addCriterion('effective', 'ATSortCriterion') # 
+            sort_crit.setReversed(True)
+            
         portal.folder1.collection1.reindexObject()
 
 class BrowserIntegrationTesting(IntegrationTesting):

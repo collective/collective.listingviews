@@ -401,7 +401,6 @@ and our custom field
 <dd class="listing-field pubdate">.../.../...</dd>
 ...
 
-
 Collection Portlets
 -------------------
 

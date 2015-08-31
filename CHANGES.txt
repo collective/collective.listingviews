@@ -4,6 +4,8 @@ Changelog
 1.0beta4
 ---------------------
 
+- fix bug where collections view were ignoring sort order
+[David Bain]
 - fix exclude the navigation if it is not container or batch number is zero. [Ivan Teoh]
 
 1.0beta3 (2013-09-11)
