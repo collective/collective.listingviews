@@ -16,7 +16,6 @@
 Simply run this script in a directory containing a buildout.cfg.
 The script accepts buildout command-line options, so you can
 use the -c option to specify an alternate configuration file.
-just testing travis
 """
 
 import os, shutil, sys, tempfile, urllib, urllib2, subprocess
