@@ -87,7 +87,7 @@ Plone 4.3.5/4.3.6 issues
 ========================
 
 There is a known issue which breaks widgets when editing listing views.
-This is due to regression bug in z3c.form 3.2.3 which ships with Plone 4.3.5+.
+This is due to a regression bug in z3c.form 3.2.3 which ships with Plone 4.3.5 and 4.3.6.
 
 You will need to pin a different version of z3c.form. Add the following to versions::
 
