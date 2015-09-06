@@ -27,7 +27,7 @@ class BasicCollectionListingInformationRetriever(
         if self.context.sort_on:
             query['sort_on'] = self.context.sort_on
         if self.context.sort_reversed:
-            query['sort_order'] = 'reversed'
+            query['sort_order'] = 'reverse'
         catalog = getToolByName(self.context, 'portal_catalog')
         items = catalog(query)
         items = items[:limit]
