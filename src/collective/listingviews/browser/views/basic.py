@@ -109,7 +109,7 @@ class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
             if self.context.getSortCriterion():
                 sort_crit = self.context.getSortCriterion()
                 sort_crit_items = dict(sort_crit.getCriteriaItems())
-                if sort_crit.reversed:
+                if sort_crit.getReversed():
                     query['sort_order'] = 'reverse'
                 if 'sort_on' in sort_crit_items.keys():
                     query['sort_on'] = sort_crit_items['sort_on']
