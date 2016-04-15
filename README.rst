@@ -7,7 +7,7 @@ Introduction
     :target: http://travis-ci.org/collective/collective.listingviews
 
 ``collective.listingviews`` allows a Plone site administrator to quickly create a new display
-view their content types, folders, collections and eea.facetnavigation. It will also let you create
+view their content types, folders, collections and eea.facetednavigation. It will also let you create
 custom portlets.
 
 .. |listingviews| image:: https://cloud.githubusercontent.com/assets/41700/5023294/b6f6e9e0-6b27-11e4-8516-2b4a50ef66c5.png
@@ -34,12 +34,12 @@ custom portlets.
    |display menu| 
    |unthemed| 
 5. If you require further customisation: use diazo to customise the layout/html of your fields or you can 
-   use custom fields via "Site setup" if you need combine field values, format a value or access plone api's.
+   use custom fields via "Site setup" if you need combined field values, format a value or access plone api's.
    |themed| 
    
 For example you could
 
-- create a news listing which displays the first sentance and publish date of each news item
+- create a news listing which displays the first sentence and publish date of each news item
 - create a footer portlet for each page which displays the last updated date of the current content
 - create a portlet which grabs a random image from a folder
 - create a listing of folders which contain pdfs of different languages and display links to each version of the pdf.
@@ -101,7 +101,7 @@ Just stay away from the 3.2.3 version)
 Worked Examples
 ===============
 
-See the `doctests for a worked example`_
+See the `doctests for a worked example <https://github.com/collective/collective.listingviews/blob/master/src/collective/listingviews/tests/listingviews.rst/>`_.
 
 
 Contributing
