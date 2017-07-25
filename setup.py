@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.0beta4'
+version = '1.1'
 
 long_description = (
     open('README.rst').read()
@@ -21,6 +21,8 @@ setup(name='collective.listingviews',
       classifiers=[
           "Framework :: Plone",
           "Framework :: Plone :: 4.2",
+          "Framework :: Plone :: 4.3",
+          "Framework :: Plone :: 5.0",
           "Programming Language :: Python",
           "Topic :: Software Development :: Libraries :: Python Modules",
         ],

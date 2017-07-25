@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from zope.interface import Interface, Attribute
 from zope import schema
 from zope.interface import implements
@@ -66,7 +67,25 @@ def MetadataVocabulary(context):
     """
     terms = []
     portal = getSite()
-    metadataDisplay = getToolByName(portal, 'portal_atct').getMetadataDisplay()
+    try:
+        tool = getToolByName(portal, 'portal_atct')
+    except Exception:
+        tool = None
+
+    # Need to combine normal metadata vocab with our custom fields
+
+    factory = getUtility(IVocabularyFactory, 'plone.app.contenttypes.metadatafields')
+    if factory is not None:
+        # Plone 5
+        metadataDisplay = OrderedDict()
+        for term in factory(context):
+            metadataDisplay[term.value] = term.title
+    elif tool is not None:
+        # Plone 4
+        metadataDisplay = getToolByName(portal, 'portal_atct').getMetadataDisplay()
+    else:
+        metadataDisplay = {}
+
     for name, display_name in metadataDisplay.items():
         if name in ['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate']:
             for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
