@@ -6,9 +6,9 @@ directories:
   - $HOME/buildout-cache
 env:
   - PLONE_VERSION=4.2
-  - PLONE_VERSION=4.3 QA=true
+  - PLONE_VERSION=4.3
   - PLONE_VERSION=5.0 QA=true
-  - PLONE_VERSION=5.1 QA=true
+  - PLONE_VERSION=5.1
 matrix:
   include:
     - python: 2.6
@@ -17,10 +17,14 @@ matrix:
 before_install:
   - mkdir -p $HOME/buildout-cache/{eggs,downloads}
   - virtualenv .
-  - bin/pip install --upgrade pip setuptools zc.buildout
+  - bin/pip install --upgrade pip zc.buildout
 install:
   - sed -ie "s#travis-4.x.cfg#travis-$PLONE_VERSION.x.cfg#" travis.cfg
   - sed -ie "s#versions-$PLONE_VERSION.x#versions#" travis.cfg  
+  - bin/buildout -c travis.cfg annotate | tee annotate.txt | grep -E 'setuptools= |zc.buildout= ' | sed 's/= /==/' > requirements.txt
+  - cat annotate.txt
+  - cat requirements.txt
+  - bin/pip install --upgrade -r requirements.txt
   - bin/buildout -N -t 20 -c travis.cfg
 script:
   - bin/code-analysis
