@@ -13,7 +13,7 @@ from z3c.formwidget.query.interfaces import IQuerySource
 from zope.schema.interfaces import IContextSourceBinder, IVocabularyFactory
 from utils import ComplexRecordsProxy
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.component import queryUtility, getUtility
+from zope.component import queryUtility, getUtility, ComponentLookupError
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 try:
@@ -68,13 +68,15 @@ def MetadataVocabulary(context):
     terms = []
     portal = getSite()
     try:
+        factory = getUtility(IVocabularyFactory, 'plone.app.contenttypes.metadatafields')
+    except ComponentLookupError:
+        factory = None
+    try:
         tool = getToolByName(portal, 'portal_atct')
     except Exception:
         tool = None
 
     # Need to combine normal metadata vocab with our custom fields
-
-    factory = getUtility(IVocabularyFactory, 'plone.app.contenttypes.metadatafields')
     if factory is not None:
         # Plone 5
         metadataDisplay = OrderedDict()
