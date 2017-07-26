@@ -12,6 +12,7 @@ from Products.CMFCore.utils import getToolByName
 from plone.app.testing import helpers
 
 
+
 class CollectiveListingviews(PloneSandboxLayer):
 
     defaultBases = (PLONE_FIXTURE, )
@@ -86,6 +87,8 @@ class CollectiveListingviews(PloneSandboxLayer):
             
         portal.folder1.collection1.reindexObject()
 
+
+
 class BrowserIntegrationTesting(IntegrationTesting):
 
     def setUpEnvironment(self, portal):
@@ -131,6 +134,16 @@ class BrowserIntegrationTesting(IntegrationTesting):
         browser.getLink('Home').click()
 
 
+        browser.handleErrors = False
+        portal.error_log._ignored_exceptions = ()
+
+        def raising(self, info):
+            import traceback
+            traceback.print_tb(info[2])
+            print info[1]
+
+        from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
+        SiteErrorLog.raising = raising
 
 
     def getFormFromControl(self, control):

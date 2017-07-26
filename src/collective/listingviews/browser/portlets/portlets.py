@@ -56,8 +56,7 @@ class IListingPortlet(IPortletDataProvider):
                                     "select a folder or collection to list the contents; or "
                                     "leave blank to use the current item."),
             required=False,
-            source=SearchableTextSourceBinder({},
-                                              default_query='path:'))
+            source=SearchableTextSourceBinder({}))
 
     omit_border = schema.Bool(
         title=_(u"Omit portlet border"),
@@ -203,6 +202,7 @@ class ListingAddForm(base.AddForm):
     zope.formlib which fields to display. The create() method actually
     constructs the assignment that is being added.
     """
+    schema = IListingPortlet
     form_fields = form.Fields(IListingPortlet)
     label = _(u"title_add_listing_portlet", default=u"Add listing view portlet")
     description = _(u"description_listing_portlet",
@@ -222,6 +222,7 @@ class ListingEditForm(base.EditForm):
     This is registered with configure.zcml. The form_fields variable tells
     zope.formlib which fields to display.
     """
+    schema = IListingPortlet
     form_fields = form.Fields(IListingPortlet)
     label = _(u"title_edit_listing_portlet", default=u"Edit listing view portlet")
     description = _(u"description_listing_portlet",

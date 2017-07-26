@@ -36,8 +36,9 @@ class BaseListingInformationRetriever(BrowserView):
         self.request = request
 
         #self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
-        vocab = getUtility(IVocabularyFactory, 'plone.app.contenttypes.metadatafields')(context)
+        vocab = getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')(context)
         self.metadata_display = {item.value: item.title for item in vocab}
+        #TODO item.title here is the title for the filter on it. We want the one before the filter was added
 
         plone_util = getMultiAdapter((self.context, self.request), name="plone")
         self.filters = dict(
@@ -176,10 +177,9 @@ class BaseListingInformationRetriever(BrowserView):
 
         filter_func = self.filters.get(filter_name, None)
 
-#        plone = getMultiAdapter((self.context, self.request), name="plone")
-
-        if field_name in self.metadata_display:
-            field = self.metadata_display[field_name]
+        key = "%s:%s" % (field_name, filter_name)
+        if key in self.metadata_display:
+            field = self.metadata_display[key]
         else:
             raise Exception("Field no longer exists '%s'" % field_name)
 

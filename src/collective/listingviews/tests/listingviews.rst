@@ -52,6 +52,8 @@ These fields come from either standard metadata or the custom fields we add.
 >>> 'Description' in browser.getControl('Title', index=1).control.displayOptions
 True
 
+>>> plone5 = 'EffectiveDate (Date)' in browser.getControl('Title', index=1).control.displayOptions
+
 #>>> print '\n'.join( sorted(browser.getControl('Title', index=1).control.displayOptions) )
 Creation Date (Date & Time)
 Creation Date (Date)
@@ -112,7 +114,8 @@ and finally we'll enable the view for all content types
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
 >>> layer.setInAndOut(browser, ['Title'], index=1)
->>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Description', 'Local Publication Date (Custom)'], index=3)
+>>> if plone5: layer.setInAndOut(browser, ['Title', 'Title (Link)', 'EffectiveDate (Date)', 'Local Publication Date (Custom)'], index=3)
+>>> if not plone5: layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
 >>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
@@ -180,7 +183,7 @@ Note the html is in exactly the same order as we specifed in our view definition
 ...
 >>> print browser.contents
 <...
-<dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
+<dt class="listing-field field-EffectiveDate-localshort">Effective...Date</dt>
 <dd class="listing-field field-EffectiveDate-localshort">...</dd>
 ...
 >>> print browser.contents
@@ -194,7 +197,7 @@ Note the html is in exactly the same order as we specifed in our view definition
 ...
 <dt class="listing-field field-Title-tolink">Title</dt>
 ...
-<dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
+<dt class="listing-field field-EffectiveDate-localshort">Effective...Date</dt>
 ...
 <dt class="listing-field pubdate">Local Publication Date</dt>
 ...
