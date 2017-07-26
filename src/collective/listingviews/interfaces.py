@@ -80,7 +80,7 @@ def MetadataVocabulary(context):
     if factory is not None:
         # Plone 5
         metadataDisplay = OrderedDict()
-        for term in factory(context):
+        for term in factory(portal):
             metadataDisplay[term.value] = term.title
     elif tool is not None:
         # Plone 4

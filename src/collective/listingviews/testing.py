@@ -17,6 +17,15 @@ class CollectiveListingviews(PloneSandboxLayer):
     defaultBases = (PLONE_FIXTURE, )
 
     def setUpZope(self, app, configurationContext):
+        try:
+            import plone.app.contenttypes
+            import plone.app.event.dx
+            self.loadZCML(package=plone.app.contenttypes)
+            self.loadZCML(package=plone.app.event.dx)
+        except ImportError:
+            # plone 4
+            pass
+
         # Load ZCML for this package
         import collective.listingviews
         xmlconfig.file('configure.zcml',
@@ -24,6 +33,12 @@ class CollectiveListingviews(PloneSandboxLayer):
                        context=configurationContext)
 
     def setUpPloneSite(self, portal):
+        try:
+            applyProfile(portal, 'plone.app.contenttypes:default')
+        except KeyError:
+            # plone 4
+            pass
+
         portal.portal_workflow.setDefaultChain("simple_publication_workflow")
         applyProfile(portal, 'collective.listingviews:default')
 

@@ -49,32 +49,36 @@ There are two kinds of information a listing view display. Information about the
 ``Item Fields`` and information about the contents or matched items called ``Listing Fields``.
 These fields come from either standard metadata or the custom fields we add.
 
->>> print '\n'.join( browser.getControl('Title', index=1).control.displayOptions )
-Creation Date (Date)
+>>> 'Description' in browser.getControl('Title', index=1).control.displayOptions
+True
+
+#>>> print '\n'.join( sorted(browser.getControl('Title', index=1).control.displayOptions) )
 Creation Date (Date & Time)
+Creation Date (Date)
 Creator
 Description
-Effective Date (Date)
 Effective Date (Date & Time)
-End Date (Date)
+Effective Date (Date)
 End Date (Date & Time)
-Expiration Date (Date)
+End Date (Date)
 Expiration Date (Date & Time)
+Expiration Date (Date)
 Short Name
 Short Name (Link)
 Size
+Local Publication Date (Custom)
 Location
-Modification Date (Date)
 Modification Date (Date & Time)
+Modification Date (Date)
 State
-Start Date (Date)
 Start Date (Date & Time)
+Start Date (Date)
 Tags
 Title
 Title (Link)
 Total number of comments
 Item Type
-Local Publication Date (Custom)
+...
 
 By default the view will be enabled for standard content types. These are
 
@@ -108,7 +112,7 @@ and finally we'll enable the view for all content types
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
 >>> layer.setInAndOut(browser, ['Title'], index=1)
->>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
+>>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Description', 'Local Publication Date (Custom)'], index=3)
 >>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 

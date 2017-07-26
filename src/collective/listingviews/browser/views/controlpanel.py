@@ -4,7 +4,7 @@ from plone.app.registry.browser import controlpanel
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
     IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition, all_types)
-from zope.interface import implements
+from zope.interface import implements, alsoProvides
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
 from zope.component import adapts, getUtility, getAdapters
@@ -29,6 +29,11 @@ from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.form import AutoObjectSubForm, AutoFields, AutoExtensibleForm
 from z3c.form import field, form, button
 from zope.cachedescriptors.property import Lazy as lazy_property
+try:
+    from plone.protect.interfaces import IDisableCSRFProtection
+except ImportError:
+    IDisableCSRFProtection = None
+    # plone 4
 
 
 def getViewName(view_id):
@@ -261,6 +266,10 @@ class ListingViewControlPanel(SimpleItem):
         self.id = None
         self.Title = lambda: _(u'Listing Views')
 
+        #TODO: find out why this view does a write on read
+        if IDisableCSRFProtection is not None:
+            alsoProvides(request, IDisableCSRFProtection)
+
 
     def publishTraverse(self, request, name):
         """ Use another context for breadcrumbs
@@ -356,6 +365,9 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
     description = _(u"""""")
 
     def getContent(self):
+        #TODO: find out why this view does a write on read
+        #alsoProvides(self.request, IDisableCSRFProtection)
+
         return getRegistryFields()
 #
 #    def updateWidgets(self):
