@@ -133,8 +133,6 @@ Using the ``Display > News with publication`` menu we will change the folder vie
 <Link text='item1' url='http://nohost/plone/folder1/item1'>
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('News with publication').click()
->>> browser.contents
-'...View changed...'
 
 
 You will now have a listing that contains all the information you need.

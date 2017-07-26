@@ -1,5 +1,6 @@
 import Missing
 from DateTime import DateTime
+from zope.schema.interfaces import IVocabularyFactory
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter\
 
@@ -13,7 +14,7 @@ except:
 
 from zLOG import LOG, INFO
 from zope.interface import implements
-from zope.component import getMultiAdapter
+from zope.component import getMultiAdapter, getUtility
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, getExprContext
 from plone.uuid.interfaces import IUUID
@@ -34,8 +35,9 @@ class BaseListingInformationRetriever(BrowserView):
         self.context = context
         self.request = request
 
-        #TODO: this won't work with p.a.collections
-        self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
+        #self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
+        vocab = getUtility(IVocabularyFactory, 'plone.app.contenttypes.metadatafields')(context)
+        self.metadata_display = {item.value: item.title for item in vocab}
 
         plone_util = getMultiAdapter((self.context, self.request), name="plone")
         self.filters = dict(
