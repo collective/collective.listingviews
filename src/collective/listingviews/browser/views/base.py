@@ -196,6 +196,8 @@ class BaseListingInformationRetriever(BrowserView):
                 value = None
             elif isinstance(attr_value, basestring):
                 value = attr_value.decode("utf-8")
+            elif callable(attr_value):
+                value = attr_value()
             else:
                 value = attr_value
             if filter_func is None:
