@@ -1,4 +1,5 @@
-from zope.component import adapts
+from zope.browser.interfaces import IBrowserView
+from zope.component import adapts, getMultiAdapter, ComponentLookupError
 from zope.interface import implements
 from Products.CMFCore.utils import getToolByName
 from basic import BasicTopicListingInformationRetriever
@@ -20,6 +21,22 @@ class BasicCollectionListingInformationRetriever(
         are a large number of fields in the view. No need
         to wake up all the objects.
         """
+
+        # Let's get the browser view for the collection
+        # and get its' results
+        # works for plone.app.contenttypes.interfaces.ICollection
+
+        try:
+            view = getMultiAdapter((self.context, self.request), name='listing_view')
+            view = view.__of__(self.context)
+
+            results = view.results()
+            return results
+        except ComponentLookupError:
+            pass
+
+        # plone.app.collection
+        # TODO: should probably use its code directly
         limit = self.context.limit
         query = queryparser.parseFormquery(self.context,
             self.context.getRawQuery())
