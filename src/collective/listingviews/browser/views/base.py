@@ -230,6 +230,7 @@ class BaseListingInformationRetriever(BrowserView):
         def value(item):
             expression_context = getExprContext(self.context, self.context)
             expression_context.setLocal('item', item)
+            expression_context.setLocal('item_object', item.getObject)
             val = expression(expression_context)
             return {'title': field.name, 'css_class': css_class, 'value': val, 'is_custom': True}
         return value
