@@ -161,6 +161,7 @@ Note the html is in exactly the same order as we specifed in our view definition
         </dl>
       </div>
 ...
+
 >>> print browser.contents
 <...
       <ul class="pubnews-listing listing-items-view">
@@ -171,35 +172,29 @@ Note the html is in exactly the same order as we specifed in our view definition
           </li>
       </ul>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-Title">Title</dt>
-<dd class="listing-field field-Title">item1</dd>
+    <dt class="listing-field field-Title">Title</dt>
+    <dd class="listing-field field-Title">item1</dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-Title-tolink">Title</dt>
-<dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
+    <dt class="listing-field field-Title-tolink">Title (Link)</dt>
+    <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-EffectiveDate-localshort">Effective...Date</dt>
-<dd class="listing-field field-EffectiveDate-localshort">...</dd>
+    <dt class="listing-field field-EffectiveDate-localshort">Effective Date (Date)</dt>
+    <dd class="listing-field field-EffectiveDate-localshort">...</dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field pubdate">Local Publication Date</dt>
-<dd class="listing-field pubdate">.../.../...</dd>
-...
->>> print browser.contents
-<...
-<dt class="listing-field field-Title">Title</dt>
-...
-<dt class="listing-field field-Title-tolink">Title</dt>
-...
-<dt class="listing-field field-EffectiveDate-localshort">Effective...Date</dt>
-...
-<dt class="listing-field pubdate">Local Publication Date</dt>
+    <dt class="listing-field pubdate">Local Publication Date</dt>
+    <dd class="listing-field pubdate"></dd>
 ...
 
 
