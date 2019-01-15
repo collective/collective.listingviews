@@ -18,11 +18,6 @@ install:
   - sed -ie "s#travis-4.x.cfg#travis-$PLONE_VERSION.x.cfg#" travis.cfg
   - sed -ie "s#versions-$PLONE_VERSION.x#versions#" travis.cfg  
   - bin/buildout -c travis.cfg annotate > annotate.txt
-  - cat annotate.txt | grep -E 'zc.buildout= ' |tail -1| sed 's/= /==/' >> requirements.txt
-  - cat annotate.txt | grep -E 'setuptools= ' |tail -1| sed 's/= /==/' >> requirements.txt
-  - cat annotate.txt
-  - cat requirements.txt
-  - bin/pip install --upgrade -r requirements.txt
   - bin/buildout -N -t 20 -c travis.cfg
 script:
   - bin/code-analysis
