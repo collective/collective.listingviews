@@ -1,3 +1,5 @@
+>>> from zope.component.hooks import getSite; plone =getSite()
+>>> from plone.uuid.interfaces import IUUID
 
 Creating a custom field
 -----------------------
@@ -52,7 +54,6 @@ These fields come from either standard metadata or the custom fields we add.
 >>> 'Description' in browser.getControl('Title', index=1).control.displayOptions
 True
 
->>> plone5 = 'EffectiveDate (Date)' in browser.getControl('Title', index=1).control.displayOptions
 
 #>>> print '\n'.join( sorted(browser.getControl('Title', index=1).control.displayOptions) )
 Creation Date (Date & Time)
@@ -161,6 +162,7 @@ Note the html is in exactly the same order as we specifed in our view definition
         </dl>
       </div>
 ...
+
 >>> print browser.contents
 <...
       <ul class="pubnews-listing listing-items-view">
@@ -171,35 +173,29 @@ Note the html is in exactly the same order as we specifed in our view definition
           </li>
       </ul>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-Title">Title</dt>
-<dd class="listing-field field-Title">item1</dd>
+    <dt class="listing-field field-Title">Title</dt>
+    <dd class="listing-field field-Title">item1</dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-Title-tolink">Title</dt>
-<dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
+    <dt class="listing-field field-Title-tolink">Title (Link)</dt>
+    <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-EffectiveDate-localshort">Effective...Date</dt>
-<dd class="listing-field field-EffectiveDate-localshort">...</dd>
+    <dt class="listing-field field-EffectiveDate-localshort">Effective...Date (Date)</dt>
+    <dd class="listing-field field-EffectiveDate-localshort"></dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field pubdate">Local Publication Date</dt>
-<dd class="listing-field pubdate">.../.../...</dd>
-...
->>> print browser.contents
-<...
-<dt class="listing-field field-Title">Title</dt>
-...
-<dt class="listing-field field-Title-tolink">Title</dt>
-...
-<dt class="listing-field field-EffectiveDate-localshort">Effective...Date</dt>
-...
-<dt class="listing-field pubdate">Local Publication Date</dt>
+    <dt class="listing-field pubdate">Local Publication Date</dt>
+    <dd class="listing-field pubdate"></dd>
 ...
 
 
@@ -266,7 +262,7 @@ viewing this content type. (e.g. ``Site Setup > Types > News Item > Manage Portl
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Publication Info'
->>> browser.getControl('Publication Info').click()
+>>> browser.getControl('Listing views').value = ['pubnewsitem']
 >>> browser.getControl('Save').click()
 
 
@@ -297,12 +293,12 @@ We can see
 ...
 >>> print browser.contents
 <...
-  <div class="listing-item-fields-portlet">
+    <div class="listing-item-fields-portlet">
       <dl class="pubnewsitem-item item-fields">
                   <dt class="listing-field pubdate">Local Publication Date</dt>
                   <dd class="listing-field pubdate">.../.../...</dd>
             </dl>
-  </div>
+    </div>
 ...
 >>> print browser.contents
 <...
@@ -343,7 +339,7 @@ via the ``Display > Publication Info`` menu.
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('item1').click()
 >>> browser.getLink('Publication Info')
-<Link text='Publication Info' url='.../folder1/item1/selectViewTemplate?templateId=collective.listingviews.pubnewsitem'>
+<Link text='Publication Info' url='.../folder1/item1/selectViewTemplate?templateId=collective.listingviews.pubnewsitem...'>
 
 
 Item View portlet for fixed item
@@ -353,7 +349,8 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getLink('Publication Info').click()
->>> browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/item1'})
+>>> if plone5: browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['item1'])
+>>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/item1'})
 >>> browser.getControl('Save').click()
 
 #TODO show what happens if we pick an item of invalid type
@@ -392,8 +389,11 @@ Select ``Display > 'News with publication'``.
 
 >>> browser.getLink('collection1').click()
 >>> browser.getLink('News with publication').click()
->>> browser.contents
-'...View changed...'
+>>> print browser.contents
+<...
+    <dt class="listing-field pubdate">Local Publication Date</dt>
+...
+
 
 And we'll still see item1
 and our custom field
@@ -430,10 +430,15 @@ name for ``collection1`` in the ``Target`` field.
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Collection Portlet'
->>> browser.getControl('Listing views').displayOptions
-['(nothing selected)', 'News with publication', 'Publication Info']
->>> browser.getControl('News with publication').click()
->>> browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
+>>> if not plone5:
+...     browser.getControl('Listing views').displayOptions == ['(nothing selected)', 'News with publication', 'Publication Info']
+... else:
+...     browser.getControl('Listing views').displayOptions == ['News with publication', 'Publication Info']
+True
+>>> if plone5: browser.getControl('Listing views').value = ['pubnews']
+>>> if not plone5: browser.getControl('News with publication').click()
+>>> if plone5: browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['collection1'])
+>>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
 >>> browser.getControl('Save').click()
 
 New when we view home we  see the items inside ``folder1` based on criteria in ``collection1``, so we'll see
