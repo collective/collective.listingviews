@@ -4,7 +4,8 @@ Changelog
 1.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix broken release
+ [instification]
 
 
 1.0 (2019-01-17)
