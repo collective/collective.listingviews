@@ -15,8 +15,10 @@ before_install:
   - mkdir -p $HOME/buildout-cache/{eggs,downloads}
   - virtualenv .
   - bin/pip install zc.buildout
-  - bin/pip install setuptools==`bin/buildout annotate | grep setuptools= | cut -d= -f2| cut -d' ' -f2`
-  - bin/pip install zc.buildout==`bin/buildout annotate | grep zc.buildout= | cut -d= -f2| cut -d' ' -f2`
+  - echo setuptools==`bin/buildout annotate | grep setuptools= | cut -d= -f2| cut -d' ' -f2` >> requirements.txt
+  - echo zc.buildout==`bin/buildout annotate | grep zc.buildout= | cut -d= -f2| cut -d' ' -f2` >> requirements.txt
+  - cat requirements.txt
+  - bin/pip install -r requirements.txt
 install:
   - sed -ie "s#travis-4.x.cfg#travis-$PLONE_VERSION.x.cfg#" travis.cfg
   - sed -ie "s#versions-$PLONE_VERSION.x#versions#" travis.cfg  
