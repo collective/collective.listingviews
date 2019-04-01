@@ -19,11 +19,12 @@ install:
   - sed -ie "s#travis-4.x.cfg#travis-$PLONE_VERSION.x.cfg#" travis.cfg
   - sed -ie "s#versions-$PLONE_VERSION.x#versions#" travis.cfg  
   - bin/buildout -c travis.cfg annotate > annotate.txt
+  - cat annotate.txt
   - echo setuptools==`grep setuptools= annotate.txt | cut -d= -f2| cut -d' ' -f2` >> requirements.txt
   - echo zc.buildout==`grep zc.buildout= annotate.txt | cut -d= -f2| cut -d' ' -f2` >> requirements.txt
   - cat requirements.txt
   - bin/pip install -r requirements.txt
-  - bin/buildout -N -t 20 -c travis.cfg
+  - bin/buildout -t 20 -c travis.cfg
 script:
   - bin/code-analysis
   - bin/test
