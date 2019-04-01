@@ -48,6 +48,7 @@ class BaseListingInformationRetriever(BrowserView):
         )
 
         #Tricky part to work out the listing view thats been picked
+        #TODO: In theory self.__name__ should have the correct name. If we can work out why its empty it would be cleaner
         if IFacetedLayout is not None and \
             (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
             # Case: It's being used from facetednavigation
