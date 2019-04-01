@@ -96,12 +96,12 @@ class BrowserIntegrationTesting(IntegrationTesting):
         #portal = self['portal']
 
         browser = Browser(portal)
-        portalURL = portal.absolute_url()
+        browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
         browser.open(portal.absolute_url()+'/@@listingviews_controlpanel')
 
-        browser.getControl(name='__ac_name').value = SITE_OWNER_NAME
-        browser.getControl(name='__ac_password').value = SITE_OWNER_PASSWORD
-        browser.getControl(name='submit').click()
+        #browser.getControl(name='__ac_name').value = SITE_OWNER_NAME
+        #browser.getControl(name='__ac_password').value = SITE_OWNER_PASSWORD
+        #browser.getControl(name='submit').click()
         self['manager'] = browser
 
         # create dummy content
