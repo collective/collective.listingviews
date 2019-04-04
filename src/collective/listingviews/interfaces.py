@@ -205,6 +205,9 @@ class IListingDefinition(Interface):
                                  required=False,
                                  constraint=validate_class)
 
+    display_count = schema.Bool(title=_(u"Display a count of the number of items"),
+                                required=False,
+                                default=False)
 
 
 #class IListingSettings(Interface):
