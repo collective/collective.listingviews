@@ -15,7 +15,7 @@
         <div class="listingviews" tal:define="adapter nocall:context/@@listing_view_adapter;
             batch folderContents | adapter/retrieve_listing_items;">
 
-             <p id="result_count" tal:condition="python:adapter.display_count">Showing <span tal:content="adapter/number_of_items" /> items</p>
+             <p id="result_count" tal:condition="python:adapter.display_count"><span i18n:translate="result_count_showing">Showing</span> <span i18n:translate="result_count" tal:content="adapter/number_of_items" /> <span i18n:translate="result_count_items">items</span></p>
 
           <div class="listing-collection-view"
             tal:define="class_name python: adapter.listing_style_class;
