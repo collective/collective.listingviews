@@ -11,6 +11,8 @@ from plone.app.testing import ploneSite
 from Products.CMFCore.utils import getToolByName
 from plone.app.testing import helpers
 
+from collective.listingviews.browser.views.controlpanel import getRegistryViews, ListingDefinition, _registerMenuItems, \
+    addView
 
 
 class CollectiveListingviews(PloneSandboxLayer):
@@ -87,6 +89,109 @@ class CollectiveListingviews(PloneSandboxLayer):
             
         portal.folder1.collection1.reindexObject()
 
+class CollectiveListingviewsTiles(CollectiveListingviews):
+
+    def setUpZope(self, app, configurationContext):
+        super(CollectiveListingviewsTiles, self).setUpZope(app, configurationContext)
+        # load ZCML
+        # import plone.app.dexterity
+        # xmlconfig.file('configure.zcml', plone.app.dexterity,
+        #                context=configurationContext)
+        #
+        # import plone.app.widgets
+        # xmlconfig.file('configure.zcml', plone.app.widgets,
+        #                context=configurationContext)
+
+        import plone.app.standardtiles
+        xmlconfig.file('configure.zcml', plone.app.standardtiles,
+                       context=configurationContext)
+
+        import plone.app.standardtiles
+        xmlconfig.file('testing.zcml', plone.app.standardtiles,
+                       context=configurationContext)
+        #
+        # import plone.app.contenttypes
+        # xmlconfig.file('configure.zcml', plone.app.contenttypes,
+        #                context=configurationContext)
+
+        try:
+            import plone.app.drafts
+            xmlconfig.file('configure.zcml', plone.app.drafts,
+                           context=configurationContext)
+        except ImportError:
+            pass
+
+    def setUpPloneSite(self, portal):
+        super(CollectiveListingviewsTiles, self).setUpPloneSite(portal)
+        # install into the Plone site
+        # applyProfile(portal, 'plone.app.dexterity:default')
+        # applyProfile(portal, 'plone.app.widgets:default')
+        applyProfile(portal, 'plone.app.standardtiles:default')
+        # applyProfile(portal, 'plone.app.contenttypes:default')
+
+        try:
+            # testing support when plone.app.drafts is installed in the env.
+            # it needs to also be configured for these tests...
+            import plone.app.drafts  # noqa
+            applyProfile(portal, 'plone.app.drafts:default')
+        except ImportError:
+            pass
+
+
+        # Add a simple listing view
+        views = getRegistryViews().views
+        record = ListingDefinition(dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["Title:", "Title:tolink", "EffectiveDate:localshort"],
+            restricted_to_types=[]
+        ))
+        views.append(record)
+        addView(portal, record)
+        _registerMenuItems()
+
+
+
+        #
+        # # ensure plone.app.theming disabled
+        # from plone.registry.interfaces import IRegistry
+        # from zope.component import getUtility
+        # registry = getUtility(IRegistry)
+        # key = 'plone.app.theming.interfaces.IThemeSettings.enabled'
+        # if key in registry:
+        #     registry[key] = False
+        #
+        # # creates some users
+        # acl_users = getToolByName(portal, 'acl_users')
+        # acl_users.userFolderAddUser(
+        #     NORMAL_USER_NAME,
+        #     NORMAL_USER_PASSWORD,
+        #     ['Member'],
+        #     [],
+        # )
+        # acl_users.userFolderAddUser(
+        #     EDITOR_USER_NAME,
+        #     EDITOR_USER_PASSWORD,
+        #     ['Editor'],
+        #     [],
+        # )
+        # acl_users.userFolderAddUser(
+        #     MANAGER_USER_NAME,
+        #     MANAGER_USER_PASSWORD,
+        #     ['Manager'],
+        #     [],
+        # )
+        #
+        # # register portlet manager and portlet manager renderer
+        # sm = getSiteManager(portal)
+        # sm.registerUtility(component=MockPortletManager(),
+        #                    provided=IMockPortletManager,
+        #                    name='mock.portletmanager')
+        # provideAdapter(MockPortletManagerRenderer)
+        #
+        # from plone.app.standardtiles import embed
+        # embed.requests.get = RequestsGetMock
 
 
 class BrowserIntegrationTesting(IntegrationTesting):
@@ -228,12 +333,17 @@ COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING = \
     BrowserIntegrationTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
                             name="CollectiveListingviews:Integration")
 
-FIXTURE = CollectiveListingviews()
-INTEGRATION_TESTING = IntegrationTesting(
-    bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE,),
-    name='example.conference:Integration',
-    )
-FUNCTIONAL_TESTING = FunctionalTesting(
-    bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE,),
-    name='example.conference:Functional',
-    )
+# FIXTURE = CollectiveListingviews()
+# INTEGRATION_TESTING = IntegrationTesting(
+#     bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE,),
+#     name='example.conference:Integration',
+#     )
+# FUNCTIONAL_TESTING = FunctionalTesting(
+#     bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE,),
+#     name='example.conference:Functional',
+#     )
+
+TILES_FIXTURE = CollectiveListingviewsTiles()
+TILES_INTEGRATION_TESTING = \
+    BrowserIntegrationTesting(bases=(TILES_FIXTURE, ),
+                            name="CollectiveListingviewsTiles:Integration")

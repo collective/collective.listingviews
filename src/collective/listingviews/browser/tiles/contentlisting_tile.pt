@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <body>
+     <tal:defines   define="
+         batch view/retrieve_listing_items;
+         fields view/retrieve_context_item;
+         class_name python: view.listing_style_class;
+         macros nocall:context/@@listing_view_macros/macros;
+         ">
+
+    <dl
+        tal:attributes="class string:listing-item-fields-tiles ${view/css_class}"
+        i18n:domain="plone"
+    >
+
+                <div class="listing-item-fields-tile">
+                    <dl metal:use-macro="macros/item_fields">
+                    </dl>
+                </div>
+                <ul class="listing-items-portlet" metal:use-macro="macros/listing_items">
+                </ul>
+
+    </dl>
+
+
+    </tal:defines>
+  </body>
+</html>

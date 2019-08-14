@@ -1,10 +1,12 @@
 from OFS.SimpleItem import SimpleItem
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 from plone.app.registry.browser import controlpanel
+
 from collective.listingviews import LVMessageFactory as _
+from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
     IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition, all_types)
-from zope.interface import implements, alsoProvides
+from zope.interface import implements, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
 from zope.component import adapts, getUtility, getAdapters
@@ -35,6 +37,11 @@ except ImportError:
     IDisableCSRFProtection = None
     # plone 4
 
+try:
+    from plone.app.standardtiles.contentlisting import IContentListingTileLayer
+    MOSAIC = True
+except ImportError:
+    MOSAIC = False
 
 def getViewName(view_id):
     return 'collective.listingviews.%s'%view_id
@@ -77,12 +84,35 @@ def addView(portal, view):
         if view_name not in fti.view_methods:
             fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
 
+    # Register the view also for tiles if standardtiles is installed
+    registry = getUtility(IRegistry)
+    stlisting_views = registry.get('plone.app.standardtiles.listing_views', None)
+    if stlisting_views is not None:
+        # Adapter the various listing views in the content listing tile
+        sm.registerAdapter(ContentListingTileView,
+                           required=(Interface, IContentListingTileLayer),
+                           provided=IBrowserView,
+                           name=view_name)
+        if view_name not in stlisting_views:
+            stlisting_views[view_name] = unicode(view.name)
+
+
+
 def removeView(portal, view):
     view_name = getViewName(view.id)
     sm = getSiteManager(portal)
     sm.unregisterAdapter(required = (IContentish, IBrowserRequest),
                        provided = IBrowserView,
                        name = view_name)
+    registry = getUtility(IRegistry)
+    stlisting_views = registry.get('plone.app.standardtiles.listing_views', None)
+    if stlisting_views is not None:
+        sm.unregisterAdapter(ListingView,
+                           required=(IContentish, IContentListingTileLayer),
+                           provided=IBrowserView,
+                           name=view_name)
+        if view_name in stlisting_views:
+            del stlisting_views[view_name]
 
 
 # We need to register our menuitems the first time it's accessed
