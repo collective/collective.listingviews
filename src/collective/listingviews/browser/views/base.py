@@ -2,7 +2,8 @@ import Missing
 from DateTime import DateTime
 from zope.schema.interfaces import IVocabularyFactory
 from collective.listingviews import LVMessageFactory as _
-from collective.listingviews.interfaces import IListingAdapter\
+from collective.listingviews.interfaces import IListingAdapter
+from collective.listingviews.utils import getListingNameFromView, getRegistryViews, getRegistryFields
 
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout
@@ -20,7 +21,6 @@ from Products.CMFCore.Expression import Expression, getExprContext
 from plone.uuid.interfaces import IUUID
 from Products.Five import BrowserView
 from plone.memoize.instance import memoize
-from collective.listingviews.browser.views.controlpanel import getRegistryFields, getRegistryViews, getListingNameFromView
 
 
 

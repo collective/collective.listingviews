@@ -1,17 +1,16 @@
-from zope.component import getMultiAdapter
+from zope.component import getMultiAdapter, getUtility
 #from settings import ListingSettings
 
 from zope.interface import implements  # , alsoProvides
 #from zope.schema import getFieldsInOrder
 #from zope.schema.interfaces import RequiredMissing
-from plone.registry.interfaces import IRecordsProxy
+from plone.registry.interfaces import IRecordsProxy, IRegistry
 from plone.registry.recordsproxy import RecordsProxy, RecordsProxyCollection
 from plone.registry import field
 from plone.registry.record import Record
 from zope import schema
 import re
-
-
+from collective.listingviews.interfaces import IListingControlPanel, IListingCustomFieldControlPanel
 
 _marker = object()
 
@@ -418,3 +417,24 @@ class RecordsProxyList(ListMixin):
                 return self.keys.value[index]
             # this could happen during registering menu items, not sure why
             raise StopIteration
+
+def getViewName(view_id):
+    return 'collective.listingviews.%s'%view_id
+
+def getListingNameFromView(view_name):
+    #TODO beter way then replace, could appear in the middle.
+    return view_name.replace('collective.listingviews.', '')
+
+
+def getRegistryViews():
+    reg = getUtility(IRegistry)
+    proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
+                                key_names={'views':'id'})
+    return proxy
+
+def getRegistryFields():
+    reg = getUtility(IRegistry)
+    proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
+                                   prefix='collective.listingviews.customfield',
+                                   key_names={'fields': 'id'})
+    return proxy

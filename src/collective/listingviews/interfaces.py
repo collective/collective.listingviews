@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from zope.interface import Interface, Attribute
 from zope import schema
 from zope.interface import implements
@@ -9,13 +8,6 @@ try:
     from plone.autoform import directives as form
 except:
     from plone.directives import form
-from z3c.formwidget.query.interfaces import IQuerySource
-from zope.schema.interfaces import IContextSourceBinder, IVocabularyFactory
-from utils import ComplexRecordsProxy
-from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.component import queryUtility, getUtility, ComponentLookupError
-from plone.registry.interfaces import IRegistry
-from Products.CMFCore.utils import getToolByName
 try:
     from zope.app.component.hooks import getSite
 except ImportError:
@@ -49,100 +41,6 @@ registerFactoryAdapter(ICustomFieldDefinition, CustomFieldDefinition)
 
 
 
-def ListingViewVocabulary(context):
-    terms = []
-    reg = queryUtility(IRegistry)
-    if reg is not None:
-        proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                key_names={'views': 'id'})
-        for view in proxy.views:
-            terms.append(SimpleVocabulary.createTerm(view.id, view.id, view.name))
-    return SimpleVocabulary(terms)
-
-
-def MetadataVocabulary(context):
-    """
-    Metadata name is stored in registry. Format for default name is "fieldname:"
-    and format for custom name is ":customname"
-    """
-    terms = []
-    portal = getSite()
-    try:
-        factory = getUtility(IVocabularyFactory, 'plone.app.contenttypes.metadatafields')
-    except ComponentLookupError:
-        factory = None
-    try:
-        tool = getToolByName(portal, 'portal_atct')
-    except Exception:
-        tool = None
-
-    # Need to combine normal metadata vocab with our custom fields
-    if factory is not None:
-        # Plone 5
-        metadataDisplay = OrderedDict()
-        for term in factory(portal):
-            metadataDisplay[term.value] = term.title
-    elif tool is not None:
-        # Plone 4
-        metadataDisplay = getToolByName(portal, 'portal_atct').getMetadataDisplay()
-    else:
-        metadataDisplay = {}
-
-    for name, display_name in metadataDisplay.items():
-        if name in ['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate']:
-            for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
-                terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
-                                                         "%s (%s)"%(display_name, format_name)))
-        elif name in ['Title', 'getId']:
-            terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
-            for format,format_name in [('tolink', 'Link')]:
-                terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
-                                                         "%s (%s)"%(display_name, format_name)))
-        else:
-            terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
-
-    # custom field
-    reg = queryUtility(IRegistry)
-    if reg is not None:
-        proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
-                                    prefix='collective.listingviews.customfield',
-                                   key_names={'fields': 'id'})
-        for field in proxy.fields:
-            terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
-                                                     "%s (Custom)" % field.name))
-    return SimpleVocabulary(terms)
-
-class VocabularySource(object):
-     implements(IQuerySource)
-     def __init__(self, vocabulary):
-         self.vocabulary = vocabulary
-     def __contains__(self, item):
-         return self.vocabulary.__contains__(item)
-     def __iter__(self):
-         return self.vocabulary.__iter__()
-     def getTerm(self):
-         return self.vocabulary.getTerm()
-
-     def getTermByToken(self):
-        return self.vocabulary.getTermByToken()
-
-     def search(self, query_string):
-         return [v
-                 for v in self
-          if query_string.lower() in v.value.lower()]
-
-class MetadataSourceBinder(object):
-     implements(IContextSourceBinder)
-
-     def __call__(self, context):
-         return VocabularySource(MetadataVocabulary(context))
-
-def all_types():
-
-    portal = getSite()
-    vocab = getUtility(IVocabularyFactory, name="plone.app.vocabularies.ReallyUserFriendlyTypes")
-    return [term.value for term in vocab(portal)]
-
 
 class IListingDefinition(Interface):
     id = schema.ASCIILine(title=_(u"Id"),
@@ -164,7 +62,6 @@ class IListingDefinition(Interface):
                               default=[],
                               value_type=schema.Choice(
                                               vocabulary="collective.listingviews.MetadataVocabulary",
-                                  #source=MetadataSourceBinder(),
                               )
     )
 
@@ -176,7 +73,6 @@ class IListingDefinition(Interface):
                                  default=[],
                                  value_type=schema.Choice(
                                                  vocabulary="collective.listingviews.MetadataVocabulary",
-                                     #source=MetadataSourceBinder(),
                                  )
     )
 
@@ -184,7 +80,6 @@ class IListingDefinition(Interface):
     restricted_to_types = schema.List(title=_(u"Enabled on Types"),
                                       description=_(u"Show in display menu or make portlet visible only for these types"),
                                       required=True,
-#                                      defaultFactory=all_types,
                                       value_type=schema.Choice(
                                           vocabulary="plone.app.vocabularies.ReallyUserFriendlyTypes"
                                       ),

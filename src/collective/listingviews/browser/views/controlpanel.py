@@ -5,7 +5,7 @@ from plone.app.registry.browser import controlpanel
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
-    IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition, all_types)
+    IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition)
 from zope.interface import implements, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
@@ -16,7 +16,7 @@ from zope.browser.interfaces import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest, IBrowserPublisher
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from Products.CMFCore.interfaces import IFolderish, IContentish
-from collective.listingviews.utils import ComplexRecordsProxy
+from collective.listingviews.utils import ComplexRecordsProxy, getViewName, getRegistryViews
 from five.customerize.zpt import TTWViewTemplate
 from collective.listingviews.browser.views.listing_view import ListingView
 from Products.CMFCore.utils import getToolByName
@@ -31,6 +31,9 @@ from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.form import AutoObjectSubForm, AutoFields, AutoExtensibleForm
 from z3c.form import field, form, button
 from zope.cachedescriptors.property import Lazy as lazy_property
+
+from collective.listingviews.vocabularies import all_types
+
 try:
     from plone.protect.interfaces import IDisableCSRFProtection
 except ImportError:
@@ -43,26 +46,6 @@ try:
 except ImportError:
     MOSAIC = False
 
-def getViewName(view_id):
-    return 'collective.listingviews.%s'%view_id
-
-def getListingNameFromView(view_name):
-    #TODO beter way then replace, could appear in the middle.
-    return view_name.replace('collective.listingviews.', '')
-
-
-def getRegistryViews():
-    reg = getUtility(IRegistry)
-    proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                key_names={'views':'id'})
-    return proxy
-
-def getRegistryFields():
-    reg = getUtility(IRegistry)
-    proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
-                                   prefix='collective.listingviews.customfield',
-                                   key_names={'fields': 'id'})
-    return proxy
 
 
 def addView(portal, view):
