@@ -1,17 +1,11 @@
+import inspect
+
 import Missing
 from DateTime import DateTime
 from zope.schema.interfaces import IVocabularyFactory
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter
 from collective.listingviews.utils import getListingNameFromView, getRegistryViews, getRegistryFields
-
-try:
-    from eea.facetednavigation.layout.interfaces import IFacetedLayout
-    from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
-except:
-    IFacetedLayout = None
-    IFacetedNavigable = None
-    IFacetedSearchMode = None
 
 from zLOG import LOG, INFO
 from zope.interface import implements
@@ -21,6 +15,13 @@ from Products.CMFCore.Expression import Expression, getExprContext
 from plone.uuid.interfaces import IUUID
 from Products.Five import BrowserView
 from plone.memoize.instance import memoize
+
+
+def getAdapterName():
+    for frame, file, lineno, name, line, _ in inspect.stack():
+        # HACK
+        if 'zope/interface/adapter.py' in file and name == 'queryMultiAdapter':
+            return inspect.getargvalues(frame).locals['name']
 
 
 
@@ -46,17 +47,6 @@ class BaseListingInformationRetriever(BrowserView):
             locallong = lambda item, value: plone_util.toLocalizedTime(value, long_format=1),
             tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value)
         )
-
-        #Tricky part to work out the listing view thats been picked
-        if IFacetedLayout is not None and \
-            (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
-            # Case: It's being used from facetednavigation
-            self.set_listing_view(getListingNameFromView(IFacetedLayout(self.context).layout))
-        else:
-            # Case: It's being used from a normal display menu view
-            view_name = request.getURL().split('/')[-1]
-            self.set_listing_view(getListingNameFromView(view_name))
-        # Case: portlet will call setListingView itself
 
 
     def set_listing_view(self, view_name):

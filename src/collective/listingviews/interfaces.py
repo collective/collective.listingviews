@@ -31,15 +31,8 @@ class ICustomFieldDefinition(Interface):
 
     css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
                                  required=False,
-                                 constraint=validate_class)
-
-
-class CustomFieldDefinition(object):
-    implements(ICustomFieldDefinition)
-
-registerFactoryAdapter(ICustomFieldDefinition, CustomFieldDefinition)
-
-
+                                 constraint=validate_class,
+                                 )
 
 
 class IListingDefinition(Interface):

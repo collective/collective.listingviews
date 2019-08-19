@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
 from zope.interface import implements
-from collective.listingviews.interfaces import IListingCustomFieldControlPanel
-from collective.listingviews.utils import ComplexRecordsProxy
+from collective.listingviews.interfaces import IListingCustomFieldControlPanel, IListingControlPanel
+from collective.listingviews.utils import ComplexRecordsProxy, getRegistryFields
 from z3c.formwidget.query.interfaces import IQuerySource
 from zope.schema.interfaces import IContextSourceBinder, IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
@@ -73,6 +73,10 @@ def ListingViewVocabulary(context):
             terms.append(SimpleVocabulary.createTerm(view.id, view.id, view.name))
     return SimpleVocabulary(terms)
 
+# TODO: Need to handle that date metadata changed names before 4->5 EffectiveDate -> effective. upgrade step?
+BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'id', 'EffectiveDate', 'ExpirationDate', 'ModificationDate', 'CreationDate', 'Date', 'listCreators','getRemoteUrl', 'Type', 'UID']
+# TODO: should work out dynamically based on index type
+DATE_INDEXES=['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate', 'modified','created', 'effective', 'expires', 'last_comment_date']
 
 def MetadataVocabulary(context):
     """
@@ -103,27 +107,36 @@ def MetadataVocabulary(context):
         metadataDisplay = {}
 
     for name, display_name in metadataDisplay.items():
-        if name in ['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate']:
+        if name in BLACKLIST:
+            continue
+        display_name = display_name.replace('_', ' ').title()
+        if name in DATE_INDEXES:
+            display_name = dict(created="Creation", expires="Expiration", modified="Modification").get(name, display_name)
+            display_name = display_name.replace(' Date','').replace('Date','').capitalize()+' Date'
             for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
                 terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
                                                          "%s (%s)"%(display_name, format_name)))
         elif name in ['Title', 'getId']:
+            display_name = dict(getId="Short Name").get(name, display_name)
             terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
             for format,format_name in [('tolink', 'Link')]:
                 terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
                                                          "%s (%s)"%(display_name, format_name)))
         else:
+            # TODO: better way to get consistent names
+            display_name = dict(total_comments="Total number of comments",
+                                Subject="Tags",
+                                state="Review State",
+                                getObjSize="Size",
+                                getIcon="Icon",
+                                ).get(name, display_name)
+            #display_name = display_name.title()
             terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
 
     # custom field
-    reg = queryUtility(IRegistry)
-    if reg is not None:
-        proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
-                                    prefix='collective.listingviews.customfield',
-                                   key_names={'fields': 'id'})
-        for field in proxy.fields:
-            terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
-                                                     "%s (Custom)" % field.name))
+    for field in getRegistryFields().fields:
+        terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
+                                                 "%s (Custom)" % field.name))
     return SimpleVocabulary(terms)
 
 class VocabularySource(object):

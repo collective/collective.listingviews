@@ -1,6 +1,7 @@
 from OFS.SimpleItem import SimpleItem
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 from plone.app.registry.browser import controlpanel
+from z3c.form.object import registerFactoryAdapter, FactoryAdapter
 
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
@@ -16,7 +17,7 @@ from zope.browser.interfaces import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest, IBrowserPublisher
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from Products.CMFCore.interfaces import IFolderish, IContentish
-from collective.listingviews.utils import ComplexRecordsProxy, getViewName, getRegistryViews
+from collective.listingviews.utils import ComplexRecordsProxy, getViewName, getRegistryViews, getRegistryFields
 from five.customerize.zpt import TTWViewTemplate
 from collective.listingviews.browser.views.listing_view import ListingView
 from Products.CMFCore.utils import getToolByName
@@ -98,7 +99,8 @@ def removeView(portal, view):
             del stlisting_views[view_name]
 
 
-# We need to register our menuitems the first time it's accessed
+# We need to register our menuitems the first time it's accessed per thread as we can't use local site manager
+# called from zope.app.publication.interfaces.IBeforeTraverseEvent
 def registerMenuItems(site, event, _handled=set()):
     if site.getPhysicalPath() not in _handled:
         _registerMenuItems()
@@ -151,7 +153,7 @@ class ListingDefinition(object):
         for key,value in data.items():
             setattr(self, key, value)
 
-
+registerFactoryAdapter(IListingDefinition, ListingDefinition)
 
 # plone.z3cform.crud based implementation
 
@@ -369,6 +371,20 @@ class ListingViewEditContext(SimpleItem):
 #    implements(IListingCustomFieldControlPanel)
 #class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
 #    form = ListingControlPanelForm
+
+
+
+class CustomFieldDefinition(object):
+    implements(ICustomFieldDefinition)
+
+#
+# class CustomFieldDefinitionFactory(FactoryAdapter):
+#     factory = CustomFieldDefinition
+#
+#     def __init__(self):
+#         pass
+
+registerFactoryAdapter(ICustomFieldDefinition, CustomFieldDefinition)
 
 
 class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):

@@ -8,6 +8,16 @@
   <include package="plone.app.contentmenu" />
   <include package="Products.CMFCore" />
   <include package="plone.app.registry" />
+  <include package="plone.app.z3cform" />
+
+<!--
+  <adapter
+    for="*"
+    name="collective.listingviews.interfaces.ICustomFieldDefinition"
+    provides="z3c.form.interfaces.IObjectFactory"
+    factory=".controlpanel.CustomFieldDefinitionFactory"
+    />
+-->
 
   <!-- Control panel -->
 

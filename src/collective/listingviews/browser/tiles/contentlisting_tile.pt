@@ -6,23 +6,23 @@
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
   <body>
-     <tal:defines   define="
-         batch view/retrieve_listing_items;
-         fields view/retrieve_context_item;
-         class_name python: view.listing_style_class;
+     <tal:defines   define="adapter nocall:view/listing_view_adapter;
+         batch adapter/retrieve_listing_items;
+         fields adapter/retrieve_context_item;
+         class_name python: adapter.listing_style_class;
          macros nocall:context/@@listing_view_macros/macros;
          ">
 
     <dl
-        tal:attributes="class string:listing-item-fields-tiles ${view/css_class}"
+        tal:attributes="class string:listing-item-fields-tiles"
         i18n:domain="plone"
     >
 
-                <div class="listing-item-fields-tile">
+                <div class="listing-item-fields-contentlistingtile">
                     <dl metal:use-macro="macros/item_fields">
                     </dl>
                 </div>
-                <ul class="listing-items-portlet" metal:use-macro="macros/listing_items">
+                <ul class="listing-items-contentlistingtile" metal:use-macro="macros/listing_items">
                 </ul>
 
     </dl>

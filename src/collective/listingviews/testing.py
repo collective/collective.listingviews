@@ -11,9 +11,6 @@ from plone.app.testing import ploneSite
 from Products.CMFCore.utils import getToolByName
 from plone.app.testing import helpers
 
-from collective.listingviews.browser.views.controlpanel import getRegistryViews, ListingDefinition, _registerMenuItems, \
-    addView
-
 
 class CollectiveListingviews(PloneSandboxLayer):
 
@@ -139,12 +136,17 @@ class CollectiveListingviewsTiles(CollectiveListingviews):
 
 
         # Add a simple listing view
+
+        from collective.listingviews.browser.views.controlpanel import getRegistryViews, ListingDefinition, \
+            _registerMenuItems, \
+            addView
+
         views = getRegistryViews().views
         record = ListingDefinition(dict(
             id="myview",
             name="My View",
             item_fields=[],
-            listing_fields=["Title:", "Title:tolink", "EffectiveDate:localshort"],
+            listing_fields=["Title:", "Title:tolink", "effective:localshort"],
             restricted_to_types=[]
         ))
         views.append(record)
@@ -202,11 +204,10 @@ class BrowserIntegrationTesting(IntegrationTesting):
 
         browser = Browser(portal)
         browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
-        browser.open(portal.absolute_url()+'/@@listingviews_controlpanel')
 
-        #browser.getControl(name='__ac_name').value = SITE_OWNER_NAME
-        #browser.getControl(name='__ac_password').value = SITE_OWNER_PASSWORD
-        #browser.getControl(name='submit').click()
+        # browser.getControl(name='__ac_name').value = SITE_OWNER_NAME
+        # browser.getControl(name='__ac_password').value = SITE_OWNER_PASSWORD
+        # browser.getControl(name='submit').click()
         self['manager'] = browser
 
         # create dummy content
@@ -236,8 +237,6 @@ class BrowserIntegrationTesting(IntegrationTesting):
         # form.new_control('text','query.v:records', {'value':'..'})
         # browser.getControl('Save').click()
 
-        browser.getLink('Home').click()
-
 
         browser.handleErrors = False
         portal.error_log._ignored_exceptions = ()
@@ -250,6 +249,7 @@ class BrowserIntegrationTesting(IntegrationTesting):
         from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
         SiteErrorLog.raising = raising
 
+        browser.open(portal.absolute_url())
 
     def getFormFromControl(self, control):
         browser = control.browser
@@ -307,16 +307,14 @@ class BrowserIntegrationTesting(IntegrationTesting):
         #import pdb; pdb.set_trace()
 
         name = main_control.name.rstrip('.to').rstrip('.from')
+        options = dict([(i.mech_item._labels[0]._text, i.optionValue) for i in main_control.controls])
+
         index = 0
         for label in labels:
             value = None
-            for item in main_control.controls:
-                if item.mech_item.get_labels()[0]._text == label:
-                    value = item.optionValue
-                    break
-            if not value:
-                raise Exception("No item found with label '%s' in %s"%(label, main_control))
-            main_control.mech_form.new_control('text','%s:list'%name, {'value':value}, index=index)
+            if label not in options:
+                raise Exception("No item found with label '%s' in %s" % (label, options.keys()))
+            main_control.mech_form.new_control('text','%s:list'%name, {'value':options[label]}, index=index)
             index += 1
 
 

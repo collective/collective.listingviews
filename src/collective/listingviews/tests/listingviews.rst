@@ -30,11 +30,18 @@ A TAL Expression like the following will work.
 >>> browser = layer['manager']
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
+>>> print browser.contents
+<...Add...
+
 >>> browser.getControl('Add').click()
 >>> browser.getControl('Id').value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
 >>> browser.getControl('TAL expression').value = tal
 >>> browser.getControl('Save').click()
+>>> print browser.contents
+<...
+Changes saved.
+...
 
 
 Creating a listing view
@@ -55,7 +62,9 @@ These fields come from either standard metadata or the custom fields we add.
 True
 
 
-#>>> print '\n'.join( sorted(browser.getControl('Title', index=1).control.displayOptions) )
+>>> print '\n'.join( sorted(browser.getControl('Title', index=1).control.displayOptions) )
+Author Name
+Commentators
 Creation Date (Date & Time)
 Creation Date (Date)
 Creator
@@ -64,24 +73,29 @@ Effective Date (Date & Time)
 Effective Date (Date)
 End Date (Date & Time)
 End Date (Date)
+Exclude From Nav
 Expiration Date (Date & Time)
 Expiration Date (Date)
+Icon
+Is Folderish
+Last comment Date (Date & Time)
+Last comment Date (Date)
+Local Publication Date (Custom)
+Location
+Meta Type
+Modification Date (Date & Time)
+Modification Date (Date)
+Portal Type
+Review State
 Short Name
 Short Name (Link)
 Size
-Local Publication Date (Custom)
-Location
-Modification Date (Date & Time)
-Modification Date (Date)
-State
 Start Date (Date & Time)
 Start Date (Date)
 Tags
 Title
 Title (Link)
 Total number of comments
-Item Type
-...
 
 By default the view will be enabled for standard content types. These are
 
@@ -115,8 +129,7 @@ and finally we'll enable the view for all content types
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
 >>> layer.setInAndOut(browser, ['Title'], index=1)
->>> if plone5: layer.setInAndOut(browser, ['Title', 'Title (Link)', 'EffectiveDate (Date)', 'Local Publication Date (Custom)'], index=3)
->>> if not plone5: layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
+>>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
 >>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
@@ -188,14 +201,14 @@ Note the html is in exactly the same order as we specifed in our view definition
 
 >>> print browser.contents
 <...
-    <dt class="listing-field field-EffectiveDate-localshort">Effective...Date (Date)</dt>
-    <dd class="listing-field field-EffectiveDate-localshort"></dd>
+    <dt class="listing-field field-...-localshort">Effective...Date (Date)</dt>
+    <dd class="listing-field field-...-localshort">Jan 01, 2001</dd>
 ...
 
 >>> print browser.contents
 <...
     <dt class="listing-field pubdate">Local Publication Date</dt>
-    <dd class="listing-field pubdate"></dd>
+    <dd class="listing-field pubdate">01/01/2001</dd>
 ...
 
 
