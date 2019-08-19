@@ -339,14 +339,30 @@ class RecordsProxyList(ListMixin):
     def __init__(self, registry, schema, check=True, omitted=(), prefix=None, factory=None, key_name=None):
         self.map = RecordsProxyCollection(registry, schema, check, omitted, prefix, factory)
         self.key_name = key_name
+        self.prefix = prefix
+        self.registry = registry
 
-        if key_name is not None:
-            # will store as ordereddict with items stored using key_name's value and order kept in special keys list
-            keys_key = prefix + '.ordereddict_keys'
-            if registry.get(keys_key) is None:
-                registry.records[keys_key] = Record(
-                    field.List(title=u"Keys of prefix"), [])
-            self.keys = registry.records[keys_key]
+    @property
+    def keys(self):
+        keys_key = self.prefix + '.ordereddict_keys'
+        if self.registry.get(keys_key) is None:
+            return []
+        else:
+            return self.registry.records[keys_key].value
+
+    @keys.setter
+    def keys(self, value):
+        if self.key_name is None:
+            raise Exception("No Supported")
+        # will store as ordereddict with items stored using key_name's value and order kept in special keys list
+        keys_key = self.prefix + '.ordereddict_keys'
+        if self.registry.get(keys_key) is None:
+            # Don't init until now to avoid a write on read error when no records yet. Assumes _resize_region
+            # will call this first
+            self.registry.records[keys_key] = Record(
+                field.List(title=u"Keys of prefix"), [])
+        self.registry.records[keys_key].value = value
+
 
     def _get_element(self, i):
         return self.map[self.genKey(i)]
@@ -358,7 +374,7 @@ class RecordsProxyList(ListMixin):
         if self.key_name is not None:
             item = self.map.get(id)
             key = getattr(item, self.key_name)
-            return self.keys.value.index(key)
+            return self.keys.index(key)
         else:
             raise Exception('No key_name set')
 
@@ -372,14 +388,16 @@ class RecordsProxyList(ListMixin):
             except:
                 key = value[self.key_name]
             assert key
-            assert self.keys.value.count(key) == 0 or self.keys.value.index(key) == index
+            assert self.keys.count(key) == 0 or self.keys.index(key) == index
             self.map[key] = value
 
             # we have to remove the old value if it's being overwritten
-            oldkey = self.keys.value[index]
+            oldkey = self.keys[index]
             if key != oldkey and oldkey is not None:
                 del self.map[oldkey]
-            self.keys.value[index] = key
+            self.keys[index] = key
+            # Just to make sure we are init they record
+            #self.keys = self.keys
 
         else:
             self.map[self.genKey(index)] = value
@@ -388,7 +406,7 @@ class RecordsProxyList(ListMixin):
         if self.key_name is None:
             return len(self.map)
         else:
-            return len(self.keys.value)
+            return len(self.keys)
 
     def _resize_region(self, start, end, new_size):
         if self.key_name is None:
@@ -405,16 +423,16 @@ class RecordsProxyList(ListMixin):
                     del self.map[self.genKey(i)]
         else:
             for i in range(start, end):
-                del self.map[self.keys.value[i]]
-            self.keys.value = self.keys.value[:start] + [None for i in range(new_size)] + self.keys.value[end:]
+                del self.map[self.keys[i]]
+            self.keys = self.keys[:start] + [None for i in range(new_size)] + self.keys[end:]
 
     def genKey(self, index):
         if self.key_name is None:
             index_prefix = "i"
             return "%s%05d" % (index_prefix, index)
         else:
-            if index < len(self.keys.value):
-                return self.keys.value[index]
+            if index < len(self.keys):
+                return self.keys[index]
             # this could happen during registering menu items, not sure why
             raise StopIteration
 
