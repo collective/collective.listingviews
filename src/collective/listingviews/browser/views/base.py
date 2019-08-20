@@ -7,7 +7,6 @@ from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.interfaces import IListingAdapter
 from collective.listingviews.utils import getListingNameFromView, getRegistryViews, getRegistryFields
 
-from zLOG import LOG, INFO
 from zope.interface import implements
 from zope.component import getMultiAdapter, getUtility
 from Products.CMFCore.utils import getToolByName
