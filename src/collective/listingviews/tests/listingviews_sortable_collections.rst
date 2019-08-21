@@ -20,7 +20,7 @@ Listing Views for collections with sort_on and sort_order preserved
 <...Add...
 
 >>> browser.getControl('Add').click()
->>> browser.getControl('Id').value = "pubdate"
+>>> browser.getControl('Id', index=0).value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
 >>> browser.getControl('TAL expression').value = tal
 >>> browser.getControl('Save').click()
