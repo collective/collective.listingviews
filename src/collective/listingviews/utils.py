@@ -360,7 +360,7 @@ class RecordsProxyList(ListMixin):
             # Don't init until now to avoid a write on read error when no records yet. Assumes _resize_region
             # will call this first
             self.registry.records[keys_key] = Record(
-                field.List(title=u"Keys of prefix"), [])
+                field.List(title=u"Keys of prefix",value_type=None), [])
         self.registry.records[keys_key].value = value
 
 
@@ -393,7 +393,7 @@ class RecordsProxyList(ListMixin):
 
             # we have to remove the old value if it's being overwritten
             oldkey = self.keys[index]
-            if key != oldkey and oldkey is not None:
+            if key != oldkey and oldkey:
                 del self.map[oldkey]
             self.keys[index] = key
             # Just to make sure we are init they record
@@ -424,7 +424,7 @@ class RecordsProxyList(ListMixin):
         else:
             for i in range(start, end):
                 del self.map[self.keys[i]]
-            self.keys = self.keys[:start] + [None for i in range(new_size)] + self.keys[end:]
+            self.keys = self.keys[:start] + [ None for i in range(new_size)] + self.keys[end:]
 
     def genKey(self, index):
         if self.key_name is None:

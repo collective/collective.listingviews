@@ -25,7 +25,6 @@ from zope.browsermenu.interfaces import IBrowserMenu
 from zope.browsermenu.metaconfigure import addMenuItem, MenuItemFactory, menuItemDirective
 from zope.browsermenu.menu import BrowserMenu, BrowserMenuItem, BrowserSubMenuItem
 from zope.browsermenu.interfaces import IBrowserMenuItem
-from Products.ATContentTypes.permission import ModifyViewTemplate
 from plone.z3cform.crud import crud
 from plone.z3cform import layout
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper

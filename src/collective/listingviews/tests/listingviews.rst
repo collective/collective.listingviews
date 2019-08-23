@@ -82,7 +82,7 @@ Last comment Date (Date & Time)
 Last comment Date (Date)
 Local Publication Date (Custom)
 Location
-Meta Type
+...
 Modification Date (Date & Time)
 Modification Date (Date)
 Portal Type

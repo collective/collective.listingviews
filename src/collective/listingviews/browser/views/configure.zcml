@@ -51,7 +51,7 @@
 
     <subscriber
         for="Products.CMFPlone.interfaces.IPloneSiteRoot
-             zope.app.publication.interfaces.IBeforeTraverseEvent"
+             zope.traversing.interfaces.IBeforeTraverseEvent"
         handler=".controlpanel.registerMenuItems"
         />
 
@@ -70,18 +70,22 @@
       class=".basic.BasicListingInformationRetriever"
       permission="zope2.View"
       zcml:condition="installed plone.folder" />
+  <configure zcml:condition="installed Products.Archetypes">
   <browser:page
       for="Products.Archetypes.interfaces.IBaseFolder"
       name="listing_view_adapter"
       class=".basic.BasicListingInformationRetriever"
       permission="zope2.View"
        />
-  <browser:page
-      for="Products.ATContentTypes.interface.IATTopic"
-      name="listing_view_adapter"
-      class=".basic.BasicTopicListingInformationRetriever"
-      permission="zope2.View"
-      zcml:condition="installed Products.ATContentTypes"/>
+  </configure>
+  <configure zcml:condition="installed Products.ATContentTypes">
+      <browser:page
+          for="Products.ATContentTypes.interface.IATTopic"
+          name="listing_view_adapter"
+          class=".basic.BasicTopicListingInformationRetriever"
+          permission="zope2.View"
+          zcml:condition="installed Products.ATContentTypes"/>
+  </configure>
   <browser:page
       for="plone.app.collection.interfaces.ICollection"
       name="listing_view_adapter"
