@@ -74,7 +74,7 @@ def ListingViewVocabulary(context):
     return SimpleVocabulary(terms)
 
 # TODO: Need to handle that date metadata changed names before 4->5 EffectiveDate -> effective. upgrade step?
-BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'id', 'EffectiveDate', 'ExpirationDate', 'ModificationDate', 'CreationDate', 'Date', 'listCreators','getRemoteUrl', 'Type', 'UID']
+BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'id', 'Date', 'listCreators','getRemoteUrl', 'Type', 'UID']
 # TODO: should work out dynamically based on index type
 DATE_INDEXES=['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate', 'modified','created', 'effective', 'expires', 'last_comment_date']
 
@@ -85,6 +85,8 @@ def MetadataVocabulary(context):
     """
     terms = []
     portal = getSite()
+    values = dict()
+    t = lambda d,v: SimpleVocabulary.createTerm(v, None, d)
     try:
         factory = getUtility(IVocabularyFactory, 'plone.app.contenttypes.metadatafields')
     except ComponentLookupError:
@@ -109,34 +111,32 @@ def MetadataVocabulary(context):
     for name, display_name in metadataDisplay.items():
         if name in BLACKLIST:
             continue
-        display_name = display_name.replace('_', ' ').title()
+        display_name = unicode(display_name.replace('_', ' ').title())
         if name in DATE_INDEXES:
             display_name = dict(created="Creation", expires="Expiration", modified="Modification").get(name, display_name)
             display_name = display_name.replace(' Date','').replace('Date','').capitalize()+' Date'
             for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
-                terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
-                                                         "%s (%s)"%(display_name, format_name)))
+                terms.append(t("%s (%s)"%(display_name, format_name), "%s:%s"% (name, format), ))
         elif name in ['Title', 'getId']:
-            display_name = dict(getId="Short Name").get(name, display_name)
-            terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
+            display_name = dict(getId=u"Short Name").get(name, display_name)
+            terms.append(t(display_name, name + ":", ))
             for format,format_name in [('tolink', 'Link')]:
-                terms.append(SimpleVocabulary.createTerm("%s:%s"% (name, format), None,
-                                                         "%s (%s)"%(display_name, format_name)))
+                terms.append(t("%s (%s)" % (display_name, format_name),
+                             "%s:%s"% (name, format), ))
         else:
             # TODO: better way to get consistent names
-            display_name = dict(total_comments="Total number of comments",
-                                Subject="Tags",
-                                state="Review State",
-                                getObjSize="Size",
-                                getIcon="Icon",
+            display_name = dict(total_comments=u"Total number of comments",
+                                Subject=u"Tags",
+                                state=u"Review State",
+                                getObjSize=u"Size",
+                                getIcon=u"Icon",
                                 ).get(name, display_name)
             #display_name = display_name.title()
-            terms.append(SimpleVocabulary.createTerm(name + ":", None, display_name))
+            terms.append(t(display_name, name + ":"))
 
     # custom field
     for field in getRegistryFields().fields:
-        terms.append(SimpleVocabulary.createTerm(':' + field.id, None,
-                                                 "%s (Custom)" % field.name))
+        terms.append(t("%s (Custom)" % field.name, ':' + field.id))
     return SimpleVocabulary(terms)
 
 class VocabularySource(object):

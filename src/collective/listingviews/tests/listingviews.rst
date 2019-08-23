@@ -19,7 +19,7 @@ Instead here is how you do it using a ListingView.
 First we need to create a custom field using TAL since we want a custom date format rather than Plones default.
 A TAL Expression like the following will work.
 
->>> tal = "python:item.effective.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
+>>> tal = "python:item.EffectiveDate.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
 
 - Go to ``Site Setup > Listing Custom Fields > Add``
 - The ``Id`` is unique and is also used as a CSS class in the final html
