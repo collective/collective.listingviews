@@ -1,31 +1,22 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-from plone.app.discussion.interfaces import IConversation
-from plone.app.discussion.interfaces import IDiscussionSettings
-from plone.app.standardtiles.testing import PASTANDARDTILES_FUNCTIONAL_TESTING
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
+import unittest
+
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from plone.app.textfield import RichTextValue
-from plone.namedfile import NamedImage
-from plone.registry.interfaces import IRegistry
 from plone.testing.z2 import Browser
-from plone.uuid.interfaces import IUUID
 from unittest import TestCase
-from zope.component import createObject, getUtility
-from zope.component import queryUtility
-
-import random
-import six
-import transaction
+from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
+from collective.listingviews.testing import TILES_INTEGRATION_TESTING, COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
 
-from collective.listingviews.testing import COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING, TILES_INTEGRATION_TESTING
+from collective.listingviews import plone_version
+PLONE5 = plone_version >= "5"
 
 
+@unittest.skipIf(TILES_INTEGRATION_TESTING is None, "Tiles test not supported on Plone<5.0.x")
 class ContentListingTileTests(TestCase):
-    layer = TILES_INTEGRATION_TESTING
+    # Just to make the test runner happy
+    layer = TILES_INTEGRATION_TESTING if TILES_INTEGRATION_TESTING is not None else COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
 
     def setUp(self):
         self.portal = self.layer['portal']
@@ -39,15 +30,6 @@ class ContentListingTileTests(TestCase):
         )
 
         self.unprivileged_browser = Browser(self.layer['app'])
-
-        # setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        # page_id = self.portal.invokeFactory(
-        #     'Document', 'a-simple-page',
-        #     title=u'A simple page', description=u'A description'
-        # )
-        # self.page = self.portal[page_id]
-        # self.pageURL = self.portal[page_id].absolute_url()
-        # transaction.commit()
 
     def test_contentlisting_tile_summary_view(self):
         """Any listing view we add to the control panel should be available as an option in a content listing tile

@@ -17,6 +17,9 @@ from Products.Five import BrowserView
 from plone.memoize.instance import memoize
 
 
+class InvalidListingViewField(Expression):
+    pass
+
 def getAdapterName():
     for frame, file, lineno, name, line, _ in inspect.stack():
         # HACK
@@ -68,12 +71,12 @@ class BaseListingInformationRetriever(BrowserView):
 
         for field in fields:
             if ":" not in field:
-                raise Exception( "No valid field: %s (No colon)" % field )
+                raise InvalidListingViewField( "No valid field: %s (No colon)" % field )
 
             subfield = field.split(":")
 
             if len(subfield) is not 2:
-                raise Exception( "No valid field: %s (Too many colons)" % field )
+                raise InvalidListingViewField( "No valid field: %s (Too many colons)" % field )
 
             field, func = subfield
 
@@ -171,7 +174,7 @@ class BaseListingInformationRetriever(BrowserView):
         if key in self.metadata_display:
             field = self.metadata_display[key]
         else:
-            raise Exception("Field no longer exists '%s'" % field_name)
+            raise InvalidListingViewField("Field no longer exists '%s'" % field_name)
 
         #TODO need better function to make valid css class
         if not filter_name:
@@ -200,9 +203,12 @@ class BaseListingInformationRetriever(BrowserView):
     def custom_field(self, field_name):
         fields = [f for f in getRegistryFields().fields if f.id == field_name]
         if not fields:
-            raise Exception("Custom field not recognised '%s'" % field_name)
+            raise InvalidListingViewField("Custom field not recognised '%s'" % field_name)
         else:
             field = fields[0]
+        if field.tal_statement is None:
+            raise InvalidListingViewField("Custom field TAL is empty '%s'" % field_name)
+
 
         # example tal statement
         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))

@@ -137,21 +137,15 @@ class CollectiveListingviewsTiles(CollectiveListingviews):
 
         # Add a simple listing view
 
-        from collective.listingviews.browser.views.controlpanel import getRegistryViews, ListingDefinition, \
-            _registerMenuItems, \
-            addView
+        from collective.listingviews.browser.views.controlpanel import addView
 
-        views = getRegistryViews().views
-        record = ListingDefinition(dict(
+        addView(portal, dict(
             id="myview",
             name="My View",
             item_fields=[],
             listing_fields=["Title:", "Title:tolink", "effective:localshort"],
             restricted_to_types=[]
         ))
-        views.append(record)
-        addView(portal, record)
-        _registerMenuItems()
 
 
 
@@ -204,39 +198,7 @@ class BrowserIntegrationTesting(IntegrationTesting):
 
         browser = Browser(portal)
         browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
-
-        # browser.getControl(name='__ac_name').value = SITE_OWNER_NAME
-        # browser.getControl(name='__ac_password').value = SITE_OWNER_PASSWORD
-        # browser.getControl(name='submit').click()
         self['manager'] = browser
-
-        # create dummy content
-
-        # browser.getLink('Home').click()
-        # browser.getLink('Folder').click()
-        # browser.getControl('Title').value = 'folder1'
-        # browser.getControl('Save').click()
-        #
-        # #Add an item
-        # browser.getLink('Page').click()
-        # browser.getControl('Title').value = 'item1'
-        # browser.getControl('Save').click()
-        # browser.getLink('Publish').click()
-        #
-        #
-        # browser.getLink('folder1').click()
-        #
-        # self.createATTopic(portal)
-
-        # browser.getLink('Collection').click()
-        # browser.getControl('Title', index=0).value = "collection1"
-        # browser.getControl('Location', index=0).click()
-        # form = browser.getControl('Location', index=0).mech_form
-        # form.new_control('text','query.i:records', {'value':'path'})
-        # form.new_control('text','query.o:records', {'value':'plone.app.querystring.operation.string.relativePath'})
-        # form.new_control('text','query.v:records', {'value':'..'})
-        # browser.getControl('Save').click()
-
 
         browser.handleErrors = False
         portal.error_log._ignored_exceptions = ()
@@ -341,7 +303,12 @@ COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING = \
 #     name='example.conference:Functional',
 #     )
 
-TILES_FIXTURE = CollectiveListingviewsTiles()
-TILES_INTEGRATION_TESTING = \
-    BrowserIntegrationTesting(bases=(TILES_FIXTURE, ),
-                            name="CollectiveListingviewsTiles:Integration")
+try:
+    import plone.app.standardtiles
+
+    TILES_FIXTURE = CollectiveListingviewsTiles()
+    TILES_INTEGRATION_TESTING = \
+        BrowserIntegrationTesting(bases=(TILES_FIXTURE,),
+                                  name="CollectiveListingviewsTiles:Integration")
+except ImportError:
+    TILES_INTEGRATION_TESTING = None

@@ -49,7 +49,10 @@ except ImportError:
 
 
 
-def addView(portal, view):
+def addView(portal, data):
+    views = getRegistryViews().views
+    view = ListingDefinition(data)
+    views.append(view)
     view_name = getViewName(view.id)
     sm = getSiteManager(portal)
     sm.registerAdapter(ListingView,
@@ -79,6 +82,9 @@ def addView(portal, view):
                            name=view_name)
         if view_name not in stlisting_views:
             stlisting_views[view_name] = unicode(view.name)
+
+    _registerMenuItems()
+    return view_name
 
 
 
@@ -213,11 +219,7 @@ class ListingViewSchemaListing(crud.CrudForm):
         return [(v.id, v) for v in getRegistryViews().views if v.id]
 
     def add(self, data):
-        views = getRegistryViews().views
-        record = ListingDefinition(data)
-        views.append(record)
-        addView(self.context, record)
-        _registerMenuItems()
+        addView(self.context, data)
 
     def remove(self, (name, item)):
         """ Remove a schema.
@@ -376,6 +378,9 @@ class ListingViewEditContext(SimpleItem):
 
 class CustomFieldDefinition(object):
     implements(ICustomFieldDefinition)
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 #
 # class CustomFieldDefinitionFactory(FactoryAdapter):
