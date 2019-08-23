@@ -43,7 +43,7 @@ setup(name='collective.listingviews',
           # -*- Extra requirements: -*-
           'plone.app.z3cform',
       ],
-      extras_require={'test': ['plone.app.testing', 'unittest2', 'plone.app.standardtiles']},
+      extras_require={'test': ['plone.app.testing', 'unittest2']},
       entry_points="""
       # -*- Entry points: -*-
       [z3c.autoinclude.plugin]
