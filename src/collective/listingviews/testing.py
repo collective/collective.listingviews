@@ -143,7 +143,7 @@ class CollectiveListingviewsTiles(CollectiveListingviews):
             id="myview",
             name="My View",
             item_fields=[],
-            listing_fields=["Title:", "Title:tolink", "effective:localshort"],
+            listing_fields=["Title:", "Title:tolink", "EffectiveDate:localshort"],
             restricted_to_types=[]
         ))
 
