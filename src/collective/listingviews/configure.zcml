@@ -34,4 +34,11 @@
         component=".vocabularies.ContentTypeVocabulary"
         name="collective.listingviews.ContentTypeVocabulary"
         />
+
+
+  <adapter
+    name="collective.listingviews.interfaces.ICustomFieldDefinition"
+    factory=".interfaces.CustomFieldDefinitionFactory"
+    />
+
 </configure>

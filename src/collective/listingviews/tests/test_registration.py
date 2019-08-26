@@ -1,12 +1,8 @@
 import unittest2 as unittest
-from z3c.form.interfaces import IObjectFactory
-from zope.component import getMultiAdapter
-from zope.interface import Interface
-
-from collective.listingviews.browser.views.controlpanel import addView, CustomFieldDefinition
-
 from Products.CMFCore.utils import getToolByName
 
+from collective.listingviews.browser.views.controlpanel import addView
+from collective.listingviews.interfaces import CustomFieldDefinition
 from collective.listingviews.testing import\
     COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
 from collective.listingviews.utils import getRegistryFields
@@ -133,11 +129,11 @@ class TestRegistration(unittest.TestCase):
         # factory = getMultiAdapter( (Interface, Interface, Interface, Interface), IObjectFactory,
         #                           name="collective.listingviews.interfaces.ICustomFieldDefinition")
 
-        record = CustomFieldDefinition(
+        record = CustomFieldDefinition(dict(
             id="myfield",
             name="My Field",
             tal_statement="python: 'hello world'"
-        )
+        ))
         fields.append(record)
 
         view = addView(self.portal, dict(
@@ -149,3 +145,25 @@ class TestRegistration(unittest.TestCase):
         ))
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'hello world', )
+
+    def test_sortable_collections(self):
+        " We need to test sorting in collections? "
+        tal = "python:modules['DateTime.DateTime'](path('item/EffectiveDate')).strftime('%d/%m/%Y') if path('item/EffectiveDate') != 'None' else '' "
+        record = CustomFieldDefinition(dict(
+            id="pubdate",
+            name="My Field",
+            tal_statement=tal
+        ))
+        getRegistryFields().fields.append(record)
+
+        view = addView(self.portal, dict(
+            id="pubnews",
+            name="News with publication",
+            item_fields=['Title:'],
+            listing_fields=[":pubdate"],
+            restricted_to_types=['Page', 'Folder', 'Collection']
+        ))
+
+        body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
+        #self.assertRegexpMatches(body, '(?m)31/12/2000.*01/01/2001')
+        self.assertGreater(body.index("01/01/2001"), body.index("31/12/2000"))

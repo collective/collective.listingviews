@@ -19,7 +19,7 @@ Instead here is how you do it using a ListingView.
 First we need to create a custom field using TAL since we want a custom date format rather than Plones default.
 A TAL Expression like the following will work.
 
->>> tal = "python:item.EffectiveDate.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
+>>> tal = "python:modules['DateTime.DateTime'](path('item/EffectiveDate')).strftime('%d/%m/%Y') if path('item/EffectiveDate') != 'None' else '' "
 
 - Go to ``Site Setup > Listing Custom Fields > Add``
 - The ``Id`` is unique and is also used as a CSS class in the final html
@@ -37,6 +37,7 @@ A TAL Expression like the following will work.
 >>> browser.getControl('Id').value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
 >>> browser.getControl('TAL expression').value = tal
+>>> browser.getControl('Additional CSS classes').value = ""
 >>> browser.getControl('Save').click()
 >>> print browser.contents
 <...
@@ -96,6 +97,7 @@ Tags
 Title
 Title (Link)
 Total number of comments
+...
 
 By default the view will be enabled for standard content types. These are
 
@@ -362,8 +364,10 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getLink('Publication Info').click()
->>> if plone5: browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['item1'])
->>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/item1'})
+>>> browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['item1'])
+
+#>>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/item1'})
+
 >>> browser.getControl('Save').click()
 
 #TODO show what happens if we pick an item of invalid type
@@ -443,15 +447,18 @@ name for ``collection1`` in the ``Target`` field.
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Collection Portlet'
->>> if not plone5:
-...     browser.getControl('Listing views').displayOptions == ['(nothing selected)', 'News with publication', 'Publication Info']
-... else:
-...     browser.getControl('Listing views').displayOptions == ['News with publication', 'Publication Info']
+>>> 'News with publication' in browser.getControl('Listing views').displayOptions
 True
->>> if plone5: browser.getControl('Listing views').value = ['pubnews']
->>> if not plone5: browser.getControl('News with publication').click()
->>> if plone5: browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['collection1'])
->>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
+>>> 'Publication Info' in browser.getControl('Listing views').displayOptions
+True
+>>> browser.getControl('Listing views').value = ['pubnews']
+
+#>>> if not plone5: browser.getControl('News with publication').click()
+
+>>> browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['collection1'])
+
+#>>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
+
 >>> browser.getControl('Save').click()
 
 New when we view home we  see the items inside ``folder1` based on criteria in ``collection1``, so we'll see

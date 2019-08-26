@@ -1,7 +1,7 @@
 from zope.interface import Interface, Attribute
 from zope import schema
 from zope.interface import implements
-from z3c.form.object import registerFactoryAdapter
+from z3c.form.object import registerFactoryAdapter, FactoryAdapter
 from collective.listingviews import LVMessageFactory as _
 from validation import validate_id, validate_class, validate_tal
 try:
@@ -32,6 +32,7 @@ class ICustomFieldDefinition(Interface):
     css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
                                  required=False,
                                  constraint=validate_class,
+                                 default=""
                                  )
 
 
@@ -132,6 +133,30 @@ class IListingCustomFieldControlPanel(Interface):
         default=(),
         missing_value=(),
     )
+
+
+class ListingDefinition(object):
+    implements(IListingDefinition)
+
+    def __init__(self, data={}):
+        for key,value in data.items():
+            setattr(self, key, value)
+
+registerFactoryAdapter(IListingDefinition, ListingDefinition)
+
+
+
+class CustomFieldDefinition(object):
+    implements(ICustomFieldDefinition)
+    def __init__(self, data={}):
+        for key,value in data.items():
+            setattr(self, key, value)
+
+
+class CustomFieldDefinitionFactory(FactoryAdapter):
+    factory = CustomFieldDefinition
+
+#registerFactoryAdapter(ICustomFieldDefinition, CustomFieldDefinition)
 
 
 #class IBaseSettings(Interface):

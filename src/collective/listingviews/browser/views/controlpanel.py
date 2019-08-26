@@ -6,7 +6,8 @@ from z3c.form.object import registerFactoryAdapter, FactoryAdapter
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
-    IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition)
+                                                IListingControlPanel, IListingCustomFieldControlPanel,
+                                                ICustomFieldDefinition, ListingDefinition)
 from zope.interface import implements, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
@@ -150,15 +151,6 @@ def _registerMenuItems():
         #assert menu.getMenuItemByAction(IFolderish, self.request, view_name)
         # pp [x for x in gsm.registeredAdapters() if x.provided == menu.getMenuItemType()]
 
-
-class ListingDefinition(object):
-    implements(IListingDefinition)
-
-    def __init__(self, data):
-        for key,value in data.items():
-            setattr(self, key, value)
-
-registerFactoryAdapter(IListingDefinition, ListingDefinition)
 
 # plone.z3cform.crud based implementation
 
@@ -374,21 +366,6 @@ class ListingViewEditContext(SimpleItem):
 #    form = ListingControlPanelForm
 
 
-
-class CustomFieldDefinition(object):
-    implements(ICustomFieldDefinition)
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-#
-# class CustomFieldDefinitionFactory(FactoryAdapter):
-#     factory = CustomFieldDefinition
-#
-#     def __init__(self):
-#         pass
-
-registerFactoryAdapter(ICustomFieldDefinition, CustomFieldDefinition)
 
 
 class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
