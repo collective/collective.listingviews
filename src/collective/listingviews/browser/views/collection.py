@@ -9,7 +9,7 @@ from plone.memoize.instance import memoize
 from Products.CMFPlone.PloneBatch import Batch
 
 
-class BasicCollectionListingInformationRetriever(
+class ContentTypesCollectionListingInformationRetriever(
                             BasicTopicListingInformationRetriever):
     implements(IListingAdapter)
 
@@ -26,14 +26,19 @@ class BasicCollectionListingInformationRetriever(
         # and get its' results
         # works for plone.app.contenttypes.interfaces.ICollection
 
-        try:
-            view = getMultiAdapter((self.context, self.request), name='listing_view')
-            view = view.__of__(self.context)
+        view = getMultiAdapter((self.context, self.request), name='listing_view')
+        #view = view.__of__(self.context)
 
-            results = view.results()
-            return results
-        except ComponentLookupError:
-            pass
+        results = view.results()
+        return results
+
+class AppCollectionListingInformationRetriever(
+    BasicTopicListingInformationRetriever):
+    implements(IListingAdapter)
+
+    @property
+    @memoize
+    def retrieve_listing_items(self):
 
         # plone.app.collection
         # TODO: should probably use its code directly

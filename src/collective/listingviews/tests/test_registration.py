@@ -23,20 +23,15 @@ class TestRegistration(unittest.TestCase):
         self.app = self.layer['app']
         self.portal = self.layer['portal']
         self.qi_tool = getToolByName(self.portal, 'portal_quickinstaller')
-        self.maxDiff = 1000
+        self.maxDiff = 2000
 
-    def test_product_is_installed(self):
-        """
-        Validate that our products GS profile has been run and the product
-        installed
-        """
-        pid = 'collective.listingviews'
-        installed = [p['id'] for p in self.qi_tool.listInstalledProducts()]
-        self.assertTrue(pid in installed,
-                        'package appears not to have been installed')
+    def assertItemsSubset(self, items, all_items):
+        for i in items:
+            self.assertIn(i, all_items)
 
     def test_fields_vocabulary(self):
-        self.assertItemsEqual([u'Creator',
+        # TODO: backport 5.1 fields so vocab is equal on all verisons
+        self.assertItemsSubset([u'Creator',
                                u'Creation Date (Date & Time)',
                                u'Creation Date (Date)',
                                u'Description',
@@ -54,14 +49,14 @@ class TestRegistration(unittest.TestCase):
                                u'Size',
                                u'Start Date (Date & Time)',
                                u'Start Date (Date)',
-                               u'State',
+                               u'Review State',
                                u'Tags',
                                u'Title',
                                u'Title (Link)',
                                u'Total number of comments'],
             [t.title for t in MetadataVocabulary(self.portal)]
             )
-        self.assertItemsEqual(
+        self.assertItemsSubset(
                               ['Creator:',
                                'Description:',
                                'end:locallong',
@@ -89,7 +84,7 @@ class TestRegistration(unittest.TestCase):
             )
 
 
-    def test_listing_date_localshort(self):
+    def test_collection_date_localshort(self):
 
         view = addView(self.portal, dict(
             id="myview",
@@ -100,6 +95,19 @@ class TestRegistration(unittest.TestCase):
         ))
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'Dec 31, 2000', )
+
+    def test_folder_date_localshort(self):
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["EffectiveDate:localshort"],
+            restricted_to_types=[]
+        ))
+        body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
+        self.assertRegexpMatches(body, 'Dec 31, 2000', )
+
 
     def test_item_date_locallong(self):
 
@@ -113,7 +121,11 @@ class TestRegistration(unittest.TestCase):
         body = self.portal.folder1.item1.unrestrictedTraverse("@@" + view)()
         self.assertRegexpMatches(body, 'Jan 01, 2001 12:00 AM', )
 
-        # TODO: test other dates
+    # TODO: test other dates
+
+    # TODO: other fields
+
+    # TODO: other content types
 
     def test_add_custom_field(self):
 

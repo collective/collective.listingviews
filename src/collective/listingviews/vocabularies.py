@@ -74,7 +74,7 @@ def ListingViewVocabulary(context):
     return SimpleVocabulary(terms)
 
 # TODO: Need to handle that date metadata changed names before 4->5 EffectiveDate -> effective. upgrade step?
-BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'id', 'Date', 'listCreators','getRemoteUrl', 'Type', 'UID']
+BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'id', 'Date', 'listCreators','getRemoteUrl', 'UID', 'modified','created', 'effective', 'expires']
 # TODO: should work out dynamically based on index type
 DATE_INDEXES=['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate', 'modified','created', 'effective', 'expires', 'last_comment_date']
 
@@ -113,8 +113,8 @@ def MetadataVocabulary(context):
             continue
         display_name = unicode(display_name.replace('_', ' ').title())
         if name in DATE_INDEXES:
-            display_name = dict(created="Creation", expires="Expiration", modified="Modification").get(name, display_name)
-            display_name = display_name.replace(' Date','').replace('Date','').capitalize()+' Date'
+            display_name = dict(created=u"Creation", expires=u"Expiration", modified=u"Modification").get(name, display_name)
+            display_name = display_name.replace(' Date','').replace('date','').capitalize()+' Date'
             for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
                 terms.append(t("%s (%s)"%(display_name, format_name), "%s:%s"% (name, format), ))
         elif name in ['Title', 'getId']:
@@ -127,7 +127,7 @@ def MetadataVocabulary(context):
             # TODO: better way to get consistent names
             display_name = dict(total_comments=u"Total number of comments",
                                 Subject=u"Tags",
-                                state=u"Review State",
+                                review_state=u"Review State",
                                 getObjSize=u"Size",
                                 getIcon=u"Icon",
                                 ).get(name, display_name)

@@ -13,13 +13,11 @@ env:
 
 before_install:
   - mkdir -p $HOME/buildout-cache/{eggs,downloads}
-  - virtualenv .
-  - bin/pip install -r requirements-$PLONE_VERSION.txt
+  - ./bootstrap.sh test-$PLONE_VERSION.x.txt
 install:
-  - sed -ie "s#travis-4.x.cfg#travis-$PLONE_VERSION.x.cfg#" travis.cfg
-  - sed -ie "s#versions-$PLONE_VERSION.x#versions#" travis.cfg  
-  - bin/buildout -c travis.cfg annotate > annotate.txt
-  - bin/buildout -N -t 20 -c travis.cfg
+#  - bin/buildout -c test-$PLONE_VERSION.x.cfg annotate > annotate.txt
+#  - cat annotate.txt
+  - bin/buildout -N -t 20 -c test-$PLONE_VERSION.x.cfg
 script:
   - bin/code-analysis
   - bin/test
