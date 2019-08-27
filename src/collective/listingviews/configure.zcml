@@ -41,4 +41,11 @@
     factory=".interfaces.CustomFieldDefinitionFactory"
     />
 
+  <adapter
+    name="collective.listingviews.interfaces.IListingDefinition"
+    factory=".interfaces.ListingDefinitionFactory"
+    />
+
+
+
 </configure>

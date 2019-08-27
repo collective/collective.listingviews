@@ -142,12 +142,14 @@ class ListingDefinition(object):
         for key,value in data.items():
             setattr(self, key, value)
 
-registerFactoryAdapter(IListingDefinition, ListingDefinition)
 
+class ListingDefinitionFactory(FactoryAdapter):
+    factory = ListingDefinition
 
 
 class CustomFieldDefinition(object):
     implements(ICustomFieldDefinition)
+
     def __init__(self, data={}):
         for key,value in data.items():
             setattr(self, key, value)
@@ -155,16 +157,6 @@ class CustomFieldDefinition(object):
 
 class CustomFieldDefinitionFactory(FactoryAdapter):
     factory = CustomFieldDefinition
-
-#registerFactoryAdapter(ICustomFieldDefinition, CustomFieldDefinition)
-
-
-#class IBaseSettings(Interface):
-#    pass
-
-
-#class IBasicListingSettings(IBaseSettings):
-#    pass
 
 
 class IListingAdapter(Interface):
