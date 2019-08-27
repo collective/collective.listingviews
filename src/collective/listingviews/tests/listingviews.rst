@@ -41,7 +41,7 @@ A TAL Expression like the following will work.
 >>> browser.getControl('Save').click()
 >>> print browser.contents
 <...
-Changes saved.
+...Changes saved...
 ...
 
 
@@ -63,9 +63,7 @@ These fields come from either standard metadata or the custom fields we add.
 True
 
 
->>> print '\n'.join( sorted(browser.getControl('Title', index=1).control.displayOptions) )
-Author Name
-Commentators
+#>>> print '\n'.join(sorted(browser.getControl('Title', index=1).control.displayOptions) )
 Creation Date (Date & Time)
 Creation Date (Date)
 Creator
@@ -74,13 +72,10 @@ Effective Date (Date & Time)
 Effective Date (Date)
 End Date (Date & Time)
 End Date (Date)
-Exclude From Nav
+...
 Expiration Date (Date & Time)
 Expiration Date (Date)
-Icon
-Is Folderish
-Last comment Date (Date & Time)
-Last comment Date (Date)
+...
 Local Publication Date (Custom)
 Location
 ...
@@ -97,7 +92,6 @@ Tags
 Title
 Title (Link)
 Total number of comments
-...
 
 By default the view will be enabled for standard content types. These are
 
@@ -364,9 +358,7 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getLink('Publication Info').click()
->>> browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['item1'])
-
-#>>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/item1'})
+>>> layer.setRelatedItem(browser, "Target", "folder1/item1")
 
 >>> browser.getControl('Save').click()
 
@@ -380,7 +372,7 @@ We will now see the portlet at the folder level
   <div class="listing-item-fields-portlet">
       <dl class="pubnewsitem-item item-fields">
           <dt class="listing-field pubdate">Local Publication Date</dt>
-          <dd class="listing-field pubdate">.../.../...</dd>
+          <dd class="listing-field pubdate">01/01/2001</dd>
       </dl>
   </div>
 ...
@@ -420,7 +412,7 @@ and our custom field
 >>> print browser.contents
 <...
 <dt class="listing-field pubdate">Local Publication Date</dt>
-<dd class="listing-field pubdate">.../.../...</dd>
+<dd class="listing-field pubdate">01/01/2001</dd>
 ...
 
 Collection Portlets
@@ -453,9 +445,7 @@ True
 
 #>>> if not plone5: browser.getControl('News with publication').click()
 
->>> browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['collection1'])
-
-#>>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
+>>> layer.setRelatedItem(browser, 'Target', 'folder1/collection1')
 
 >>> browser.getControl('Save').click()
 

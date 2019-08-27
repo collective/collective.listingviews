@@ -128,6 +128,7 @@ def MetadataVocabulary(context):
             display_name = dict(total_comments=u"Total number of comments",
                                 Subject=u"Tags",
                                 review_state=u"Review State",
+                                Type=u"Portal Type",
                                 getObjSize=u"Size",
                                 getIcon=u"Icon",
                                 ).get(name, display_name)

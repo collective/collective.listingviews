@@ -1,7 +1,9 @@
+import lxml
 from plone.app.testing import PLONE_FIXTURE, PLONE_FUNCTIONAL_TESTING, PLONE_INTEGRATION_TESTING
 from plone.app.testing import PloneSandboxLayer, FunctionalTesting
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import applyProfile
+from plone.uuid.interfaces import IUUID
 from zope.configuration import xmlconfig
 from plone.testing.z2 import Browser
 from zope.testbrowser.browser import controlFactory, ItemControl
@@ -303,6 +305,20 @@ class BrowserIntegrationTesting(IntegrationTesting):
 
         #import pdb;
         #pdb.set_trace()
+
+    def setRelatedItem(self, browser, label, path):
+        name = lxml.html.fromstring(browser.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
+        name = name.replace("-",".")
+        try:
+            control = browser.getControl(name=name)
+        except:
+            # Older style widget
+            control = browser.getControl(name=name+".query.query")
+            form = self.getFormFromControl(control)
+            form.mech_form.new_control('text', name, {'value': "/"+path})
+        else:
+            item = self['portal'].restrictedTraverse(path)
+            control.value = IUUID(item)
 
     def errorlog(self):
         from Products.CMFCore.utils import getToolByName
