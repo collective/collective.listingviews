@@ -282,7 +282,7 @@ class BrowserIntegrationTesting(IntegrationTesting):
         def insert_input(control, name, value, index):
             # HACK to insert new text input into page dynamically
             if hasattr(control, 'mech_form'):
-                control.mech_form.new_control('text', name, value, index=index)
+                control.mech_form.new_control('text', name, attrs=dict(value=value), index=index)
             else:
                 #bshtml = list(control._elem.parents)[-1]
                 #item = bshtml.new_tag("input", attrs=dict(type="text", name=name, value=label))
