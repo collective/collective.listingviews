@@ -150,17 +150,17 @@ class TestRegistration(unittest.TestCase):
         " We need to test sorting in collections? "
         tal = "python:modules['DateTime.DateTime'](path('item/EffectiveDate')).strftime('%d/%m/%Y') if path('item/EffectiveDate') != 'None' else '' "
         record = CustomFieldDefinition(dict(
-            id="pubdate",
+            id="pubdate2",
             name="My Field",
             tal_statement=tal
         ))
         getRegistryFields().fields.append(record)
 
         view = addView(self.portal, dict(
-            id="pubnews",
+            id="pubnews2",
             name="News with publication",
             item_fields=['Title:'],
-            listing_fields=[":pubdate"],
+            listing_fields=[":pubdate2"],
             restricted_to_types=['Page', 'Folder', 'Collection']
         ))
 

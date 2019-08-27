@@ -431,10 +431,8 @@ We can also create a portlet on the home page listing the contents of this colle
 On the home page we have no link to item1
 
 >>> browser.getLink('Home').click()
->>> browser.getLink('item1')
-Traceback (most recent call last):
-...
-LinkNotFoundError
+>>> '01/01/2001' not in browser.contents
+True
 
 We'll create a portlet to give us links.
 Give the portlet a header.
@@ -465,8 +463,8 @@ New when we view home we  see the items inside ``folder1` based on criteria in `
 a link to the ``item1``
 
 >>> browser.getLink('Home').click()
->>> browser.getLink('item1')
-<Link text='item1' url='http://nohost/plone/folder1/item1'>
+>>> '01/01/2001' in browser.contents
+True
 
 
 Example: News listing in table view

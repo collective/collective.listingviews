@@ -4,7 +4,7 @@ from plone.app.testing import IntegrationTesting
 from plone.app.testing import applyProfile
 from zope.configuration import xmlconfig
 from plone.testing.z2 import Browser
-from zope.testbrowser.browser import controlFactory
+from zope.testbrowser.browser import controlFactory, ItemControl
 from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD, setRoles, login
 from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
 from plone.app.testing import ploneSite
@@ -221,7 +221,9 @@ class BrowserIntegrationTesting(IntegrationTesting):
                 form = browser.getForm(index=index)
             except:
                 return None
-            if form.mech_form == control.mech_form:
+            if hasattr(control,'mech_form') and form.mech_form == control.mech_form:
+                return form
+            elif hasattr(control, '_form') and form._form == control._form:
                 return form
             else:
                 index += 1
@@ -269,16 +271,38 @@ class BrowserIntegrationTesting(IntegrationTesting):
         #import pdb; pdb.set_trace()
 
         name = main_control.name.rstrip('.to').rstrip('.from')
-        options = dict([(i.mech_item._labels[0]._text, i.optionValue) for i in main_control.controls])
+        def get_label(control):
+            if hasattr(control, 'labels'):
+                return control.labels[0]
+            else:
+                return control.mech_item._labels[0]._text
+
+        options = dict([(get_label(i), i.optionValue) for i in main_control.controls])
+
+        def insert_input(control, name, value, index):
+            # HACK to insert new text input into page dynamically
+            if hasattr(control, 'mech_form'):
+                control.mech_form.new_control('text', name, value, index=index)
+            else:
+                #bshtml = list(control._elem.parents)[-1]
+                #item = bshtml.new_tag("input", attrs=dict(type="text", name=name, value=label))
+                #control._elem.insert_before(item) #before so they go in the right order
+                form = control._form
+                import webtest
+                field = webtest.forms.Field(form, "input", name, index, value=value)
+                form.fields.setdefault(name, []).append(field)
+                form.field_order.append((name, field))
 
         index = 0
         for label in labels:
             value = None
             if label not in options:
                 raise Exception("No item found with label '%s' in %s" % (label, options.keys()))
-            main_control.mech_form.new_control('text','%s:list'%name, {'value':options[label]}, index=index)
+            insert_input(main_control, '%s:list'%name, options[label], index)
             index += 1
 
+        #import pdb;
+        #pdb.set_trace()
 
     def errorlog(self):
         from Products.CMFCore.utils import getToolByName
