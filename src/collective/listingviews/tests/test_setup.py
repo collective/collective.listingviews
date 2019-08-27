@@ -2,7 +2,6 @@
 """Setup tests for this package."""
 from Products.CMFCore.utils import getToolByName
 
-from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 
@@ -53,6 +52,11 @@ class TestSetup(unittest.TestCase):
     #         utils.registered_layers())
 
 
+def getRoles(portal, user_id):
+    userFolder = portal['acl_users']
+    return userFolder.getUserById(user_id).getRoles()
+
+
 class TestUninstall(unittest.TestCase):
 
     layer = COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
@@ -60,7 +64,7 @@ class TestUninstall(unittest.TestCase):
     def setUp(self):
         self.portal = self.layer['portal']
         self.installer = get_installer(self.portal, self.layer['request'])
-        roles_before = api.user.get_roles(TEST_USER_ID)
+        roles_before = getRoles(self.portal, TEST_USER_ID)
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.installer.uninstall_product('collective.listingviews')
         setRoles(self.portal, TEST_USER_ID, roles_before)

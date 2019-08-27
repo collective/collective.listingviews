@@ -1,5 +1,7 @@
 import unittest2 as unittest
 from Products.CMFCore.utils import getToolByName
+from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 
 from collective.listingviews.browser.views.controlpanel import addView
 from collective.listingviews.interfaces import CustomFieldDefinition
@@ -25,7 +27,39 @@ class TestRegistration(unittest.TestCase):
         for i in items:
             self.assertIn(i, all_items)
 
+
+
+    def test_types_vocabulary(self):
+        factory = getUtility(IVocabularyFactory, 'plone.app.vocabularies.ReallyUserFriendlyTypes')
+        #factory = getUtility(IVocabularyFactory, 'collective.listingviews.ContentTypeVocabulary')
+        vocabulary = factory(self.portal)
+        self.assertItemsSubset([u'Collection',
+                               u'Comment',
+                               u'Event',
+                               u'File',
+                               u'Folder',
+                               u'Image',
+                               u'Link',
+                               u'News Item',
+                               u'Page'],
+                               [t.title for t in vocabulary]
+                               )
+        self.assertItemsSubset(['Collection',
+                               'Discussion Item',
+                               'Event',
+                               'File',
+                               'Folder',
+                               'Image',
+                               'Link',
+                               'News Item',
+                               'Document'],
+                               [t.value for t in vocabulary]
+                               )
+
+
     def test_fields_vocabulary(self):
+        factory = getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')
+        vocabulary = factory(self.portal)
         # TODO: backport 5.1 fields so vocab is equal on all verisons
         self.assertItemsSubset([u'Creator',
                                u'Creation Date (Date & Time)',
@@ -50,7 +84,7 @@ class TestRegistration(unittest.TestCase):
                                u'Title',
                                u'Title (Link)',
                                u'Total number of comments'],
-            [t.title for t in MetadataVocabulary(self.portal)]
+            [t.title for t in vocabulary]
             )
         self.assertItemsSubset(
                               ['Creator:',
@@ -76,7 +110,7 @@ class TestRegistration(unittest.TestCase):
                                'Title:',
                                'Title:tolink',
                                'total_comments:'],
-            [t.value for t in MetadataVocabulary(self.portal)],
+            [t.value for t in vocabulary],
             )
 
 
@@ -161,7 +195,7 @@ class TestRegistration(unittest.TestCase):
             name="News with publication",
             item_fields=['Title:'],
             listing_fields=[":pubdate2"],
-            restricted_to_types=['Page', 'Folder', 'Collection']
+            restricted_to_types=[u'Folder', u'Collection']
         ))
 
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
