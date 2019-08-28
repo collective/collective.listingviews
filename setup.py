@@ -1,7 +1,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-version = '1.0beta4'
+version = '1.0.2.dev0'
 
 long_description = (
     open('README.rst').read()
@@ -21,7 +21,12 @@ setup(name='collective.listingviews',
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
           "Framework :: Plone",
+          "Framework :: Plone :: 4.1",
           "Framework :: Plone :: 4.2",
+          "Framework :: Plone :: 4.3",
+          "Framework :: Plone :: 5.0",
+          "Framework :: Plone :: 5.1",
+          "Framework :: Plone :: 5.2",
           "Programming Language :: Python",
           "Topic :: Software Development :: Libraries :: Python Modules",
       ],
@@ -40,7 +45,7 @@ setup(name='collective.listingviews',
           # -*- Extra requirements: -*-
           'plone.app.z3cform',
       ],
-      extras_require={'test': ['plone.app.testing', 'unittest2']},
+      extras_require={'test': ['plone.app.testing', 'unittest2', 'lxml']},
       entry_points="""
       # -*- Entry points: -*-
       [z3c.autoinclude.plugin]

@@ -2,9 +2,9 @@ import re
 import logging
 from zope import schema
 from zope.component import getMultiAdapter
-from zope.formlib import form
 from zope.interface import implements
 from plone.app.portlets.portlets import base
+from plone.autoform.directives import widget
 from plone.portlets.interfaces import IPortletDataProvider
 #from plone.memoize.instance import memoize
 from collective.listingviews import LVMessageFactory as _
@@ -12,6 +12,15 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from zope.component import getUtility
 from Acquisition import aq_inner
+from plone.app.uuid.utils import uuidToObject
+
+from collective.listingviews import plone_version
+
+if plone_version >= "5":
+    from plone.app.z3cform.widget import RelatedItemsFieldWidget
+else:
+    from zope.formlib import form
+
 from plone.app.vocabularies.catalog import SearchableTextSourceBinder
 
 try:
@@ -49,15 +58,30 @@ class IListingPortlet(IPortletDataProvider):
         vocabulary="collective.listingviews.ListingViewVocabulary",
         required=True)
 
-    root = schema.Choice(
-            title=_(u"label_listing_root_path", default=u"Target"),
-            description=_(u'help_listing_root',
-                          default=u"Select an item to show the fields of that item; or "
-                                    "select a folder or collection to list the contents; or "
-                                    "leave blank to use the current item."),
-            required=False,
-            source=SearchableTextSourceBinder({},
-                                              default_query='path:'))
+    if plone_version >= "5":
+        widget(
+            'root',
+            RelatedItemsFieldWidget,
+            pattern_options={
+                'selectableTypes': ['Collection']
+            })
+        root = schema.Choice(
+                title=_(u"label_listing_root_path", default=u"Target"),
+                description=_(u'help_listing_root',
+                              default=u"Select an item to show the fields of that item; or "
+                                        "select a folder or collection to list the contents; or "
+                                        "leave blank to use the current item."),
+                required=False,
+                vocabulary='plone.app.vocabularies.Catalog')
+    else:
+        root = schema.Choice(
+                title=_(u"label_listing_root_path", default=u"Target"),
+                description=_(u'help_listing_root',
+                              default=u"Select an item to show the fields of that item; or "
+                                        "select a folder or collection to list the contents; or "
+                                        "leave blank to use the current item."),
+                required=False,
+                source=SearchableTextSourceBinder({'is_folderish' : True}))
 
     omit_border = schema.Bool(
         title=_(u"Omit portlet border"),
@@ -164,18 +188,22 @@ class ListingRenderer(base.Renderer):
         return self.adapter.show_view
 
     def _container(self):
-        try:
-            portal_state = getMultiAdapter((self.context, self.request),
-                                           name=u'plone_portal_state')
-            portal = portal_state.portal()
-            path = self.data.root
-            if path and path.startswith('/'):
-                # https://github.com/plone/plone.portlet.static
-                path = path[1:]
+        if plone_version >= "5":
+            return uuidToObject(self.data.root)
+        else:
+            try:
+                portal_state = getMultiAdapter((self.context, self.request),
+                                               name=u'plone_portal_state')
+                portal = portal_state.portal()
+                path = self.data.root
+                if path and path.startswith('/'):
+                    # https://github.com/plone/plone.portlet.static
+                    path = path[1:]
 
-            return portal.restrictedTraverse(path, default=False)
-        except:
-            return False
+                return portal.restrictedTraverse(path, default=False)
+            except:
+                return False
+
 
     def portlet_items(self):
         """Main function that do everything.
@@ -203,7 +231,9 @@ class ListingAddForm(base.AddForm):
     zope.formlib which fields to display. The create() method actually
     constructs the assignment that is being added.
     """
-    form_fields = form.Fields(IListingPortlet)
+    schema = IListingPortlet
+    if plone_version < "5":
+        form_fields = form.Fields(IListingPortlet)
     label = _(u"title_add_listing_portlet", default=u"Add listing view portlet")
     description = _(u"description_listing_portlet",
         default=u"A portlet which can listing custom fields.")
@@ -222,7 +252,9 @@ class ListingEditForm(base.EditForm):
     This is registered with configure.zcml. The form_fields variable tells
     zope.formlib which fields to display.
     """
-    form_fields = form.Fields(IListingPortlet)
+    schema = IListingPortlet
+    if plone_version < "5":
+        form_fields = form.Fields(IListingPortlet)
     label = _(u"title_edit_listing_portlet", default=u"Edit listing view portlet")
     description = _(u"description_listing_portlet",
         default=u"A portlet which can listing custom fields.")

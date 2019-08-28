@@ -8,25 +8,23 @@
     i18n_domain="collective.listingviews">
 
   <five:registerPackage package="." initialize=".initialize" />
-  
-  <include package="plone.app.z3cform" />
-  <include package="plone.app.registry" />
-  
+
   <include package=".browser" />
 
   <include file="profiles.zcml" />
 
   <!-- -*- extra stuff goes here -*- -->
 
+
   <utility
         provides="zope.schema.interfaces.IVocabularyFactory"
-        component=".interfaces.ListingViewVocabulary"
+        component=".vocabularies.ListingViewVocabulary"
         name="collective.listingviews.ListingViewVocabulary"
         />
 
   <utility
         provides="zope.schema.interfaces.IVocabularyFactory"
-        component=".interfaces.MetadataVocabulary"
+        component=".vocabularies.MetadataVocabulary"
         name="collective.listingviews.MetadataVocabulary"
         />
 
@@ -36,4 +34,18 @@
         component=".vocabularies.ContentTypeVocabulary"
         name="collective.listingviews.ContentTypeVocabulary"
         />
+
+
+  <adapter
+    name="collective.listingviews.interfaces.ICustomFieldDefinition"
+    factory=".interfaces.CustomFieldDefinitionFactory"
+    />
+
+  <adapter
+    name="collective.listingviews.interfaces.IListingDefinition"
+    factory=".interfaces.ListingDefinitionFactory"
+    />
+
+
+
 </configure>

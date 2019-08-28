@@ -8,6 +8,8 @@
   <include package="plone.app.contentmenu" />
   <include package="Products.CMFCore" />
   <include package="plone.app.registry" />
+  <include package="plone.app.z3cform" />
+
 
   <!-- Control panel -->
 
@@ -41,7 +43,7 @@
 
     <subscriber
         for="Products.CMFPlone.interfaces.IPloneSiteRoot
-             zope.app.publication.interfaces.IBeforeTraverseEvent"
+             zope.traversing.interfaces.IBeforeTraverseEvent"
         handler=".controlpanel.registerMenuItems"
         />
 
@@ -65,19 +67,27 @@
       name="listing_view_adapter"
       class=".basic.BasicListingInformationRetriever"
       permission="zope2.View"
+      zcml:condition="installed Products.Archetypes"
        />
   <browser:page
       for="Products.ATContentTypes.interface.IATTopic"
       name="listing_view_adapter"
-      class=".basic.BasicTopicListingInformationRetriever"
+      class=".collection.BasicTopicListingInformationRetriever"
       permission="zope2.View"
       zcml:condition="installed Products.ATContentTypes"/>
   <browser:page
       for="plone.app.collection.interfaces.ICollection"
       name="listing_view_adapter"
-      class=".collection.BasicCollectionListingInformationRetriever"
+      class=".collection.AppCollectionListingInformationRetriever"
       permission="zope2.View"
-       zcml:condition="installed plone.app.collection"/>
+      zcml:condition="installed plone.app.collection"/>
+  <browser:page
+      for="plone.app.contenttypes.interfaces.ICollection"
+      name="listing_view_adapter"
+      class=".collection.ContentTypesCollectionListingInformationRetriever"
+      permission="zope2.View"
+      zcml:condition="installed plone.app.contenttypes"/>
+
   <browser:page
       for="*"
       name="listing_view_adapter"
