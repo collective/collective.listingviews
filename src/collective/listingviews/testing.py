@@ -1,4 +1,3 @@
-import lxml
 from plone.app.testing import PLONE_FIXTURE, PLONE_FUNCTIONAL_TESTING, PLONE_INTEGRATION_TESTING
 from plone.app.testing import PloneSandboxLayer, FunctionalTesting
 from plone.app.testing import IntegrationTesting
@@ -9,9 +8,8 @@ from plone.testing.z2 import Browser
 from zope.testbrowser.browser import controlFactory, ItemControl
 from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD, setRoles, login
 from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
-from plone.app.testing import ploneSite
 from Products.CMFCore.utils import getToolByName
-from plone.app.testing import helpers
+from lxml import etree
 
 
 class CollectiveListingviews(PloneSandboxLayer):
@@ -60,14 +58,15 @@ class CollectiveListingviews(PloneSandboxLayer):
         portal.folder1.item2.setEffectiveDate('12/31/2000')
         portal.folder1.item2.reindexObject()
 
-        is_topic = False
         try:
             portal.folder1.invokeFactory('Collection', 'collection1', title=u"collection1")
         except ValueError:
             portal.folder1.invokeFactory('Topic', 'collection1', title=u"collection1")
-            is_topic = True
-
-        if not is_topic:
+            topic = portal.folder1.collection1
+            path_crit = topic.addCriterion('path', 'ATRelativePathCriterion')
+            path_crit.setRelativePath('..')   # should give the parent==folderA1
+            topic.setSortCriterion('effective', True) #
+        else:
             collection = portal.folder1.collection1
             query = [{
                         'i': 'path',
@@ -76,16 +75,9 @@ class CollectiveListingviews(PloneSandboxLayer):
                     }]
                     # set the query and publish the collection
             collection.setQuery(query)
-            collection.sort_on = u'effective'
+            collection.sort_on = u'Effective'
             collection.reversed = True
-        else:
-            topic = portal.folder1.collection1
 
-            path_crit = topic.addCriterion('path', 'ATRelativePathCriterion')
-            path_crit.setRelativePath('..')   # should give the parent==folderA1
-            sort_crit = topic.addCriterion('effective', 'ATSortCriterion') # 
-            sort_crit.setReversed(True)
-            
         portal.folder1.collection1.reindexObject()
 
 class CollectiveListingviewsTiles(CollectiveListingviews):
@@ -307,7 +299,7 @@ class BrowserIntegrationTesting(IntegrationTesting):
         #pdb.set_trace()
 
     def setRelatedItem(self, browser, label, path):
-        name = lxml.html.fromstring(browser.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
+        name = etree.HTML(browser.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
         name = name.replace("-",".")
         try:
             control = browser.getControl(name=name)

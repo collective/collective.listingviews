@@ -72,7 +72,7 @@
   <browser:page
       for="Products.ATContentTypes.interface.IATTopic"
       name="listing_view_adapter"
-      class=".basic.BasicTopicListingInformationRetriever"
+      class=".collection.BasicTopicListingInformationRetriever"
       permission="zope2.View"
       zcml:condition="installed Products.ATContentTypes"/>
   <browser:page
