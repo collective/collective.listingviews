@@ -12,7 +12,7 @@
         <metal:define define-macro="listing_view">
           <!-- we adapt our local context and request and our setting to determine what to list -->
 
-        <div class="listingviews" tal:define="adapter nocall:context/@@listing_view_adapter;
+        <div class="listingviews" tal:define="adapter nocall:view/listing_view_adapter;
             batch folderContents | adapter/retrieve_listing_items;">
           <div class="listing-collection-view"
             tal:define="class_name python: adapter.listing_style_class;
@@ -28,7 +28,7 @@
                 </dl>
               </div>
               <tal:core-macro metal:define-macro="content-core"
-                              tal:define="adapter adapter | nocall:context/@@listing_view_adapter;
+                              tal:define="adapter adapter | nocall:view/listing_view_adapter;
                               batch folderContents | adapter/retrieve_listing_items;
                               class_name python: adapter.listing_style_class;">
 

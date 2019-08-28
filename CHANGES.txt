@@ -4,7 +4,10 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for the p.a.standardtiles listing tile.
+  [Dylan Jay]
+- Fix tests for 4.1-5.2
+  [Dylan Jay]
 
 
 1.0.1 (2019-01-17)

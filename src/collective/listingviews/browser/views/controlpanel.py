@@ -1,10 +1,14 @@
 from OFS.SimpleItem import SimpleItem
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 from plone.app.registry.browser import controlpanel
+from z3c.form.object import registerFactoryAdapter, FactoryAdapter
+
 from collective.listingviews import LVMessageFactory as _
+from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
-    IListingControlPanel, IListingCustomFieldControlPanel, ICustomFieldDefinition, all_types)
-from zope.interface import implements, alsoProvides
+                                                IListingControlPanel, IListingCustomFieldControlPanel,
+                                                ICustomFieldDefinition, ListingDefinition)
+from zope.interface import implements, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
 from zope.component import adapts, getUtility, getAdapters
@@ -14,7 +18,7 @@ from zope.browser.interfaces import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest, IBrowserPublisher
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from Products.CMFCore.interfaces import IFolderish, IContentish
-from collective.listingviews.utils import ComplexRecordsProxy
+from collective.listingviews.utils import ComplexRecordsProxy, getViewName, getRegistryViews, getRegistryFields
 from five.customerize.zpt import TTWViewTemplate
 from collective.listingviews.browser.views.listing_view import ListingView
 from Products.CMFCore.utils import getToolByName
@@ -22,43 +26,33 @@ from zope.browsermenu.interfaces import IBrowserMenu
 from zope.browsermenu.metaconfigure import addMenuItem, MenuItemFactory, menuItemDirective
 from zope.browsermenu.menu import BrowserMenu, BrowserMenuItem, BrowserSubMenuItem
 from zope.browsermenu.interfaces import IBrowserMenuItem
-from Products.ATContentTypes.permission import ModifyViewTemplate
 from plone.z3cform.crud import crud
 from plone.z3cform import layout
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.form import AutoObjectSubForm, AutoFields, AutoExtensibleForm
 from z3c.form import field, form, button
 from zope.cachedescriptors.property import Lazy as lazy_property
+
+from collective.listingviews.vocabularies import all_types
+
 try:
     from plone.protect.interfaces import IDisableCSRFProtection
 except ImportError:
     IDisableCSRFProtection = None
     # plone 4
 
-
-def getViewName(view_id):
-    return 'collective.listingviews.%s'%view_id
-
-def getListingNameFromView(view_name):
-    #TODO beter way then replace, could appear in the middle.
-    return view_name.replace('collective.listingviews.', '')
+try:
+    from plone.app.standardtiles.contentlisting import IContentListingTileLayer
+    MOSAIC = True
+except ImportError:
+    MOSAIC = False
 
 
-def getRegistryViews():
-    reg = getUtility(IRegistry)
-    proxy = ComplexRecordsProxy(reg, IListingControlPanel, prefix='collective.listingviews',
-                                key_names={'views':'id'})
-    return proxy
 
-def getRegistryFields():
-    reg = getUtility(IRegistry)
-    proxy = ComplexRecordsProxy(reg, IListingCustomFieldControlPanel,
-                                   prefix='collective.listingviews.customfield',
-                                   key_names={'fields': 'id'})
-    return proxy
-
-
-def addView(portal, view):
+def addView(portal, data):
+    views = getRegistryViews().views
+    view = ListingDefinition(data)
+    views.append(view)
     view_name = getViewName(view.id)
     sm = getSiteManager(portal)
     sm.registerAdapter(ListingView,
@@ -77,15 +71,42 @@ def addView(portal, view):
         if view_name not in fti.view_methods:
             fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
 
+    # Register the view also for tiles if standardtiles is installed
+    registry = getUtility(IRegistry)
+    stlisting_views = registry.get('plone.app.standardtiles.listing_views', None)
+    if stlisting_views is not None:
+        # Adapter the various listing views in the content listing tile
+        sm.registerAdapter(ContentListingTileView,
+                           required=(Interface, IContentListingTileLayer),
+                           provided=IBrowserView,
+                           name=view_name)
+        if view_name not in stlisting_views:
+            stlisting_views[view_name] = unicode(view.name)
+
+    _registerMenuItems()
+    return view_name
+
+
+
 def removeView(portal, view):
     view_name = getViewName(view.id)
     sm = getSiteManager(portal)
     sm.unregisterAdapter(required = (IContentish, IBrowserRequest),
                        provided = IBrowserView,
                        name = view_name)
+    registry = getUtility(IRegistry)
+    stlisting_views = registry.get('plone.app.standardtiles.listing_views', None)
+    if stlisting_views is not None:
+        sm.unregisterAdapter(ListingView,
+                           required=(IContentish, IContentListingTileLayer),
+                           provided=IBrowserView,
+                           name=view_name)
+        if view_name in stlisting_views:
+            del stlisting_views[view_name]
 
 
-# We need to register our menuitems the first time it's accessed
+# We need to register our menuitems the first time it's accessed per thread as we can't use local site manager
+# called from zope.app.publication.interfaces.IBeforeTraverseEvent
 def registerMenuItems(site, event, _handled=set()):
     if site.getPhysicalPath() not in _handled:
         _registerMenuItems()
@@ -129,15 +150,6 @@ def _registerMenuItems():
 
         #assert menu.getMenuItemByAction(IFolderish, self.request, view_name)
         # pp [x for x in gsm.registeredAdapters() if x.provided == menu.getMenuItemType()]
-
-
-class ListingDefinition(object):
-    implements(IListingDefinition)
-
-    def __init__(self, data):
-        for key,value in data.items():
-            setattr(self, key, value)
-
 
 
 # plone.z3cform.crud based implementation
@@ -198,11 +210,7 @@ class ListingViewSchemaListing(crud.CrudForm):
         return [(v.id, v) for v in getRegistryViews().views if v.id]
 
     def add(self, data):
-        views = getRegistryViews().views
-        record = ListingDefinition(data)
-        views.append(record)
-        addView(self.context, record)
-        _registerMenuItems()
+        addView(self.context, data)
 
     def remove(self, (name, item)):
         """ Remove a schema.
@@ -356,6 +364,8 @@ class ListingViewEditContext(SimpleItem):
 #    implements(IListingCustomFieldControlPanel)
 #class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
 #    form = ListingControlPanelForm
+
+
 
 
 class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):

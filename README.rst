@@ -8,7 +8,12 @@ Introduction
 
 ``collective.listingviews`` allows a Plone site administrator to quickly create a new display
 view their content types, folders, collections and eea.facetnavigation. It will also let you create
-custom portlets.
+custom portlets and mosaic tiles. Compatible Plone 4.1-5.2.
+
+- you will not have to deploy a new plugin, unlike creating your own views in python and Page Templates
+- you will not have to learn Page Templates, unlike ambidexterity or collective.themefragments
+- your views will appear in the display menu, unlike ambidexterity or collective.themefragments
+- you can have as many alternative views as you want for a given content type, unlike ambidexterity
 
 .. |listingviews| image:: https://cloud.githubusercontent.com/assets/41700/5023294/b6f6e9e0-6b27-11e4-8516-2b4a50ef66c5.png
   :width: 50pt  
@@ -26,17 +31,22 @@ custom portlets.
 2. Select the fields you want to display and give your view a name and class tag. Pick which content types this view will be 
    available to. 
    |edit listing view|
-4. Once you've added your view definition you can use the "Display Menu" or "Listing view portlet" to apply this view where you want. 
-   If you use it on a folder or
-   collection it display a list items with just the fields you defined. If you use your view on a single item, it will display a list
-   with a single set of fields. If you use a portlet, you can either point it to a fixed item, folder or collection, or it will display
-   the content of the current context. 
-   |display menu| 
+3. Once you've added your view definition you can use the lising view in the following
+   - "Display Menu" on a folder - displays both folder fields + contents fields
+   - "Display Menu" on a collection - display both collection fields + collected item fields
+   - "Display Menu" on a Page or other content type to display that items fields - displays just the item fields
+   - "Listing view portlet" pointing to a target collection or folder or item
+   - "Listing view portlet" to show fields and/or lists of the current context
+   - Standard tiles "Content Listing Tile". Select your view from the "listing view" list
+   |display menu|
    |unthemed| 
-5. If you require further customisation: use diazo to customise the layout/html of your fields or you can 
+4. If you require further customisation: use diazo to customise the layout/html of your fields or you can
    use custom fields via "Site setup" if you need combine field values, format a value or access plone api's.
    |themed| 
-   
+5. For non-default metadata you can use the "Custom Fields" control panel to add additional calculated fields
+   that be view used in any of your listing views.
+
+
 For example you could
 
 - create a news listing which displays the first sentance and publish date of each news item
@@ -115,9 +125,6 @@ We have some ideas on where this could go:
 
 - Nicer GS import/export. Currently uses plone.app.registry.
 - Safe HTML filtering for all fields. Currently not implemented.
-- Support `plone.app.contentlistingtile`_ for Deco or ``collective.cover``.
-  ``contentlistingtile`` allows custom views to be selected so this should
-  be simple.
 - Preview/export as ZPT. This provides a way to learn ZPT and a base to start
   from when more complex views are needed.
 - Debug custom fields. Allow selection of content to test fields quickly.
@@ -127,7 +134,7 @@ We have some ideas on where this could go:
 - Support customisation of batching settings.
 - Allow GET requests so that the list can act as a custom search listing
   page.
-- Support grouping.
+- Support grouping (or you can use collective.fieldcollapsing)
 - Support hierarchical listing. Allow navigation portlets, sitemaps with
   additional fields. Maybe different kind of views?  Maybe allow views to be
   used as fields within other views?

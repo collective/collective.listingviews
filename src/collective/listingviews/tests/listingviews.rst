@@ -19,7 +19,7 @@ Instead here is how you do it using a ListingView.
 First we need to create a custom field using TAL since we want a custom date format rather than Plones default.
 A TAL Expression like the following will work.
 
->>> tal = "python:item.effective.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
+>>> tal = "python:modules['DateTime.DateTime'](path('item/EffectiveDate')).strftime('%d/%m/%Y') if path('item/EffectiveDate') != 'None' else '' "
 
 - Go to ``Site Setup > Listing Custom Fields > Add``
 - The ``Id`` is unique and is also used as a CSS class in the final html
@@ -30,11 +30,19 @@ A TAL Expression like the following will work.
 >>> browser = layer['manager']
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
+>>> print browser.contents
+<...Add...
+
 >>> browser.getControl('Add').click()
 >>> browser.getControl('Id').value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
 >>> browser.getControl('TAL expression').value = tal
+>>> browser.getControl('Additional CSS classes').value = ""
 >>> browser.getControl('Save').click()
+>>> print browser.contents
+<...
+...Changes saved...
+...
 
 
 Creating a listing view
@@ -55,7 +63,7 @@ These fields come from either standard metadata or the custom fields we add.
 True
 
 
-#>>> print '\n'.join( sorted(browser.getControl('Title', index=1).control.displayOptions) )
+#>>> print '\n'.join(sorted(browser.getControl('Title', index=1).control.displayOptions) )
 Creation Date (Date & Time)
 Creation Date (Date)
 Creator
@@ -64,24 +72,26 @@ Effective Date (Date & Time)
 Effective Date (Date)
 End Date (Date & Time)
 End Date (Date)
+...
 Expiration Date (Date & Time)
 Expiration Date (Date)
+...
+Local Publication Date (Custom)
+Location
+...
+Modification Date (Date & Time)
+Modification Date (Date)
+Portal Type
+Review State
 Short Name
 Short Name (Link)
 Size
-Local Publication Date (Custom)
-Location
-Modification Date (Date & Time)
-Modification Date (Date)
-State
 Start Date (Date & Time)
 Start Date (Date)
 Tags
 Title
 Title (Link)
 Total number of comments
-Item Type
-...
 
 By default the view will be enabled for standard content types. These are
 
@@ -115,8 +125,7 @@ and finally we'll enable the view for all content types
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
 >>> layer.setInAndOut(browser, ['Title'], index=1)
->>> if plone5: layer.setInAndOut(browser, ['Title', 'Title (Link)', 'EffectiveDate (Date)', 'Local Publication Date (Custom)'], index=3)
->>> if not plone5: layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
+>>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
 >>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
@@ -188,14 +197,14 @@ Note the html is in exactly the same order as we specifed in our view definition
 
 >>> print browser.contents
 <...
-    <dt class="listing-field field-EffectiveDate-localshort">Effective...Date (Date)</dt>
-    <dd class="listing-field field-EffectiveDate-localshort"></dd>
+    <dt class="listing-field field-...-localshort">Effective...Date (Date)</dt>
+    <dd class="listing-field field-...-localshort">Jan 01, 2001</dd>
 ...
 
 >>> print browser.contents
 <...
     <dt class="listing-field pubdate">Local Publication Date</dt>
-    <dd class="listing-field pubdate"></dd>
+    <dd class="listing-field pubdate">01/01/2001</dd>
 ...
 
 
@@ -349,8 +358,8 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getLink('Publication Info').click()
->>> if plone5: browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['item1'])
->>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/item1'})
+>>> layer.setRelatedItem(browser, "Target", "folder1/item1")
+
 >>> browser.getControl('Save').click()
 
 #TODO show what happens if we pick an item of invalid type
@@ -363,7 +372,7 @@ We will now see the portlet at the folder level
   <div class="listing-item-fields-portlet">
       <dl class="pubnewsitem-item item-fields">
           <dt class="listing-field pubdate">Local Publication Date</dt>
-          <dd class="listing-field pubdate">.../.../...</dd>
+          <dd class="listing-field pubdate">01/01/2001</dd>
       </dl>
   </div>
 ...
@@ -403,7 +412,7 @@ and our custom field
 >>> print browser.contents
 <...
 <dt class="listing-field pubdate">Local Publication Date</dt>
-<dd class="listing-field pubdate">.../.../...</dd>
+<dd class="listing-field pubdate">01/01/2001</dd>
 ...
 
 Collection Portlets
@@ -414,10 +423,8 @@ We can also create a portlet on the home page listing the contents of this colle
 On the home page we have no link to item1
 
 >>> browser.getLink('Home').click()
->>> browser.getLink('item1')
-Traceback (most recent call last):
-...
-LinkNotFoundError
+>>> '01/01/2001' not in browser.contents
+True
 
 We'll create a portlet to give us links.
 Give the portlet a header.
@@ -430,23 +437,24 @@ name for ``collection1`` in the ``Target`` field.
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Collection Portlet'
->>> if not plone5:
-...     browser.getControl('Listing views').displayOptions == ['(nothing selected)', 'News with publication', 'Publication Info']
-... else:
-...     browser.getControl('Listing views').displayOptions == ['News with publication', 'Publication Info']
+>>> 'News with publication' in browser.getControl('Listing views').displayOptions
 True
->>> if plone5: browser.getControl('Listing views').value = ['pubnews']
->>> if not plone5: browser.getControl('News with publication').click()
->>> if plone5: browser.getForm('form').getControl(name='form.widgets.root').value = IUUID(plone['folder1']['collection1'])
->>> if not plone5: browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
+>>> 'Publication Info' in browser.getControl('Listing views').displayOptions
+True
+>>> browser.getControl('Listing views').value = ['pubnews']
+
+#>>> if not plone5: browser.getControl('News with publication').click()
+
+>>> layer.setRelatedItem(browser, 'Target', 'folder1/collection1')
+
 >>> browser.getControl('Save').click()
 
 New when we view home we  see the items inside ``folder1` based on criteria in ``collection1``, so we'll see
 a link to the ``item1``
 
 >>> browser.getLink('Home').click()
->>> browser.getLink('item1')
-<Link text='item1' url='http://nohost/plone/folder1/item1'>
+>>> '01/01/2001' in browser.contents
+True
 
 
 Example: News listing in table view
