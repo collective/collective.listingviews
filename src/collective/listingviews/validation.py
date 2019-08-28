@@ -38,7 +38,7 @@ def validate_class(value):
     """
     #http://www.w3.org/TR/CSS21/grammar.html#scanner
     #http://stackoverflow.com/questions/448981/what-characters-are-valid-in-css-class-names
-    if not re.match("^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$", value):
+    if value and not re.match("^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$", value):
         #raise Invalid(_(u"Id must only contains alphanumeric or underscore, starting with alpha."))
         raise InvalidClass(value)
     return True
