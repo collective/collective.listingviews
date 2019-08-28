@@ -1,6 +1,7 @@
 import unittest2 as unittest
 from Products.CMFCore.utils import getToolByName
 from zope.component import getUtility
+from zope.globalrequest import getRequest
 from zope.schema.interfaces import IVocabularyFactory
 
 from collective.listingviews.browser.views.controlpanel import addView
@@ -8,9 +9,13 @@ from collective.listingviews.interfaces import CustomFieldDefinition
 from collective.listingviews.testing import\
     COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
 from collective.listingviews.utils import getRegistryFields
-from collective.listingviews.vocabularies import MetadataVocabulary
+from collective.listingviews import plone_version
+PLONE5 = plone_version >= "5"
 
 
+def fudgeRequest():
+    if plone_version < "4.2.0":
+        getRequest()['ACTUAL_URL'] = 'dummy'
 
 
 class TestRegistration(unittest.TestCase):
@@ -22,6 +27,7 @@ class TestRegistration(unittest.TestCase):
         self.portal = self.layer['portal']
         self.qi_tool = getToolByName(self.portal, 'portal_quickinstaller')
         self.maxDiff = 2000
+
 
     def assertItemsSubset(self, items, all_items):
         for i in items:
@@ -44,8 +50,7 @@ class TestRegistration(unittest.TestCase):
                                u'Page'],
                                [t.title for t in vocabulary]
                                )
-        self.assertItemsSubset(['Collection',
-                               'Discussion Item',
+        self.assertItemsSubset(['Discussion Item',
                                'Event',
                                'File',
                                'Folder',
@@ -123,6 +128,7 @@ class TestRegistration(unittest.TestCase):
             listing_fields=["EffectiveDate:localshort"],
             restricted_to_types=[]
         ))
+        fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'Dec 31, 2000', )
 
@@ -135,6 +141,7 @@ class TestRegistration(unittest.TestCase):
             listing_fields=["EffectiveDate:localshort"],
             restricted_to_types=[]
         ))
+        fudgeRequest()
         body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'Dec 31, 2000', )
 
@@ -148,6 +155,7 @@ class TestRegistration(unittest.TestCase):
             listing_fields=[],
             restricted_to_types=[]
         ))
+        fudgeRequest()
         body = self.portal.folder1.item1.unrestrictedTraverse("@@" + view)()
         self.assertRegexpMatches(body, 'Jan 01, 2001 12:00 AM', )
 
@@ -177,6 +185,7 @@ class TestRegistration(unittest.TestCase):
             listing_fields=[":myfield"],
             restricted_to_types=[]
         ))
+        fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'hello world', )
 
@@ -195,9 +204,11 @@ class TestRegistration(unittest.TestCase):
             name="News with publication",
             item_fields=['Title:'],
             listing_fields=[":pubdate2"],
-            restricted_to_types=[u'Folder', u'Collection']
+            restricted_to_types=[u'Folder', u'Collection' if plone_version >= "4.2.0" else "Topic"]
         ))
 
+        fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         #self.assertRegexpMatches(body, '(?m)31/12/2000.*01/01/2001')
-        self.assertGreater(body.index("01/01/2001"), body.index("31/12/2000"))
+        # should be reverse date order
+        self.assertLess(body.index("01/01/2001"), body.index("31/12/2000"))
