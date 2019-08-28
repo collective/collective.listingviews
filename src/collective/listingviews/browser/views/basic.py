@@ -91,35 +91,3 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         return True
 
 
-class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
-    implements(IListingAdapter)
-
-    @property
-    @memoize
-    def retrieve_listing_items(self):
-        """
-        A catalog search should be faster especially when there
-        are a large number of fields in the view. No need
-        to wake up all the objects.
-        """
-        query = self.context.buildQuery()
-        if query is not None:
-            should_limit = self.context.getLimitNumber()
-            limit = self.context.getItemCount()
-            if not limit:  # also make sure we have more than 0 items
-                should_limit = False
-            if should_limit:
-                query['sort_limit'] = limit
-            catalog = getToolByName(self.context, 'portal_catalog')
-            items = catalog(query)
-            if should_limit:
-                items = items[:limit]
-        else:
-            return []
-
-        if self.listing_view_batch_size:
-            items = Batch(items,
-                self.listing_view_batch_size,
-                int(self.request.get('b_start', 0)),
-                orphan=1)
-        return items

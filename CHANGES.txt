@@ -1,29 +1,74 @@
 Changelog
 =========
 
-1.0beta3 (unreleased)
+1.0.2 (unreleased)
+------------------
+
+- Add support for the p.a.standardtiles listing tile.
+  [Dylan Jay]
+- Fix tests for 4.1-5.2
+  [Dylan Jay]
+- fix typos and update 'Working Examples'
+  [Kaif Khan]
+
+
+1.0.1 (2019-01-17)
+------------------
+
+- Fix broken release
+ [instification]
+
+
+1.0 (2019-01-17)
+----------------
+
+- Make Plone 5 compatible
+  [Dylan Jay, instification]
+- Fix bug where collections view were ignoring sort order
+  [David Bain]
+- Fix exclude the navigation if it is not container or batch number is zero.
+  [Ivan Teoh]
+
+1.0beta3 (2013-09-11)
 ---------------------
 
-- fix import of getSite to work with Plone 4.3
+- Fix import of getSite to work with Plone 4.3
+  [vangheem]
+- Removed 'location' field as it has other meaning in catalog and 'Title' gives
+  you the same info
+  [Dylan Jay]
 
 1.0beta2 (2013-01-31)
 ---------------------
-- fixed bug where can set dynamic view for 'Discussion Item' [Dylan Jay]
+
+- Fixed bug where can set dynamic view for 'Discussion Item'
+  [Dylan Jay]
 
 1.0beta1 (2013-01-30)
 ---------------------
 
-- Renamed TAL attributes. object->item (catalog metadata), context->object [Dylan Jay]
-- Functional tests [Dylan Jay]
-- Use CRUD z3cform framework and autoform so make easier to use and easier to replace widgets  [Dylan Jay]
-- Make "Restricted to types" work [Dylan Jay]
-- Add date and link filters  [Dylan Jay]
-- Views appear in display menu directly [Dylan Jay]
+- Renamed TAL attributes. object->item (catalog metadata), context->object
+  [Dylan Jay]
+- Functional tests
+  [Dylan Jay]
+- Use CRUD z3cform framework and autoform so make easier to use and easier to
+  replace widgets
+  [Dylan Jay]
+- Make "Restricted to types" work
+  [Dylan Jay]
+- Add date and link filters
+  [Dylan Jay]
+- Views appear in display menu directly
+  [Dylan Jay]
 
 1.0alpha1 (unreleased)
 ----------------------
 
-- Refactor to support eea.facetednavigation [Dylan Jay]
-- Precompile TAL expressions before loop [Dylan Jay]
-- Initial version [Ivan Teoh]
-- Package created using templer [Ivan Teoh]
+- Refactor to support eea.facetednavigation
+  [Dylan Jay]
+- Precompile TAL expressions before loop
+  [Dylan Jay]
+- Initial version
+  [Ivan Teoh]
+- Package created using templer
+  [Ivan Teoh]

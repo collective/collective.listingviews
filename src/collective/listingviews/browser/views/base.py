@@ -1,8 +1,9 @@
+import inspect
+
 import Missing
 from DateTime import DateTime
+from zope.schema.interfaces import IVocabularyFactory
 from collective.listingviews import LVMessageFactory as _
-from collective.listingviews.interfaces import IListingAdapter\
-
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout
     from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
@@ -10,16 +11,26 @@ except ImportError:
     IFacetedLayout = None
     IFacetedNavigable = None
     IFacetedSearchMode = None
+from collective.listingviews.interfaces import IListingAdapter
+from collective.listingviews.utils import getListingNameFromView, getRegistryViews, getRegistryFields
 
-from zLOG import LOG, INFO
 from zope.interface import implements
-from zope.component import getMultiAdapter
+from zope.component import getMultiAdapter, getUtility
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, getExprContext
 from plone.uuid.interfaces import IUUID
 from Products.Five import BrowserView
 from plone.memoize.instance import memoize
-from collective.listingviews.browser.views.controlpanel import getRegistryFields, getRegistryViews, getListingNameFromView
+
+
+class InvalidListingViewField(Expression):
+    pass
+
+def getAdapterName():
+    for frame, file, lineno, name, line, _ in inspect.stack():
+        # HACK
+        if 'zope/interface/adapter.py' in file and name == 'queryMultiAdapter':
+            return inspect.getargvalues(frame).locals['name']
 
 
 
@@ -34,8 +45,10 @@ class BaseListingInformationRetriever(BrowserView):
         self.context = context
         self.request = request
 
-        #TODO: this won't work with p.a.collections
-        self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
+        #self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
+        vocab = getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')(context)
+        self.metadata_display = {item.value: item.title for item in vocab}
+        #TODO item.title here is the title for the filter on it. We want the one before the filter was added
 
         plone_util = getMultiAdapter((self.context, self.request), name="plone")
         self.filters = dict(
@@ -43,17 +56,6 @@ class BaseListingInformationRetriever(BrowserView):
             locallong = lambda item, value: plone_util.toLocalizedTime(value, long_format=1),
             tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value)
         )
-
-        #Tricky part to work out the listing view thats been picked
-        if IFacetedLayout is not None and \
-            (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
-            # Case: It's being used from facetednavigation
-            self.set_listing_view(getListingNameFromView(IFacetedLayout(self.context).layout))
-        else:
-            # Case: It's being used from a normal display menu view
-            view_name = request.getURL().split('/')[-1]
-            self.set_listing_view(getListingNameFromView(view_name))
-        # Case: portlet will call setListingView itself
 
 
     def set_listing_view(self, view_name):
@@ -75,12 +77,12 @@ class BaseListingInformationRetriever(BrowserView):
 
         for field in fields:
             if ":" not in field:
-                raise Exception( "No valid field: %s (No colon)" % field )
+                raise InvalidListingViewField( "No valid field: %s (No colon)" % field )
 
             subfield = field.split(":")
 
             if len(subfield) is not 2:
-                raise Exception( "No valid field: %s (Too many colons)" % field )
+                raise InvalidListingViewField( "No valid field: %s (Too many colons)" % field )
 
             field, func = subfield
 
@@ -174,12 +176,11 @@ class BaseListingInformationRetriever(BrowserView):
 
         filter_func = self.filters.get(filter_name, None)
 
-#        plone = getMultiAdapter((self.context, self.request), name="plone")
-
-        if field_name in self.metadata_display:
-            field = self.metadata_display[field_name]
+        key = "%s:%s" % (field_name, filter_name)
+        if key in self.metadata_display:
+            field = self.metadata_display[key]
         else:
-            raise Exception("Field no longer exists '%s'" % field_name)
+            raise InvalidListingViewField("Field no longer exists '%s'" % field_name)
 
         #TODO need better function to make valid css class
         if not filter_name:
@@ -188,21 +189,14 @@ class BaseListingInformationRetriever(BrowserView):
             css_class = "field-%s-%s" % (field_name, filter_name)
 
         def value(item):
-            # metadata does not have location
-
-#            if field_name == 'location':
-#                attr_value = getattr(item, 'getURL', None)
-#                if attr_value:
-#                    attr_value = attr_value()
-#            else:
             attr_value = getattr(item, field_name, None)
 
             if attr_value == None or attr_value == Missing.Value:
                 value = None
-#            elif isinstance(attr_value, DateTime):
-#                value = plone.toLocalizedTime(attr_value, long_format=1)
             elif isinstance(attr_value, basestring):
                 value = attr_value.decode("utf-8")
+            elif callable(attr_value):
+                value = attr_value()
             else:
                 value = attr_value
             if filter_func is None:
@@ -215,9 +209,12 @@ class BaseListingInformationRetriever(BrowserView):
     def custom_field(self, field_name):
         fields = [f for f in getRegistryFields().fields if f.id == field_name]
         if not fields:
-            raise Exception("Custom field not recognised '%s'" % field_name)
+            raise InvalidListingViewField("Custom field not recognised '%s'" % field_name)
         else:
             field = fields[0]
+        if field.tal_statement is None:
+            raise InvalidListingViewField("Custom field TAL is empty '%s'" % field_name)
+
 
         # example tal statement
         # python:'<em>{0}</em>'.format(object.getObject().modified().strftime("%A, %d. %B %Y %I:%M%p"))

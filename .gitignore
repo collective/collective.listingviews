@@ -5,6 +5,7 @@
 *.egg-info
 *.mo
 *~
+.Python
 
 # Project folder
 bin

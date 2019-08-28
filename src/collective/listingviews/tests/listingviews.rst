@@ -1,3 +1,5 @@
+>>> from zope.component.hooks import getSite; plone =getSite()
+>>> from plone.uuid.interfaces import IUUID
 
 Creating a custom field
 -----------------------
@@ -17,7 +19,7 @@ Instead here is how you do it using a ListingView.
 First we need to create a custom field using TAL since we want a custom date format rather than Plones default.
 A TAL Expression like the following will work.
 
->>> tal = "python:item.effective.strftime('%d/%m/%Y') if item.EffectiveDate != 'None' else '' "
+>>> tal = "python:modules['DateTime.DateTime'](path('item/EffectiveDate')).strftime('%d/%m/%Y') if path('item/EffectiveDate') != 'None' else '' "
 
 - Go to ``Site Setup > Listing Custom Fields > Add``
 - The ``Id`` is unique and is also used as a CSS class in the final html
@@ -28,11 +30,19 @@ A TAL Expression like the following will work.
 >>> browser = layer['manager']
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
+>>> print browser.contents
+<...Add...
+
 >>> browser.getControl('Add').click()
 >>> browser.getControl('Id').value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
 >>> browser.getControl('TAL expression').value = tal
+>>> browser.getControl('Additional CSS classes').value = ""
 >>> browser.getControl('Save').click()
+>>> print browser.contents
+<...
+...Changes saved...
+...
 
 
 Creating a listing view
@@ -49,32 +59,39 @@ There are two kinds of information a listing view display. Information about the
 ``Item Fields`` and information about the contents or matched items called ``Listing Fields``.
 These fields come from either standard metadata or the custom fields we add.
 
->>> print '\n'.join( browser.getControl('Title', index=1).control.displayOptions )
-Creation Date (Date)
+>>> 'Description' in browser.getControl('Title', index=1).control.displayOptions
+True
+
+
+#>>> print '\n'.join(sorted(browser.getControl('Title', index=1).control.displayOptions) )
 Creation Date (Date & Time)
+Creation Date (Date)
 Creator
 Description
-Effective Date (Date)
 Effective Date (Date & Time)
-End Date (Date)
+Effective Date (Date)
 End Date (Date & Time)
-Expiration Date (Date)
+End Date (Date)
+...
 Expiration Date (Date & Time)
+Expiration Date (Date)
+...
+Local Publication Date (Custom)
+Location
+...
+Modification Date (Date & Time)
+Modification Date (Date)
+Portal Type
+Review State
 Short Name
 Short Name (Link)
 Size
-Location
-Modification Date (Date)
-Modification Date (Date & Time)
-State
-Start Date (Date)
 Start Date (Date & Time)
+Start Date (Date)
 Tags
 Title
 Title (Link)
 Total number of comments
-Item Type
-Local Publication Date (Custom)
 
 By default the view will be enabled for standard content types. These are
 
@@ -129,8 +146,6 @@ Using the ``Display > News with publication`` menu we will change the folder vie
 <Link text='item1' url='http://nohost/plone/folder1/item1'>
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('News with publication').click()
->>> browser.contents
-'...View changed...'
 
 
 You will now have a listing that contains all the information you need.
@@ -156,6 +171,7 @@ Note the html is in exactly the same order as we specifed in our view definition
         </dl>
       </div>
 ...
+
 >>> print browser.contents
 <...
       <ul class="pubnews-listing listing-items-view">
@@ -166,35 +182,29 @@ Note the html is in exactly the same order as we specifed in our view definition
           </li>
       </ul>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-Title">Title</dt>
-<dd class="listing-field field-Title">item1</dd>
+    <dt class="listing-field field-Title">Title</dt>
+    <dd class="listing-field field-Title">item1</dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-Title-tolink">Title</dt>
-<dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
+    <dt class="listing-field field-Title-tolink">Title (Link)</dt>
+    <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
-<dd class="listing-field field-EffectiveDate-localshort">..., ...</dd>
+    <dt class="listing-field field-...-localshort">Effective...Date (Date)</dt>
+    <dd class="listing-field field-...-localshort">Jan 01, 2001</dd>
 ...
+
 >>> print browser.contents
 <...
-<dt class="listing-field pubdate">Local Publication Date</dt>
-<dd class="listing-field pubdate">.../.../...</dd>
-...
->>> print browser.contents
-<...
-<dt class="listing-field field-Title">Title</dt>
-...
-<dt class="listing-field field-Title-tolink">Title</dt>
-...
-<dt class="listing-field field-EffectiveDate-localshort">Effective Date</dt>
-...
-<dt class="listing-field pubdate">Local Publication Date</dt>
+    <dt class="listing-field pubdate">Local Publication Date</dt>
+    <dd class="listing-field pubdate">01/01/2001</dd>
 ...
 
 
@@ -206,7 +216,7 @@ matching against the CSS class ``pubnews-listing``::
             <div class="span8">
                 <div class="headline">
                     <xsl:element name="a">
-                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]/a/@href"/></xsl:attribute>
                         <xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]"/>
                     </xsl:element>
                 </div>
@@ -214,7 +224,7 @@ matching against the CSS class ``pubnews-listing``::
                 <div class="description"><xsl:value-of select="./dl/dd[contains(@class, 'field-Description')]"/></div>
                 <div class="newsLink">
                     <xsl:element name="a">
-                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-location')]"/></xsl:attribute>
+                        <xsl:attribute name="href"><xsl:value-of select="./dl/dd[contains(@class, 'field-Title')]/a/@href"/></xsl:attribute>
                         <xsl:text>Read Full Article</xsl:text>
                     </xsl:element>
                 </div>
@@ -261,7 +271,7 @@ viewing this content type. (e.g. ``Site Setup > Types > News Item > Manage Portl
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Publication Info'
->>> browser.getControl('Publication Info').click()
+>>> browser.getControl('Listing views').value = ['pubnewsitem']
 >>> browser.getControl('Save').click()
 
 
@@ -292,12 +302,12 @@ We can see
 ...
 >>> print browser.contents
 <...
-  <div class="listing-item-fields-portlet">
+    <div class="listing-item-fields-portlet">
       <dl class="pubnewsitem-item item-fields">
                   <dt class="listing-field pubdate">Local Publication Date</dt>
                   <dd class="listing-field pubdate">.../.../...</dd>
             </dl>
-  </div>
+    </div>
 ...
 >>> print browser.contents
 <...
@@ -338,7 +348,7 @@ via the ``Display > Publication Info`` menu.
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('item1').click()
 >>> browser.getLink('Publication Info')
-<Link text='Publication Info' url='.../folder1/item1/selectViewTemplate?templateId=collective.listingviews.pubnewsitem'>
+<Link text='Publication Info' url='.../folder1/item1/selectViewTemplate?templateId=collective.listingviews.pubnewsitem...'>
 
 
 Item View portlet for fixed item
@@ -348,7 +358,8 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getLink('Publication Info').click()
->>> browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/item1'})
+>>> layer.setRelatedItem(browser, "Target", "folder1/item1")
+
 >>> browser.getControl('Save').click()
 
 #TODO show what happens if we pick an item of invalid type
@@ -361,7 +372,7 @@ We will now see the portlet at the folder level
   <div class="listing-item-fields-portlet">
       <dl class="pubnewsitem-item item-fields">
           <dt class="listing-field pubdate">Local Publication Date</dt>
-          <dd class="listing-field pubdate">.../.../...</dd>
+          <dd class="listing-field pubdate">01/01/2001</dd>
       </dl>
   </div>
 ...
@@ -372,7 +383,12 @@ Listing Views for collections
 We have create a collection in our folder1 called collection1
 
 >>> browser.getLink('folder1').click()
+>>> print browser.contents
+<...collection1...>
 >>> browser.getLink('collection1').click()
+>>> assert "There are currently no items in this folder." not in browser.contents
+>>> print browser.contents
+<...item1...>
 >>> browser.getLink('item1')
 <Link text='item1' url='http://nohost/plone/folder1/item1'>
 
@@ -382,8 +398,11 @@ Select ``Display > 'News with publication'``.
 
 >>> browser.getLink('collection1').click()
 >>> browser.getLink('News with publication').click()
->>> browser.contents
-'...View changed...'
+>>> print browser.contents
+<...
+    <dt class="listing-field pubdate">Local Publication Date</dt>
+...
+
 
 And we'll still see item1
 and our custom field
@@ -393,9 +412,8 @@ and our custom field
 >>> print browser.contents
 <...
 <dt class="listing-field pubdate">Local Publication Date</dt>
-<dd class="listing-field pubdate">.../.../...</dd>
+<dd class="listing-field pubdate">01/01/2001</dd>
 ...
-
 
 Collection Portlets
 -------------------
@@ -405,10 +423,8 @@ We can also create a portlet on the home page listing the contents of this colle
 On the home page we have no link to item1
 
 >>> browser.getLink('Home').click()
->>> browser.getLink('item1')
-Traceback (most recent call last):
-...
-LinkNotFoundError
+>>> '01/01/2001' not in browser.contents
+True
 
 We'll create a portlet to give us links.
 Give the portlet a header.
@@ -421,18 +437,24 @@ name for ``collection1`` in the ``Target`` field.
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Collection Portlet'
->>> browser.getControl('Listing views').displayOptions
-['(nothing selected)', 'News with publication', 'Publication Info']
->>> browser.getControl('News with publication').click()
->>> browser.getControl('Save').mech_form.new_control('text','form.root', {'value':'/folder1/collection1'})
+>>> 'News with publication' in browser.getControl('Listing views').displayOptions
+True
+>>> 'Publication Info' in browser.getControl('Listing views').displayOptions
+True
+>>> browser.getControl('Listing views').value = ['pubnews']
+
+#>>> if not plone5: browser.getControl('News with publication').click()
+
+>>> layer.setRelatedItem(browser, 'Target', 'folder1/collection1')
+
 >>> browser.getControl('Save').click()
 
 New when we view home we  see the items inside ``folder1` based on criteria in ``collection1``, so we'll see
 a link to the ``item1``
 
 >>> browser.getLink('Home').click()
->>> browser.getLink('item1')
-<Link text='item1' url='http://nohost/plone/folder1/item1'>
+>>> '01/01/2001' in browser.contents
+True
 
 
 Example: News listing in table view

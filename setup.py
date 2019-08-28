@@ -1,6 +1,7 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from setuptools import setup
 
-version = '1.0beta2'
+version = '1.0.2.dev0'
 
 long_description = (
     open('README.rst').read()
@@ -8,9 +9,9 @@ long_description = (
     open('CHANGES.txt').read()
     + '\n')
 
-long_description = long_description.replace('See the `doctests for a worked example`_',
-                         open('./src/collective/listingviews/tests/listingviews.rst').read())
-
+long_description = long_description.replace(
+    'See the `doctests for a worked example`_',
+    open('./src/collective/listingviews/tests/listingviews.rst').read())
 
 setup(name='collective.listingviews',
       version=version,
@@ -20,10 +21,15 @@ setup(name='collective.listingviews',
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
           "Framework :: Plone",
+          "Framework :: Plone :: 4.1",
           "Framework :: Plone :: 4.2",
+          "Framework :: Plone :: 4.3",
+          "Framework :: Plone :: 5.0",
+          "Framework :: Plone :: 5.1",
+          "Framework :: Plone :: 5.2",
           "Programming Language :: Python",
           "Topic :: Software Development :: Libraries :: Python Modules",
-        ],
+      ],
       keywords='Plone Python TTW',
       author='Pretaweb',
       author_email='support@pretaweb.com',
@@ -38,11 +44,8 @@ setup(name='collective.listingviews',
           'setuptools',
           # -*- Extra requirements: -*-
           'plone.app.z3cform',
-#          'plone.app.testing',
-#          'plone.directives.form', # older directives
-#          'collective.z3cform.chosen'
       ],
-      extras_require={'test': ['plone.app.testing']},
+      extras_require={'test': ['plone.app.testing', 'unittest2', 'lxml']},
       entry_points="""
       # -*- Entry points: -*-
       [z3c.autoinclude.plugin]
