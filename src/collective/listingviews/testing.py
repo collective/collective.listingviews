@@ -75,8 +75,8 @@ class CollectiveListingviews(PloneSandboxLayer):
                     }]
                     # set the query and publish the collection
             collection.setQuery(query)
-            collection.sort_on = u'Effective'
-            collection.reversed = True
+            collection.sort_on = u'effective'
+            collection.sort_reversed = True
 
         portal.folder1.collection1.reindexObject()
 
