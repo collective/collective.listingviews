@@ -244,7 +244,7 @@ class TestRegistration(unittest.TestCase):
         self.assertRegexpMatches(body, '<span class="listing-results-count"><strong class="listing-results-number">4</strong> items matching your search terms.</span>')
 
         body = self.portal.folder1.unrestrictedTraverse("@@" + view)()
-        self.assertRegexpMatches(body, '<span class="listing-results-count"><strong class="listing-results-number">4</strong> items matching your search terms.</span>')
+        self.assertRegexpMatches(body, '<span class="listing-results-count"><strong class="listing-results-number">3</strong> items matching your search terms.</span>')
 
         # TODO: what should it do on an item?
         # TODO test on tiles and portlets

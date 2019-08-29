@@ -242,4 +242,8 @@ class BaseListingInformationRetriever(BrowserView):
             return {'title': field.name, 'css_class': css_class, 'value': val, 'is_custom': True}
         return value
 
+    @property
+    def display_count(self):
+        return False # non-folderish should never show a result count
+
 # Override context creation
