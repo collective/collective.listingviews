@@ -229,3 +229,22 @@ class TestRegistration(unittest.TestCase):
         #self.assertRegexpMatches(body, '(?m)31/12/2000.*01/01/2001')
         # should be reverse date order
         self.assertLess(body.index("01/01/2001"), body.index("31/12/2000"))
+
+    def test_display_count(self):
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            listing_fields=["EffectiveDate:locallong"],
+            restricted_to_types=[],
+            display_count=True
+        ))
+        fudgeRequest()
+        body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
+        self.assertRegexpMatches(body, '<span class="listing-results-count"><strong class="listing-results-number">4</strong> items matching your search terms.</span>')
+
+        body = self.portal.folder1.unrestrictedTraverse("@@" + view)()
+        self.assertRegexpMatches(body, '<span class="listing-results-count"><strong class="listing-results-number">4</strong> items matching your search terms.</span>')
+
+        # TODO: what should it do on an item?
+        # TODO test on tiles and portlets
