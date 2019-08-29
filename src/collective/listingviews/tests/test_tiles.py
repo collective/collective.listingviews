@@ -59,7 +59,7 @@ class ContentListingTileTests(TestCase):
 
         html = ' '.join(self.unprivileged_browser.contents.split())
         self.assertIn(u'Dec 31, 2000', html)
-        self.assertIn('<dt class="listing-field field-Title-tolink">Title (Link)</dt> '+
+        self.assertIn('<dt class="listing-field field-Title-tolink">Title</dt> '+
                       '<dd class="listing-field field-Title-tolink">'+
                       '<a href="http://nohost/plone/folder1/item1">item1</a></dd>', html)
 
