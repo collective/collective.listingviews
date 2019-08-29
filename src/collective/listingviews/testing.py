@@ -50,6 +50,7 @@ class CollectiveListingviews(PloneSandboxLayer):
         portal.invokeFactory('Folder', 'folder1', title=u"folder1")
         portal.folder1.invokeFactory('Document', 'item1', title=u"item1")
         workflowTool.doActionFor(portal.folder1.item1, 'publish')
+        portal.folder1.reindexObject()
         portal.folder1.item1.setEffectiveDate('1/1/2001')
         portal.folder1.item1.reindexObject()
 

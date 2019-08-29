@@ -1,5 +1,7 @@
 import re
 import logging
+
+from ZODB.POSException import ConflictError
 from zope import schema
 from zope.component import getMultiAdapter
 from zope.interface import implements
@@ -190,19 +192,22 @@ class ListingRenderer(base.Renderer):
     def _container(self):
         if plone_version >= "5":
             return uuidToObject(self.data.root)
-        else:
-            try:
-                portal_state = getMultiAdapter((self.context, self.request),
-                                               name=u'plone_portal_state')
-                portal = portal_state.portal()
-                path = self.data.root
-                if path and path.startswith('/'):
-                    # https://github.com/plone/plone.portlet.static
-                    path = path[1:]
 
-                return portal.restrictedTraverse(path, default=False)
-            except:
-                return False
+        portal_state = getMultiAdapter((self.context, self.request),
+                                       name=u'plone_portal_state')
+        portal = portal_state.portal()
+        path = self.data.root
+        if path and path.startswith('/'):
+            # https://github.com/plone/plone.portlet.static
+            path = path[1:]
+
+        try:
+            return portal.restrictedTraverse(path, default=False)
+        except ConflictError:
+            raise
+        except:
+            #TODO: need more explanation what exceptions we are expecting
+            return False
 
 
     def portlet_items(self):

@@ -4,6 +4,13 @@ import Missing
 from DateTime import DateTime
 from zope.schema.interfaces import IVocabularyFactory
 from collective.listingviews import LVMessageFactory as _
+try:
+    from eea.facetednavigation.layout.interfaces import IFacetedLayout
+    from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable, IFacetedSearchMode
+except ImportError:
+    IFacetedLayout = None
+    IFacetedNavigable = None
+    IFacetedSearchMode = None
 from collective.listingviews.interfaces import IListingAdapter
 from collective.listingviews.utils import getListingNameFromView, getRegistryViews, getRegistryFields
 
@@ -225,9 +232,14 @@ class BaseListingInformationRetriever(BrowserView):
         def value(item):
             expression_context = getExprContext(self.context, self.context)
             expression_context.setLocal('item', item)
-            val = expression(expression_context)
+            try:
+                val = expression(expression_context)
+            except (AttributeError, IndexError, KeyError, NameError, TypeError, ValueError, ZeroDivisionError):
+                portal_membership = getToolByName(self, 'portal_membership')
+                if not portal_membership.checkPermission('Manage portal', self.context):
+                    return None
+                val = 'The custom field expression has an error: %s.' % expression.text
             return {'title': field.name, 'css_class': css_class, 'value': val, 'is_custom': True}
         return value
 
 # Override context creation
-

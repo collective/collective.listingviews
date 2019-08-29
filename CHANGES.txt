@@ -10,6 +10,8 @@ Changelog
   [Dylan Jay]
 - Add an option to display the result count on a listing view.
   [instification]
+- fix typos and update 'Working Examples'
+  [Kaif Khan]
 
 
 1.0.1 (2019-01-17)

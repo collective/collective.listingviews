@@ -167,16 +167,12 @@ class TestRegistration(unittest.TestCase):
 
     def test_add_custom_field(self):
 
-        fields = getRegistryFields().fields
-        # factory = getMultiAdapter( (Interface, Interface, Interface, Interface), IObjectFactory,
-        #                           name="collective.listingviews.interfaces.ICustomFieldDefinition")
-
         record = CustomFieldDefinition(dict(
             id="myfield",
             name="My Field",
             tal_statement="python: 'hello world'"
         ))
-        fields.append(record)
+        getRegistryFields().fields.append(record)
 
         view = addView(self.portal, dict(
             id="myview",
@@ -188,6 +184,27 @@ class TestRegistration(unittest.TestCase):
         fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'hello world', )
+
+    def test_add_bad_custom_field(self):
+
+        record = CustomFieldDefinition(dict(
+            id="myfield",
+            name="My Field",
+            tal_statement="python: bad_variable"
+        ))
+        getRegistryFields().fields.append(record)
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=[":myfield"],
+            restricted_to_types=[]
+        ))
+        fudgeRequest()
+        body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
+        self.assertRegexpMatches(body, 'The custom field expression has an error: python: bad_variable.', )
+
 
     def test_sortable_collections(self):
         " We need to test sorting in collections? "

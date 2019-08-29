@@ -7,8 +7,8 @@ Introduction
     :target: http://travis-ci.org/collective/collective.listingviews
 
 ``collective.listingviews`` allows a Plone site administrator to quickly create a new display
-view their content types, folders, collections and eea.facetnavigation. It will also let you create
-custom portlets and mosaic tiles. Compatible Plone 4.1-5.2.
+view their content types, folders, collections and eea.facetednavigation. It will also let you create
+custom portlets and mosaic tiles. Compatible with Plone 4.1-5.2.
 
 - you will not have to deploy a new plugin, unlike creating your own views in python and Page Templates
 - you will not have to learn Page Templates, unlike ambidexterity or collective.themefragments
@@ -41,15 +41,15 @@ custom portlets and mosaic tiles. Compatible Plone 4.1-5.2.
    |display menu|
    |unthemed| 
 4. If you require further customisation: use diazo to customise the layout/html of your fields or you can
-   use custom fields via "Site setup" if you need combine field values, format a value or access plone api's.
-   |themed| 
+   use custom fields via "Site setup" if you need combined field values, to format a value or access plone api's.
+   |themed|
 5. For non-default metadata you can use the "Custom Fields" control panel to add additional calculated fields
    that be view used in any of your listing views.
 
 
 For example you could
 
-- create a news listing which displays the first sentance and publish date of each news item
+- create a news listing which displays the first sentence and publish date of each news item
 - create a footer portlet for each page which displays the last updated date of the current content
 - create a portlet which grabs a random image from a folder
 - create a listing of folders which contain pdfs of different languages and display links to each version of the pdf.
@@ -111,7 +111,7 @@ Just stay away from the 3.2.3 version)
 Worked Examples
 ===============
 
-See the `doctests for a worked example`_
+See the `doctests for a worked example <https://github.com/collective/collective.listingviews/blob/master/src/collective/listingviews/tests/listingviews.rst/>`_.
 
 
 Contributing
