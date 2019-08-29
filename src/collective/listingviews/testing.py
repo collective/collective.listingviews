@@ -59,6 +59,12 @@ class CollectiveListingviews(PloneSandboxLayer):
         portal.folder1.item2.setEffectiveDate('12/31/2000')
         portal.folder1.item2.reindexObject()
 
+        portal.folder1.invokeFactory('News Item', 'item3', title=u"item3")
+        portal.folder1.item3.reindexObject()
+
+        portal.folder1.invokeFactory('Image', 'item4', title=u"item4")
+        portal.folder1.item4.reindexObject()
+
         try:
             portal.folder1.invokeFactory('Collection', 'collection1', title=u"collection1")
         except ValueError:

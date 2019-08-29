@@ -21,7 +21,8 @@ from Products.CMFCore.Expression import Expression, getExprContext
 from plone.uuid.interfaces import IUUID
 from Products.Five import BrowserView
 from plone.memoize.instance import memoize
-
+from  collective.listingviews.utils import getImageUrl
+from  collective.listingviews.vocabularies import VIRTUAL_FIELDS
 
 class InvalidListingViewField(Expression):
     pass
@@ -54,7 +55,10 @@ class BaseListingInformationRetriever(BrowserView):
         self.filters = dict(
             localshort = lambda item, value: plone_util.toLocalizedTime(value, long_format=0),
             locallong = lambda item, value: plone_util.toLocalizedTime(value, long_format=1),
-            tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value)
+            tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value),
+            tagImage = lambda item, value: '<img src="%s" />' %  getImageUrl(value),
+            tagMini=lambda item, value: '<img src="%s/mini" />' % getImageUrl(value),
+            tagLarge=lambda item, value: '<img src="%s/large" />' % getImageUrl(value)
         )
 
 
@@ -83,14 +87,15 @@ class BaseListingInformationRetriever(BrowserView):
 
             if len(subfield) is not 2:
                 raise InvalidListingViewField( "No valid field: %s (Too many colons)" % field )
-
-            field, func = subfield
-
+            fieldId, func = subfield
+            if field in VIRTUAL_FIELDS:
+                field_filters.append(self.virtual_field(fieldId, func))
+                continue
             if func and not field:
                 # custom field name is ":customname"
                 field_filters.append(self.custom_field(field_name=func))
             else:
-                field_filters.append(self.metadata_field(field, func))
+                field_filters.append(self.metadata_field(fieldId, func))
         return field_filters
 
     @property
@@ -172,6 +177,20 @@ class BaseListingInformationRetriever(BrowserView):
         for func in retrieve_fields:
             yield func(item)
 
+    def virtual_field(self, field_name, filter_name):
+
+        filter_func = self.filters.get(filter_name, None)
+
+        key = "%s:%s" % (field_name, filter_name)
+        if key not in VIRTUAL_FIELDS:
+            raise InvalidListingViewField("Virtual field not recorgnized '%s'" % field_name)
+        css_class = "field-%s-%s" % (field_name, filter_name)
+
+        def value(item):
+            return filter_func(item, item.getObject())
+
+        return lambda item: {'title': field_name, 'css_class': css_class, 'value': value(item), 'is_custom': False}
+
     def metadata_field(self, field_name, filter_name):
 
         filter_func = self.filters.get(filter_name, None)
@@ -204,7 +223,7 @@ class BaseListingInformationRetriever(BrowserView):
             else:
                 return filter_func(item, value)
 
-        return lambda item: {'title': field, 'css_class': css_class, 'value': value(item), 'is_custom': False}
+        return lambda item: {'title': field_name, 'css_class': css_class, 'value': value(item), 'is_custom': False}
 
     def custom_field(self, field_name):
         fields = [f for f in getRegistryFields().fields if f.id == field_name]

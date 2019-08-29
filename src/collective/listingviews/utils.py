@@ -11,6 +11,8 @@ from plone.registry.record import Record
 from zope import schema
 import re
 from collective.listingviews.interfaces import IListingControlPanel, IListingCustomFieldControlPanel
+from plone.dexterity.interfaces import IDexterityFTI
+from zope.component import queryUtility
 
 _marker = object()
 
@@ -456,3 +458,11 @@ def getRegistryFields():
                                    prefix='collective.listingviews.customfield',
                                    key_names={'fields': 'id'})
     return proxy
+
+
+def getImageUrl(value):
+    if not value:
+        return ''
+    if 'plone.app.contenttypes.behaviors.leadimage.ILeadImage' in queryUtility(IDexterityFTI, name=value.portal_type).behaviors or value.portal_type == 'Image':
+        return value.absolute_url() + '/@@images/image'
+    return ''

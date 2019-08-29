@@ -15,6 +15,10 @@ try:
 except ImportError:
     from zope.component.hooks import getSite
 
+LEAD_IMAGE_FIELD_ID = 'lead_image:tagImage'
+LEAD_IMAGE_FIELD_NAME = 'Lead Image'
+VIRTUAL_FIELDS = { LEAD_IMAGE_FIELD_ID:LEAD_IMAGE_FIELD_NAME }
+
 class LVVocabulary(SimpleVocabulary):
     """
     Don't error out if you can't find it right away
@@ -131,6 +135,9 @@ def MetadataVocabulary(context):
                                 ).get(name, display_name)
             #display_name = display_name.title()
             terms.append(t(display_name, name + ":"))
+
+    for id, value in VIRTUAL_FIELDS.items():
+        terms.append(t(value, id))
 
     # custom field
     for field in getRegistryFields().fields:
