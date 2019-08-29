@@ -91,7 +91,7 @@ class BaseListingInformationRetriever(BrowserView):
             if field in VIRTUAL_FIELDS:
                 field_filters.append(self.virtual_field(fieldId, func))
                 continue
-            if func and not field:
+            if func and not fieldId:
                 # custom field name is ":customname"
                 field_filters.append(self.custom_field(field_name=func))
             else:

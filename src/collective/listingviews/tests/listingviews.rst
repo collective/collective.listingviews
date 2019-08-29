@@ -76,6 +76,8 @@ End Date (Date)
 Expiration Date (Date & Time)
 Expiration Date (Date)
 ...
+Lead Image
+...
 Local Publication Date (Custom)
 Location
 ...
@@ -125,7 +127,7 @@ and finally we'll enable the view for all content types
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
 >>> layer.setInAndOut(browser, ['Title'], index=1)
->>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
+>>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (Virtual)'], index=3)
 >>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
@@ -185,26 +187,38 @@ Note the html is in exactly the same order as we specifed in our view definition
 
 >>> print browser.contents
 <...
-    <dt class="listing-field field-Title">Title</dt>
-    <dd class="listing-field field-Title">item1</dd>
+                              <dt class="listing-field field-Title">Title</dt>
+                              <dd class="listing-field field-Title">item1</dd>
 ...
 
 >>> print browser.contents
 <...
-    <dt class="listing-field field-Title-tolink">Title (Link)</dt>
-    <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
+                              <dt class="listing-field field-Title-tolink">Title</dt>
+                              <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
 ...
 
 >>> print browser.contents
 <...
-    <dt class="listing-field field-...-localshort">Effective...Date (Date)</dt>
-    <dd class="listing-field field-...-localshort">Jan 01, 2001</dd>
+                              <dt class="listing-field field-lead_image-tagImage">lead_image</dt>
+                              <dd class="listing-field field-lead_image-tagImage"><img src="http://nohost/plone/folder1/item3/@@images/image" /></dd>
 ...
 
 >>> print browser.contents
 <...
-    <dt class="listing-field pubdate">Local Publication Date</dt>
-    <dd class="listing-field pubdate">01/01/2001</dd>
+                              <dt class="listing-field field-lead_image-tagImage">lead_image</dt>
+                              <dd class="listing-field field-lead_image-tagImage"><img src="http://nohost/plone/folder1/item4/@@images/image" /></dd>
+...
+
+>>> print browser.contents
+<...
+                              <dt class="listing-field field-EffectiveDate-localshort">EffectiveDate</dt>
+                              <dd class="listing-field field-EffectiveDate-localshort">Jan 01, 2001</dd>
+...
+
+>>> print browser.contents
+<...
+                              <dt class="listing-field pubdate">Local Publication Date</dt>
+                              <dd class="listing-field pubdate">01/01/2001</dd>
 ...
 
 
