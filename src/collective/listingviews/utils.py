@@ -11,7 +11,6 @@ from plone.registry.record import Record
 from zope import schema
 import re
 from collective.listingviews.interfaces import IListingControlPanel, IListingCustomFieldControlPanel
-from plone.app.contenttypes.behaviors.leadimage import ILeadImage
 _marker = object()
 
 
@@ -461,6 +460,11 @@ def getRegistryFields():
 def getImageUrl(value):
     if not value:
         return ''
-    if ILeadImage.providedBy(value) or value.portal_type == 'Image':
-        return value.absolute_url() + '/@@images/image'
+    try:
+        from plone.app.contenttypes.behaviors.leadimage import ILeadImage
+        if ILeadImage.providedBy(value) or value.portal_type == 'Image':
+            return value.absolute_url() + '/@@images/image'
+    except ImportError:
+        if value.portal_type == 'News Item' or value.portal_type == 'Image':
+            return value.absolute_url() + '/@@images/image'
     return ''
