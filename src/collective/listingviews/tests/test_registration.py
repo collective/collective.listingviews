@@ -1,3 +1,5 @@
+import re
+
 import unittest2 as unittest
 from Products.CMFCore.utils import getToolByName
 from zope.component import getUtility
@@ -32,6 +34,12 @@ class TestRegistration(unittest.TestCase):
     def assertItemsSubset(self, items, all_items):
         for i in items:
             self.assertIn(i, all_items)
+
+    def assertRegexpMatches(self, text, match):
+        #TODO maybe some nicer html cleaning up
+        #text = ' '.join([line.strip() for line in text.split('\n')])
+        text = re.sub(r"\s\s+", " ", text)
+        return super(TestRegistration, self).assertRegexpMatches(text, match)
 
 
 
@@ -241,10 +249,10 @@ class TestRegistration(unittest.TestCase):
         ))
         fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
-        self.assertRegexpMatches(body, '<span class="listing-results-count"><strong class="listing-results-number">4</strong> items matching your search terms.</span>')
+        self.assertRegexpMatches(body, '<span class="listing-results-count"> <strong class="listing-results-number">4</strong> items matching your search terms. </span>')
 
         body = self.portal.folder1.unrestrictedTraverse("@@" + view)()
-        self.assertRegexpMatches(body, '<span class="listing-results-count"><strong class="listing-results-number">3</strong> items matching your search terms.</span>')
+        self.assertRegexpMatches(body, '<span class="listing-results-count"> <strong class="listing-results-number">3</strong> items matching your search terms. </span>')
 
         # TODO: what should it do on an item?
         # TODO test on tiles and portlets
