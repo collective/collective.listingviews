@@ -199,14 +199,14 @@ Note the html is in exactly the same order as we specifed in our view definition
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field field-lead_image-tagImage">lead_image</dt>
-                              <dd class="listing-field field-lead_image-tagImage"><img src="http://nohost/plone/folder1/item3/@@images/image" /></dd>
+                              <dt class="listing-field field-lead_image-tag_image">lead_image</dt>
+                              <dd class="listing-field field-lead_image-tag_image"><a href="http://nohost/plone/folder1/item3"><img src="http://nohost/plone/folder1/item3/@@images/image" alt="item3" /></a></dd>
 ...
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field field-lead_image-tagImage">lead_image</dt>
-                              <dd class="listing-field field-lead_image-tagImage"><img src="http://nohost/plone/folder1/item4/@@images/image" /></dd>
+                              <dt class="listing-field field-lead_image-tag_image">lead_image</dt>
+                              <dd class="listing-field field-lead_image-tag_image"><a href="http://nohost/plone/folder1/item4"><img src="http://nohost/plone/folder1/item4/@@images/image" alt="item4" /></a></dd>
 ...
 
 >>> print browser.contents

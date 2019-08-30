@@ -15,7 +15,7 @@ try:
 except ImportError:
     from zope.component.hooks import getSite
 
-LEAD_IMAGE_FIELD_ID = 'lead_image:tagImage'
+LEAD_IMAGE_FIELD_ID = 'lead_image:tag_image'
 LEAD_IMAGE_FIELD_NAME = 'Lead Image (Virtual)'
 VIRTUAL_FIELDS = { LEAD_IMAGE_FIELD_ID:LEAD_IMAGE_FIELD_NAME }
 

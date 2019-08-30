@@ -56,9 +56,19 @@ class BaseListingInformationRetriever(BrowserView):
             localshort = lambda item, value: plone_util.toLocalizedTime(value, long_format=0),
             locallong = lambda item, value: plone_util.toLocalizedTime(value, long_format=1),
             tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value),
-            tagImage = lambda item, value: '<img src="%s" />' %  getImageUrl(value),
-            tagMini=lambda item, value: '<img src="%s/mini" />' % getImageUrl(value),
-            tagLarge=lambda item, value: '<img src="%s/large" />' % getImageUrl(value)
+            tag_image = lambda item, value: '<a href="%s"><img src="%s" alt="%s"/></a>' % (item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
+            tag_mini=lambda item, value: '<a href="%s"><img src="%s/mini" alt="%s"/></a>' % (item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
+            tag_large=lambda item, value: '<a href="%s"><img src="%s/large" alt="%s"/></a>" />' % (item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
+            tag_preview=lambda item, value: '<a href="%s"><img src="%s/preview" alt="%s"/></a>" />' % (
+            item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
+            tag_thumb=lambda item, value: '<a href="%s"><img src="%s/thumb" alt="%s"/></a>" />' % (
+            item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
+            tag_tile=lambda item, value: '<a href="%s"><img src="%s/tile" alt="%s"/></a>" />' % (
+            item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
+            tag_icon=lambda item, value: '<a href="%s"><img src="%s/icon" alt="%s"/></a>" />' % (
+            item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
+            tag_listing=lambda item, value: '<a href="%s"><img src="%s/listing" alt="%s"/></a>" />' % (
+            item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
         )
 
 

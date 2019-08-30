@@ -3,7 +3,7 @@ from Products.CMFCore.utils import getToolByName
 from zope.component import getUtility
 from zope.globalrequest import getRequest
 from zope.schema.interfaces import IVocabularyFactory
-
+import re
 from collective.listingviews.browser.views.controlpanel import addView
 from collective.listingviews.interfaces import CustomFieldDefinition
 from collective.listingviews.testing import\
@@ -60,7 +60,6 @@ class TestRegistration(unittest.TestCase):
                                'Document'],
                                [t.value for t in vocabulary]
                                )
-
 
     def test_fields_vocabulary(self):
         factory = getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')
@@ -183,7 +182,23 @@ class TestRegistration(unittest.TestCase):
         ))
         fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
-        self.assertRegexpMatches(body, 'hello world', )
+        self.assertRegexpMatches(body, 'hello world', 'Custom field not found')
+
+
+    def test_add_virtual_field(self):
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["lead_image:tag_image"],
+            restricted_to_types=[]
+        ))
+        fudgeRequest()
+        body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
+        regexp = '(.*)<dd class="listing-field field-lead_image-tag_image">(.*)<img src="http://nohost/plone/(.*)" alt="(.*)"/>(.*)</dd>(.*)'
+        self.assertRegexpMatches(body, regexp, 'Virtual field not found')
+
 
     def test_add_bad_custom_field(self):
 
