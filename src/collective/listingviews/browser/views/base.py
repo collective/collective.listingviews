@@ -58,16 +58,16 @@ class BaseListingInformationRetriever(BrowserView):
             tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value),
             tag_image = lambda item, value: '<a href="%s"><img src="%s" alt="%s"/></a>' % (item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
             tag_mini=lambda item, value: '<a href="%s"><img src="%s/mini" alt="%s"/></a>' % (item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
-            tag_large=lambda item, value: '<a href="%s"><img src="%s/large" alt="%s"/></a>" />' % (item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
-            tag_preview=lambda item, value: '<a href="%s"><img src="%s/preview" alt="%s"/></a>" />' % (
+            tag_large=lambda item, value: '<a href="%s"><img src="%s/large" alt="%s"/></a>' % (item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
+            tag_preview=lambda item, value: '<a href="%s"><img src="%s/preview" alt="%s"/></a>' % (
             item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
-            tag_thumb=lambda item, value: '<a href="%s"><img src="%s/thumb" alt="%s"/></a>" />' % (
+            tag_thumb=lambda item, value: '<a href="%s"><img src="%s/thumb" alt="%s"/></a>' % (
             item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
-            tag_tile=lambda item, value: '<a href="%s"><img src="%s/tile" alt="%s"/></a>" />' % (
+            tag_tile=lambda item, value: '<a href="%s"><img src="%s/tile" alt="%s"/></a>' % (
             item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
-            tag_icon=lambda item, value: '<a href="%s"><img src="%s/icon" alt="%s"/></a>" />' % (
+            tag_icon=lambda item, value: '<a href="%s"><img src="%s/icon" alt="%s"/></a>' % (
             item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
-            tag_listing=lambda item, value: '<a href="%s"><img src="%s/listing" alt="%s"/></a>" />' % (
+            tag_listing=lambda item, value: '<a href="%s"><img src="%s/listing" alt="%s"/></a>' % (
             item.getURL(), getImageUrl(value), value.title) if getImageUrl(value) else '',
         )
 
