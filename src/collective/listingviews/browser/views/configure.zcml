@@ -53,7 +53,7 @@
         name="listing_view_macros"
         class=".listing_view.ListingView"
         allowed_attributes="macros"
-        permission="zope.Public" />
+        permission="zope2.View" />
 
 <!-- called from layout.pt to retrieve lists of items from context -->
   <browser:page
@@ -78,7 +78,7 @@
   <browser:page
       for="plone.app.collection.interfaces.ICollection"
       name="listing_view_adapter"
-      class=".collection.AppCollectionListingInformationRetriever"
+      class=".collection.BasicTopicListingInformationRetriever"
       permission="zope2.View"
       zcml:condition="installed plone.app.collection"/>
   <browser:page
