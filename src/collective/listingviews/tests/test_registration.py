@@ -19,6 +19,7 @@ from collective.listingviews.testing import \
 from collective.listingviews.utils import getRegistryFields, getRegistryViews
 from collective.listingviews import plone_version
 PLONE5 = plone_version >= "5"
+PLONE41 = plone_version < "4.2"
 
 
 class TestRegistration(unittest.TestCase):
@@ -267,8 +268,11 @@ class TestRegistration(unittest.TestCase):
             restricted_to_types=[],
             display_count=True
         ))
+
+        # If plone > 4.1 the folder is included in the collection.
+        count = PLONE41 and 3 or 4
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
-        self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">4</strong> items matching your search terms.\s?</span>')
+        self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">%s</strong> items matching your search terms.\s?</span>' % count)
 
         body = self.portal.folder1.unrestrictedTraverse("@@" + view)()
         self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">3</strong> items matching your search terms.\s?</span>')
