@@ -326,6 +326,10 @@ COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING = \
     BrowserIntegrationTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
                             name="CollectiveListingviews:Integration")
 
+COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING = \
+    FunctionalTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
+                            name="CollectiveListingviews:Functional")
+
 # FIXTURE = CollectiveListingviews()
 # INTEGRATION_TESTING = IntegrationTesting(
 #     bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE,),
