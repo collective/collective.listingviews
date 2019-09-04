@@ -1,3 +1,4 @@
+from AccessControl import ClassSecurityInfo, Permissions
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five import BrowserView
 from zope.component import getMultiAdapter
@@ -18,6 +19,9 @@ except:
 class ListingView(BrowserView):
     index = ViewPageTemplateFile("templates/layout.pt")
 
+    security = ClassSecurityInfo()
+    security.declareObjectProtected(Permissions.view)
+
     def __init__(self, context, request):
         super(ListingView, self).__init__(context, request)
         self.listing_view_adapter = getMultiAdapter((context,request), name='listing_view_adapter')
@@ -36,7 +40,9 @@ class ListingView(BrowserView):
     def render(self):
         return self.index()
 
+    security.declareProtected(Permissions.view, '__call__')
     def __call__(self):
+        """ Render the view """
         return self.render()
 
     @property
