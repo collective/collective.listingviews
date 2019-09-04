@@ -199,6 +199,25 @@ class TestRegistration(unittest.TestCase):
         regexp = '(.*)<dd class="listing-field field-lead_image-tag_image">(.*)<img src="http://nohost/plone/(.*)" alt="(.*)"/>(.*)</dd>(.*)'
         self.assertRegexpMatches(body, regexp, 'Virtual field not found')
 
+    def test_image_filter(self):
+
+        filters =['tag_image','tag_mini', 'tag_large', 'tag_thumb', 'tag_listing', 'tag_icon', 'tag_preview', 'tag_tile']
+        for filter in filters:
+            view = addView(self.portal, dict(
+                id="myview",
+                name="My View",
+                item_fields=[],
+                listing_fields=["lead_image:%s" % filter],
+                restricted_to_types=[]
+            ))
+            fudgeRequest()
+            body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
+            regexp = '(.*)<dd class="listing-field field-lead_image-tag_image">(.*)<img src="http://nohost/plone/(.*)" alt="(.*)"/>(.*)</dd>(.*)'
+            res = re.match(regexp,body, re.DOTALL | re.MULTILINE)
+            image_url = str(res.group(3))
+            image = self.portal.unrestrictedTraverse(image_url)
+            self.assertIsNotNone(image, 'Image not found')
+
 
     def test_add_bad_custom_field(self):
 

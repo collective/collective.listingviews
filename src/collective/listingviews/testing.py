@@ -10,7 +10,17 @@ from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD, 
 from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
 from Products.CMFCore.utils import getToolByName
 from lxml import etree
+from plone.namedfile.file import NamedBlobImage
+import os
 
+def dummy_image(filename=u'image.png'):
+    filename = os.path.join(os.path.dirname(__file__), filename)
+    with open(filename, 'rb') as f:
+        image_data = f.read()
+    return NamedBlobImage(
+        data=image_data,
+        filename=filename
+    )
 
 class CollectiveListingviews(PloneSandboxLayer):
 
@@ -60,9 +70,11 @@ class CollectiveListingviews(PloneSandboxLayer):
         portal.folder1.item2.reindexObject()
 
         portal.folder1.invokeFactory('News Item', 'item3', title=u"item3")
+        portal.folder1.item3.image = dummy_image()
         portal.folder1.item3.reindexObject()
 
         portal.folder1.invokeFactory('Image', 'item4', title=u"item4")
+        portal.folder1.item4.image = dummy_image()
         portal.folder1.item4.reindexObject()
 
         try:
