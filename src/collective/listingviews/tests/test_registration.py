@@ -267,7 +267,6 @@ class TestRegistration(unittest.TestCase):
             restricted_to_types=[],
             display_count=True
         ))
-        fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
         self.assertRegexpMatches(body, '<span class="listing-results-count"> <strong class="listing-results-number">4</strong> items matching your search terms. </span>')
 
