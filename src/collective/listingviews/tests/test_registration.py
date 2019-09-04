@@ -1,23 +1,24 @@
 import re
 
 import unittest2 as unittest
+from AccessControl.security import newInteraction
 from Products.CMFCore.utils import getToolByName
-from zope.component import getUtility
-from zope.globalrequest import getRequest
+from plone.app.testing import login, TEST_USER_NAME, SITE_OWNER_NAME, setRoles, TEST_USER_ID
+#from plone.z3cform.tests import TestRequest
+from zope.browsermenu.interfaces import IBrowserMenu
+from zope.component import getUtility, queryAdapter, getAdapters, getSiteManager, getGlobalSiteManager
+from zope.globalrequest import getRequest, setRequest
+from zope.publisher.browser import TestRequest
 from zope.schema.interfaces import IVocabularyFactory
+from zope.security._definitions import thread_local
 
-from collective.listingviews.browser.views.controlpanel import addView
+from collective.listingviews.browser.views.controlpanel import addView, updateView
 from collective.listingviews.interfaces import CustomFieldDefinition
-from collective.listingviews.testing import\
-    COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
-from collective.listingviews.utils import getRegistryFields
+from collective.listingviews.testing import \
+    COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING, COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING
+from collective.listingviews.utils import getRegistryFields, getRegistryViews
 from collective.listingviews import plone_version
 PLONE5 = plone_version >= "5"
-
-
-def fudgeRequest():
-    if plone_version < "4.2.0":
-        getRequest()['ACTUAL_URL'] = 'dummy'
 
 
 class TestRegistration(unittest.TestCase):
@@ -25,10 +26,36 @@ class TestRegistration(unittest.TestCase):
     layer = COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
 
     def setUp(self):
-        self.app = self.layer['app']
         self.portal = self.layer['portal']
         self.qi_tool = getToolByName(self.portal, 'portal_quickinstaller')
         self.maxDiff = 2000
+
+
+        # Need some extra request vars
+        if self.portal.REQUEST is not None:
+            request = self.portal.REQUEST
+        else:
+            request = getRequest()
+        if request is None:
+            request = TestRequest()
+        setRequest(request)
+
+        #directlyProvides(getRequest(), IDefaultBrowserLayer)
+        for dummy in ['ACTUAL_URL', 'URL']:
+            request.form.setdefault(dummy, 'dummy')
+
+        # Not sure why this is needed but single test to test menu items checkpermission needs this
+        try:
+            interaction = thread_local.interaction
+        except AttributeError:
+            newInteraction()
+
+        #login(self.portal, SITE_OWNER_NAME)
+        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+
+    def tearDown(self):
+        setRoles(self.portal, TEST_USER_ID, ['Member'])
+        delattr(thread_local, 'interaction')
 
 
     def assertItemsSubset(self, items, all_items):
@@ -136,7 +163,6 @@ class TestRegistration(unittest.TestCase):
             listing_fields=["EffectiveDate:localshort"],
             restricted_to_types=[]
         ))
-        fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'Dec 31, 2000', )
 
@@ -149,7 +175,6 @@ class TestRegistration(unittest.TestCase):
             listing_fields=["EffectiveDate:localshort"],
             restricted_to_types=[]
         ))
-        fudgeRequest()
         body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'Dec 31, 2000', )
 
@@ -163,7 +188,6 @@ class TestRegistration(unittest.TestCase):
             listing_fields=[],
             restricted_to_types=[]
         ))
-        fudgeRequest()
         body = self.portal.folder1.item1.unrestrictedTraverse("@@" + view)()
         self.assertRegexpMatches(body, 'Jan 01, 2001 12:00 AM', )
 
@@ -189,7 +213,6 @@ class TestRegistration(unittest.TestCase):
             listing_fields=[":myfield"],
             restricted_to_types=[]
         ))
-        fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'hello world', )
 
@@ -209,7 +232,6 @@ class TestRegistration(unittest.TestCase):
             listing_fields=[":myfield"],
             restricted_to_types=[]
         ))
-        fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'The custom field expression has an error: python: bad_variable.', )
 
@@ -232,14 +254,12 @@ class TestRegistration(unittest.TestCase):
             restricted_to_types=[u'Folder', u'Collection' if plone_version >= "4.2.0" else "Topic"]
         ))
 
-        fudgeRequest()
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         #self.assertRegexpMatches(body, '(?m)31/12/2000.*01/01/2001')
         # should be reverse date order
         self.assertLess(body.index("01/01/2001"), body.index("31/12/2000"))
 
     def test_display_count(self):
-
         view = addView(self.portal, dict(
             id="myview",
             name="My View",
@@ -256,3 +276,43 @@ class TestRegistration(unittest.TestCase):
 
         # TODO: what should it do on an item?
         # TODO test on tiles and portlets
+
+    def test_change_viewid(self):
+        # really want to test how to make tile views appearing after an upgrade but the usecase of renaming a view
+        # should cover the same case of when the registrations get out of date
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["EffectiveDate:localshort"],
+            restricted_to_types=[]
+        ))
+
+        menu = getUtility(IBrowserMenu, 'plone_displayviews')
+        self.assertItemsSubset(['My View'], [m['title'] for m in menu.getMenuItems(self.portal.folder1, getRequest())])
+        body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
+        self.assertRegexpMatches(body, 'Jan 01, 2001', )
+
+        # Now we change the view id
+        old_view = view
+
+        view = updateView(self.portal,
+                         'myview',
+                          dict(
+                              id="updatedview",
+                              name="Updated View",
+                              item_fields=[],
+                              listing_fields=["EffectiveDate:localshort"],
+                              restricted_to_types=[]
+                          ))
+
+        self.assertItemsSubset(['Updated View'], [m['title'] for m in menu.getMenuItems(self.portal.folder1, getRequest())])
+        self.assertNotIn(['My View'], [m['title'] for m in menu.getMenuItems(self.portal.folder1, getRequest())])
+        try:
+            self.portal.folder1.unrestrictedTraverse("@@"+old_view)()
+        except AttributeError:
+            pass
+        body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
+        self.assertRegexpMatches(body, 'Jan 01, 2001', )
+

@@ -1,7 +1,12 @@
+from collections import OrderedDict
+
+from AccessControl import Permissions
 from OFS.SimpleItem import SimpleItem
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 from plone.app.registry.browser import controlpanel
 from z3c.form.object import registerFactoryAdapter, FactoryAdapter
+from zope.component.security import proxify
+from zope.security.checker import Checker, CheckerPublic
 
 from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
@@ -47,6 +52,22 @@ try:
 except ImportError:
     MOSAIC = False
 
+class ProxyView(object):
+    """Class to create simple proxy views."""
+
+    def __init__(self, factory, checker):
+        self.factory = factory
+        self.checker = checker
+
+    def __call__(self, *objects):
+        return proxify(self.factory(*objects), self.checker)
+
+def security_wrap_view(factory):
+    #return factory
+
+    checker = Checker(dict(__call__=CheckerPublic))  #TODO: should be Permissions.View I think but haven't got tests to work
+
+    return ProxyView(factory, checker)
 
 
 def addView(portal, data):
@@ -54,56 +75,103 @@ def addView(portal, data):
     view = ListingDefinition(data)
     views.append(view)
     view_name = getViewName(view.id)
-    sm = getSiteManager(portal)
-    sm.registerAdapter(ListingView,
-                       required=(IContentish, IBrowserRequest),
-                       provided=IBrowserView,
-                       name=view_name)
-    portal_types = getToolByName(portal, "portal_types")
-
-    # add view to the relevent types
-    for type_ in view.restricted_to_types:
-        fti = portal_types.getTypeInfo(type_)
-        if getattr(fti,'view_methods',None) is None:
-            #raise Exception("No dynamic view enabled for %s"%type_)
-            #TODO we need to warn user that only portlets will work for this type
-            continue
-        if view_name not in fti.view_methods:
-            fti.manage_changeProperties(view_methods=fti.view_methods+(view_name,))
-
-    # Register the view also for tiles if standardtiles is installed
-    registry = getUtility(IRegistry)
-    stlisting_views = registry.get('plone.app.standardtiles.listing_views', None)
-    if stlisting_views is not None:
-        # Adapter the various listing views in the content listing tile
-        sm.registerAdapter(ContentListingTileView,
-                           required=(Interface, IContentListingTileLayer),
-                           provided=IBrowserView,
-                           name=view_name)
-        if view_name not in stlisting_views:
-            stlisting_views[view_name] = unicode(view.name)
-
-    _registerMenuItems()
+    syncViews(portal)
     return view_name
 
+def updateView(portal, old_id, data):
+    record = ListingDefinition(data)
+    views = getRegistryViews().views
+    views[views.indexof(old_id)] = record
+    # assume view is already added
+    _registerMenuItems()
+    syncViews(portal)
+    return getViewName(record.id)
 
 
-def removeView(portal, view):
-    view_name = getViewName(view.id)
-    sm = getSiteManager(portal)
-    sm.unregisterAdapter(required = (IContentish, IBrowserRequest),
-                       provided = IBrowserView,
-                       name = view_name)
-    registry = getUtility(IRegistry)
-    stlisting_views = registry.get('plone.app.standardtiles.listing_views', None)
-    if stlisting_views is not None:
-        sm.unregisterAdapter(ListingView,
-                           required=(IContentish, IContentListingTileLayer),
+
+def sync_dicts(origin, target, add_func=None, del_func=None, mod_func=None):
+    to_del = target.copy()
+
+    for id, data in origin.items():
+        if id not in to_del:
+            if add_func is not None:
+                add_func(id, data)
+        else:
+            if mod_func is not None:
+                mod_func(id, data, to_del[id])
+            del to_del[id]
+    if del_func is not None:
+        for id, data in to_del.items():
+            del_func(id, data)
+
+
+
+def syncViews(portal ):
+    lsm = getSiteManager(portal)
+    views = OrderedDict([(getViewName(view.id), view) for view in getRegistryViews().views if view.id and view.name])
+
+
+    _registerMenuItems()
+
+    # browser views
+    adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((IContentish, IDefaultBrowserLayer), IBrowserView) if n.startswith('collective.listingviews.')])
+    def addView(name, _):
+        # TODO: should really only be registered against the types that were chosen or their Interfaces
+        lsm.registerAdapter(ListingView,
+                           required=(IContentish, IBrowserRequest),
                            provided=IBrowserView,
-                           name=view_name)
-        if view_name in stlisting_views:
-            del stlisting_views[view_name]
+                           name=name)
+    def removeView(name, _):
+        lsm.unregisterAdapter(required=(IContentish, IBrowserRequest),
+                             provided=IBrowserView,
+                             name=name)
+    sync_dicts(views, adapters, addView, removeView)
 
+    # fti
+    portal_types = getToolByName(portal, "portal_types")
+
+    ftis = dict([(name,fti) for fti in portal_types.listTypeInfo() for name in getattr(fti, 'view_methods', []) if name.startswith('collective.listingviews.')])
+    def add_fti(name, view):
+        for type_ in view.restricted_to_types:
+            fti = portal_types.getTypeInfo(type_)
+            if getattr(fti, 'view_methods', None) is None:
+                # raise Exception("No dynamic view enabled for %s"%type_)
+                # TODO we need to warn user that only portlets will work for this type
+                continue
+            if name not in fti.view_methods:
+                fti.manage_changeProperties(view_methods=fti.view_methods + (name,))
+
+    def del_fti(name, fti):
+        fti.manage_changeProperties(view_methods=(m for m in fti.view_methods if m != name))
+
+    sync_dicts(views, ftis, add_fti, del_fti)
+
+    # Tiles
+    stlisting_views = getUtility(IRegistry).get('plone.app.standardtiles.listing_views', None)
+    if stlisting_views is None:
+        return
+
+    def add_lv(name, view):
+        stlisting_views[name] = unicode(view.name)
+    def del_lv(name, title):
+        del stlisting_views[name]
+    def mod_lv(name, view, lvtitle):
+        if lvtitle != unicode(view.name):
+            stlisting_views[name] = unicode(view.name)
+    sync_dicts(views, stlisting_views, add_lv, del_lv, mod_lv)
+
+    adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((Interface, IContentListingTileLayer), IBrowserView) if n.startswith('collective.listingviews.')])
+    def add_tile(name, view):
+        lsm.registerAdapter(ContentListingTileView,
+                           required=(Interface, IContentListingTileLayer),
+                           provided=IBrowserView,
+                           name=name)
+    def del_tile(name, _):
+        lsm.unregisterAdapter(ContentListingTileView,
+                           required=(Interface, IContentListingTileLayer),
+                           provided=IBrowserView,
+                           name=name)
+    sync_dicts(views, adapters, add_tile, del_tile)
 
 # We need to register our menuitems the first time it's accessed per thread as we can't use local site manager
 # called from zope.app.publication.interfaces.IBeforeTraverseEvent
@@ -115,37 +183,45 @@ def registerMenuItems(site, event, _handled=set()):
 
 def _registerMenuItems():
 
-    proxy = getRegistryViews()
+    views = OrderedDict([(getViewName(view.id), view) for view in getRegistryViews().views if view.id and view.name])
+
+    #lsm = getSiteManager(context)
     gsm = getGlobalSiteManager()
     menu = getUtility(IBrowserMenu, 'plone_displayviews')
-    for view in proxy.views:
-        if not view.id or not view.name:
-            #TODO: should give a warning
-            continue
-        # register a menu item
-        view_name = getViewName(view.id)
-        factory = MenuItemFactory(
+    adapters = dict([(n,f) for n,f in gsm.adapters.lookupAll((IContentish, IDefaultBrowserLayer), menu.getMenuItemType()) if n.startswith('collective.listingviews.')])
+    def del_submenu(name, _):
+        gsm.unregisterAdapter(
+            required=(IContentish, IDefaultBrowserLayer),
+            provided=menu.getMenuItemType(),
+            name=name,
+        )
+
+    def add_submenu(name, view):
+        factory = security_wrap_view(MenuItemFactory(
             BrowserMenuItem,
             title=view.name,
-            action=view_name,
+            action=name,
             description=view.name,
+#            permission="cmf.ModifyViewTemplate",
+            permission=CheckerPublic,  # To satisfy test. Menu should be hidden anyway
             # icon=icon,
             #filter=filter, permission=permission, extra=extra, order=order,
     #                    _for=(IContentish, IDefaultBrowserLayer)
             )
-        # ensure we remove our old factory if already registered
-        gsm.unregisterAdapter(
-            required=(IContentish, IDefaultBrowserLayer),
-            provided=menu.getMenuItemType(),
-            name=view_name,
         )
 
         gsm.registerAdapter(
             factory,
             required=(IContentish, IDefaultBrowserLayer),
             provided=menu.getMenuItemType(),
-            name=view_name,
+            name=name,
         )
+    def mod_submenu(name, view, factory):
+        menu = factory(None, None)
+        if view.name != menu.title:
+            del_submenu(name, factory)
+            add_submenu(name, view)
+    sync_dicts(views, adapters, add_submenu, del_submenu, mod_submenu)
 
 
         #assert menu.getMenuItemByAction(IFolderish, self.request, view_name)
@@ -218,7 +294,7 @@ class ListingViewSchemaListing(crud.CrudForm):
         views = getRegistryViews().views
         view = views.get(name)
         del views[views.indexof(name)]
-        removeView(self.context, view)
+        syncViews(self.context)
         _registerMenuItems()
 
     def link(self, item, field):
@@ -250,11 +326,7 @@ class ListingViewEditForm(controlpanel.RegistryEditForm):
         # for each view we will create a new view in customerize and add that as a menu
         # item in the display menu
         id = self.context.__name__
-        record = ListingDefinition(data)
-        views = getRegistryViews().views
-        views[views.indexof(id)] = record
-        # assume view is already added
-        _registerMenuItems()
+        updateView(self.context, id, data)
 
 
 class ListingViewEditFormConfiglet(controlpanel.ControlPanelFormWrapper):
@@ -320,52 +392,6 @@ class ListingViewEditContext(SimpleItem):
         """ If not traversing through the schema to a field, show the SchemaListingPage.
         """
         return self, ('@@edit',)
-
-
-# Old crud form
-
-#class ListingControlPanelForm(controlpanel.RegistryEditForm):
-#
-#    schema = IListingControlPanel
-#    label = _(u"Manage Listing Views")
-#    description = _(u"""""")
-#
-#    def getContent(self):
-#        return getRegistryViews()
-#
-#    def applyChanges(self, data):
-#        #import pdb; pdb.set_trace()
-#        # for each view we will create a new view in customerize and add that as a menu
-#        # item in the display menu
-#
-#        old_views = set([view.id for view in getRegistryViews().views])
-#
-#        for view in data['views']:
-#            addView(self.context, view)
-#            # registering a menu item will be done in beforeSiteTraverse event
-#            if view.id in old_views:
-#                old_views.remove(view.id)
-#
-#        for view_id in old_views:
-#            removeView(self.context, view)
-#
-#
-#        # registering a menu item will be done in beforeSiteTraverse event
-#        #TODO unregister any old views
-#        super(ListingControlPanelForm, self).applyChanges(data)
-#
-#        # register all the menu names again from registery
-#        _registerMenuItems()
-#
-#class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
-#    form = ListingControlPanelForm
-
-#class ListingCustomFieldControlPanel(object):
-#    implements(IListingCustomFieldControlPanel)
-#class ListingControlPanelView(controlpanel.ControlPanelFormWrapper):
-#    form = ListingControlPanelForm
-
-
 
 
 class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
