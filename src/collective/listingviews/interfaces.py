@@ -73,7 +73,8 @@ class IListingDefinition(Interface):
     #    form.widget(restricted_to_types=AutocompleteMultiSelectionFieldWidget)
     restricted_to_types = schema.List(title=_(u"Enabled on Types"),
                                       description=_(u"Show in display menu or make portlet visible only for these types"),
-                                      required=True,
+                                      required=False,
+                                      default=[],
                                       value_type=schema.Choice(
                                           vocabulary="plone.app.vocabularies.ReallyUserFriendlyTypes"
                                       ),
@@ -94,6 +95,9 @@ class IListingDefinition(Interface):
                                  required=False,
                                  constraint=validate_class)
 
+    display_count = schema.Bool(title=_(u"Display a count of the number of items"),
+                                required=False,
+                                default=False)
 
 
 #class IListingSettings(Interface):

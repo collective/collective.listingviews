@@ -1,3 +1,5 @@
+import re
+
 import unittest2 as unittest
 from AccessControl.security import newInteraction
 from Products.CMFCore.utils import getToolByName
@@ -17,6 +19,7 @@ from collective.listingviews.testing import \
 from collective.listingviews.utils import getRegistryFields, getRegistryViews
 from collective.listingviews import plone_version
 PLONE5 = plone_version >= "5"
+PLONE41 = plone_version < "4.2"
 
 
 class TestRegistration(unittest.TestCase):
@@ -59,6 +62,12 @@ class TestRegistration(unittest.TestCase):
     def assertItemsSubset(self, items, all_items):
         for i in items:
             self.assertIn(i, all_items)
+
+    def assertRegexpMatches(self, text, match):
+        #TODO maybe some nicer html cleaning up
+        #text = ' '.join([line.strip() for line in text.split('\n')])
+        text = re.sub(r"\s\s+", " ", text)
+        return super(TestRegistration, self).assertRegexpMatches(text, match)
 
 
 
@@ -251,6 +260,26 @@ class TestRegistration(unittest.TestCase):
         # should be reverse date order
         self.assertLess(body.index("01/01/2001"), body.index("31/12/2000"))
 
+    def test_display_count(self):
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            listing_fields=["EffectiveDate:locallong"],
+            restricted_to_types=[],
+            display_count=True
+        ))
+
+        # If plone > 4.1 the folder is included in the collection.
+        count = PLONE41 and 3 or 4
+        body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
+        self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">%s</strong> items matching your search terms.\s?</span>' % count)
+
+        body = self.portal.folder1.unrestrictedTraverse("@@" + view)()
+        self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">3</strong> items matching your search terms.\s?</span>')
+
+        # TODO: what should it do on an item?
+        # TODO test on tiles and portlets
+
     def test_change_viewid(self):
         # really want to test how to make tile views appearing after an upgrade but the usecase of renaming a view
         # should cover the same case of when the registrations get out of date
@@ -289,6 +318,4 @@ class TestRegistration(unittest.TestCase):
             pass
         body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'Jan 01, 2001', )
-
-
 

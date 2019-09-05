@@ -90,4 +90,11 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         """
         return True
 
+    @property
+    def display_count(self):
+        display_count = False
+        if self.view_setting:
+            display_count = getattr(self.view_setting, 'display_count', False)
+        return display_count
+
 

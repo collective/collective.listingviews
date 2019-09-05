@@ -14,6 +14,8 @@
 
         <div class="listingviews" tal:define="adapter nocall:view/listing_view_adapter;
             batch folderContents | adapter/retrieve_listing_items;">
+
+
           <div class="listing-collection-view"
             tal:define="class_name python: adapter.listing_style_class;
                         fields python: adapter.retrieve_context_item;"
@@ -34,6 +36,15 @@
                               tal:define="adapter adapter | nocall:view/listing_view_adapter;
                               batch folderContents | adapter/retrieve_listing_items;
                               class_name python: adapter.listing_style_class;">
+
+              <div class="listing-results-bar" tal:condition="adapter/display_count">
+                <span i18n:translate="batch_x_items_matching_your_criteria" i18n:domain="plone" class="listing-results-count">
+                  <strong i18n:name="number" class="listing-results-number"
+                          tal:content="batch/sequence_length|string:0">234</strong>
+                    items matching your search terms.
+                </span>
+              </div>
+
 
               <ul class="listing-items-view" tal:attributes="class string:${class_name}-listing listing-items-view" metal:define-macro="listing_items">
                   <li class="listing-item" tal:repeat="item_object batch">
