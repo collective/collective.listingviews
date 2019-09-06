@@ -199,26 +199,26 @@ Note the html is in exactly the same order as we specifed in our view definition
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field field-lead_image-img_mini-tolink">Lead Image</dt>
-                              <dd class="listing-field field-lead_image-img_mini-tolink"><a href="http://nohost/plone/folder1/item3"><img src="http://nohost/plone/folder1/item3/@@images/image/mini" alt="..." /></a></dd>
+...<dt class="listing-field field-lead_image-img_mini-tolink">Lead Image</dt>...
+...<dd class="listing-field field-lead_image-img_mini-tolink"><a href="http://nohost/plone/folder1/item3"><img src="http://nohost/plone/folder1/item3/@@images/image/mini" alt="item3"/></a></dd>
 ...
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field field-lead_image-img_mini-tolink">Lead Image</dt>
-                              <dd class="listing-field field-lead_image-img_mini-tolink"><a href="http://nohost/plone/folder1/item4"><img src="http://nohost/plone/folder1/item4/@@images/image/mini" alt="..." /></a></dd>
+...<dt class="listing-field field-lead_image-img_mini-tolink">Lead Image</dt>
+...<dd class="listing-field field-lead_image-img_mini-tolink"><a href="http://nohost/plone/folder1/item4"><img src="http://nohost/plone/folder1/item4/@@images/image/mini" alt="item4"/></a></dd>
 ...
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field field-EffectiveDate-localshort">EffectiveDate</dt>
-                              <dd class="listing-field field-EffectiveDate-localshort">Jan 01, 2001</dd>
+...<dt class="listing-field field-EffectiveDate-localshort">EffectiveDate</dt>
+...<dd class="listing-field field-EffectiveDate-localshort">Jan 01, 2001</dd>
 ...
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field pubdate">Local Publication Date</dt>
-                              <dd class="listing-field pubdate">01/01/2001</dd>
+...<dt class="listing-field pubdate">Local Publication Date</dt>...
+...<dd class="listing-field pubdate">01/01/2001</dd>...
 ...
 
 
@@ -372,7 +372,7 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getLink('Publication Info').click()
->>> setRelatedItem(browser, "Target", "folder1/item1")
+>>> browser.setRelatedItem("Target", "folder1/item1")
 
 >>> browser.getControl('Save').click()
 
@@ -459,7 +459,7 @@ True
 
 #>>> if not plone5: browser.getControl('News with publication').click()
 
->>> setRelatedItem(browser, 'Target', 'folder1/collection1')
+>>> browser.setRelatedItem('Target', 'folder1/collection1')
 
 >>> browser.getControl('Save').click()
 
