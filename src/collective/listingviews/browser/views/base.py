@@ -287,4 +287,8 @@ class BaseListingInformationRetriever(BrowserView):
             return {'title': 'Lead Image', 'css_class': 'field-lead_image', 'value': url, 'is_custom': False, 'item':item}
         return getImageUrl
 
+    @property
+    def display_count(self):
+        return False # non-folderish should never show a result count
+
 # Override context creation
