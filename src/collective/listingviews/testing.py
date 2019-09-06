@@ -278,8 +278,8 @@ class Z3CFormBrowser(Browser):
         return None
 
 
-    def setInAndOut(self, browser, labels, index=None):
-        main_control = browser.getControl(labels[0], index=index).control
+    def setInAndOut(self, labels, index=None):
+        main_control = self.getControl(labels[0], index=index).control
         #parents = self.getControlParents(main_control)
         #form = self.getFormFromControl(main_control)
         #import pdb; pdb.set_trace()
@@ -315,49 +315,58 @@ class Z3CFormBrowser(Browser):
             insert_input(main_control, '%s:list'%name, options[label], index)
             index += 1
 
-    def setRelatedItem(self, browser, label, path):
-        name = etree.HTML(browser.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
+    def setRelatedItem(self, label, path):
+        name = etree.HTML(self.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
         name = name.replace("-",".")
         try:
-            control = browser.getControl(name=name)
+            control = self.getControl(name=name)
         except:
             # Older style widget
-            control = browser.getControl(name=name+".query.query")
+            control = self.getControl(name=name+".query.query")
             form = self.getFormFromControl(control)
             form.mech_form.new_control('text', name, {'value': "/"+path})
         else:
             item = getSite().restrictedTraverse(path)
             control.value = IUUID(item)
 
+def managerBrowser(layer):
+    browser = Z3CFormBrowser(layer['app'])
+    browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
 
-class BrowserFunctionalTesting(FunctionalTesting):
+    browser.handleErrors = False
+    portal = layer['portal']
+    portal.error_log._ignored_exceptions = ()
 
-    def setUpEnvironment(self, portal):
-        super(BrowserFunctionalTesting, self).setUpEnvironment(portal)
-        #portal = self['portal']
-        self['portal'] = portal
+    def raising(self, info):
+        import traceback
+        traceback.print_tb(info[2])
+        print info[1]
 
-        browser = Z3CFormBrowser(portal)
-        browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
-        self['manager'] = browser
+    from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
+    SiteErrorLog.raising = raising
+    browser.open(portal.absolute_url())
+    return browser
+#     # def errorlog(self):
+#     #     from Products.CMFCore.utils import getToolByName
+#     #     portal = self['portal']
+#     #     errorLog = getToolByName(portal, 'error_log')
+#     #     print errorLog.getLogEntries()[-1]['tb_text']
 
-        browser.handleErrors = False
-        portal.error_log._ignored_exceptions = ()
-
-        def raising(self, info):
-            import traceback
-            traceback.print_tb(info[2])
-            print info[1]
-
-        from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
-        SiteErrorLog.raising = raising
-
-
-    def errorlog(self):
-        from Products.CMFCore.utils import getToolByName
-        portal = self['portal']
-        errorLog = getToolByName(portal, 'error_log')
-        print errorLog.getLogEntries()[-1]['tb_text']
+#
+# class BrowserFunctionalTesting(FunctionalTesting):
+#
+#     def setUpEnvironment(self, portal):
+#         super(BrowserFunctionalTesting, self).setUpEnvironment(portal)
+#         #portal = self['portal']
+#         self['portal'] = portal
+#
+#
+#
+#     # def errorlog(self):
+#     #     from Products.CMFCore.utils import getToolByName
+#     #     portal = self['portal']
+#     #     errorLog = getToolByName(portal, 'error_log')
+#     #     print errorLog.getLogEntries()[-1]['tb_text']
 
 
 
@@ -367,7 +376,7 @@ COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING = \
                             name="CollectiveListingviews:Integration")
 
 COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING = \
-    BrowserFunctionalTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
+    FunctionalTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
                             name="CollectiveListingviews:Functional")
 
 # FIXTURE = CollectiveListingviews()
@@ -385,7 +394,7 @@ try:
 
     TILES_FIXTURE = CollectiveListingviewsTiles()
     TILES_INTEGRATION_TESTING = \
-        BrowserFunctionalTesting(bases=(TILES_FIXTURE,),
+        FunctionalTesting(bases=(TILES_FIXTURE,),
                                   name="CollectiveListingviewsTiles:Integration")
 except ImportError:
     TILES_INTEGRATION_TESTING = None

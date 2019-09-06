@@ -27,8 +27,7 @@ A TAL Expression like the following will work.
 - Finally the TAL Expression that is evaluated when showing the field. ``item`` is the catalog brain.
   ``object`` or ``here`` is the context object. Below is the TAL we are going to use.
 
->>> browser = layer['manager']
->>> browser.open(layer['portal'].absolute_url())
+>>> browser = managerBrowser(layer)
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
 >>> print browser.contents
