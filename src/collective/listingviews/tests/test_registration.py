@@ -63,11 +63,11 @@ class TestRegistration(unittest.TestCase):
         for i in items:
             self.assertIn(i, all_items)
 
-    def assertRegexpMatches(self, text, match):
+    def assertRegexpMatches(self, text, match, *args):
         #TODO maybe some nicer html cleaning up
         #text = ' '.join([line.strip() for line in text.split('\n')])
         text = re.sub(r"\s\s+", " ", text)
-        return super(TestRegistration, self).assertRegexpMatches(text, match)
+        return super(TestRegistration, self).assertRegexpMatches(text, match, *args)
 
 
 
@@ -309,12 +309,12 @@ class TestRegistration(unittest.TestCase):
         ))
 
         # If plone > 4.1 the folder is included in the collection.
-        count = PLONE41 and 3 or 4
+        count = PLONE41 and 5 or 6
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
         self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">%s</strong> items matching your search terms.\s?</span>' % count)
 
         body = self.portal.folder1.unrestrictedTraverse("@@" + view)()
-        self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">3</strong> items matching your search terms.\s?</span>')
+        self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">5</strong> items matching your search terms.\s?</span>')
 
         # TODO: what should it do on an item?
         # TODO test on tiles and portlets
