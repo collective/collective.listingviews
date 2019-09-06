@@ -233,7 +233,7 @@ class TestRegistration(unittest.TestCase):
             data['listing_fields'] = ["%s" % filter]
             updateView(self.portal, "myview", data)
             body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
-            regexp = '(.*)<dd class="listing-field ([^"]*)"><a href="[^"]*"><img src="(http://nohost/plone/[^"]*)" alt="([^"]*)"/></a></dd>(.*)'
+            regexp = '(.*)<dd class="listing-field ([^"]*)"><a href="[^"]*"><img src="(http://nohost/plone/[^"]*)" alt="([^"]*)" /></a></dd>(.*)'
             res = re.match(regexp, body, re.DOTALL | re.MULTILINE)
             self.assertIsNotNone(res, "Images not found in page\n%s"%body)
             image_url = str(res.group(3))

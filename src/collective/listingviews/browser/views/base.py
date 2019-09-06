@@ -77,9 +77,9 @@ class BaseListingInformationRetriever(BrowserView):
                 except ValueError:
                     return ''
                 if size != 'image':
-                    return '<img src="{}/@@images/{}/{}" alt="{}"/>'.format(url, image_field, size, item.Title)
+                    return '<img src="{}/@@images/{}/{}" alt="{}" />'.format(url, image_field, size, item.Title)
                 else:
-                    return '<img src="{}/@@images/{}" alt="{}"/>'.format(url, image_field, item.Title)
+                    return '<img src="{}/@@images/{}" alt="{}" />'.format(url, image_field, item.Title)
             return get_tag
         for size in list(getAllowedSizes().keys())+['image']:
             self.filters['img_{}'.format(size)] = get_tag_for_size(size)
