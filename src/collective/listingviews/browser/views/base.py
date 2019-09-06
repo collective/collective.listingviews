@@ -2,7 +2,11 @@ import inspect
 
 import Missing
 from DateTime import DateTime
-from plone.namedfile.interfaces import IAvailableSizes
+try:
+    from plone.namedfile.interfaces import IAvailableSizes
+    getAllowedSizes = lambda: queryUtility(IAvailableSizes)()
+except ImportError:
+    from plone.app.imaging.utils import getAllowedSizes
 from zope.schema.interfaces import IVocabularyFactory
 from collective.listingviews import LVMessageFactory as _
 try:
@@ -77,7 +81,7 @@ class BaseListingInformationRetriever(BrowserView):
                 else:
                     return '<img src="{}/@@images/{}" alt="{}"/>'.format(url, image_field, item.Title)
             return get_tag
-        for size in list(queryUtility(IAvailableSizes)().keys())+['image']:
+        for size in list(getAllowedSizes().keys())+['image']:
             self.filters['img_{}'.format(size)] = get_tag_for_size(size)
 
     def set_listing_view(self, view_name):

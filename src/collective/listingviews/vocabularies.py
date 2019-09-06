@@ -1,6 +1,10 @@
 from collections import OrderedDict
 
-from plone.namedfile.interfaces import IAvailableSizes
+try:
+    from plone.namedfile.interfaces import IAvailableSizes
+    getAllowedSizes = lambda: queryUtility(IAvailableSizes)()
+except ImportError:
+    from plone.app.imaging.utils import getAllowedSizes
 from zope.interface import implements
 from collective.listingviews.interfaces import IListingCustomFieldControlPanel, IListingControlPanel
 from collective.listingviews.utils import ComplexRecordsProxy, getRegistryFields
@@ -138,10 +142,9 @@ def MetadataVocabulary(context):
             terms.append(t(display_name, name + ":"))
 
     # Lead image fields.
-    getAvailableSizes = queryUtility(IAvailableSizes)
     # if getAvailableSizes is None:
     #     return self._sizes
-    sizes = getAvailableSizes()
+    sizes = getAllowedSizes()
 
     for size in sizes:
         terms.append(t(u"Lead Image (%s)" % size, "lead_image:img_%s:tolink"%size))

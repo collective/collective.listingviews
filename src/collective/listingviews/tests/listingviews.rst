@@ -28,6 +28,7 @@ A TAL Expression like the following will work.
   ``object`` or ``here`` is the context object. Below is the TAL we are going to use.
 
 >>> browser = layer['manager']
+>>> browser.open(layer['portal'].absolute_url())
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
 >>> print browser.contents
@@ -126,9 +127,9 @@ and finally we'll enable the view for all content types
 
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
->>> layer.setInAndOut(browser, ['Title'], index=1)
->>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
->>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
+>>> browser.setInAndOut(['Title'], index=1)
+>>> browser.setInAndOut(['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
+>>> browser.setInAndOut(browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
 We can manage our existing listing views including a link to edit the view we just created.
@@ -263,8 +264,8 @@ Finally we only want this to be applied to a Page content type
 >>> browser.getControl('Add').click()
 >>> browser.getControl('Id').value = "pubnewsitem"
 >>> browser.getControl('Title', index=0).value = "Publication Info"
->>> layer.setInAndOut(browser, ['Local Publication Date (Custom)'], index=0)
->>> layer.setInAndOut(browser, ['Page'])
+>>> browser.setInAndOut(['Local Publication Date (Custom)'], index=0)
+>>> browser.setInAndOut(['Page'])
 >>> browser.getControl('Add').click()
 
 
@@ -283,7 +284,7 @@ viewing this content type. (e.g. ``Site Setup > Types > News Item > Manage Portl
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getControl('ListingView Portlet', index=1).click()
->>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
+>>> browser.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Publication Info'
 >>> browser.getControl('Listing views').value = ['pubnewsitem']
 >>> browser.getControl('Save').click()
@@ -372,7 +373,7 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getLink('Publication Info').click()
->>> layer.setRelatedItem(browser, "Target", "folder1/item1")
+>>> setRelatedItem(browser, "Target", "folder1/item1")
 
 >>> browser.getControl('Save').click()
 
@@ -449,7 +450,7 @@ name for ``collection1`` in the ``Target`` field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getControl('ListingView Portlet', index=1).click()
->>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
+>>> browser.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Collection Portlet'
 >>> 'News with publication' in browser.getControl('Listing views').displayOptions
 True
@@ -459,7 +460,7 @@ True
 
 #>>> if not plone5: browser.getControl('News with publication').click()
 
->>> layer.setRelatedItem(browser, 'Target', 'folder1/collection1')
+>>> setRelatedItem(browser, 'Target', 'folder1/collection1')
 
 >>> browser.getControl('Save').click()
 

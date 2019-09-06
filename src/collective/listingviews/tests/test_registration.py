@@ -3,7 +3,6 @@ from AccessControl.security import newInteraction
 from Products.CMFCore.utils import getToolByName
 from plone.app.testing import login, TEST_USER_NAME, SITE_OWNER_NAME, setRoles, TEST_USER_ID
 #from plone.z3cform.tests import TestRequest
-from plone.subrequest import subrequest
 from zope.browsermenu.interfaces import IBrowserMenu
 from zope.component import getUtility, queryAdapter, getAdapters, getSiteManager, getGlobalSiteManager
 from zope.globalrequest import getRequest, setRequest
@@ -238,9 +237,14 @@ class TestRegistration(unittest.TestCase):
             res = re.match(regexp, body, re.DOTALL | re.MULTILINE)
             self.assertIsNotNone(res, "Images not found in page\n%s"%body)
             image_url = str(res.group(3))
-            image = subrequest(image_url)
-            self.assertEqual(image.headers['content-type'], 'image/png', "%s is not an image"%image_url)
             self.assertIn(size, image_url)
+            try:
+                from plone.subrequest import subrequest
+            except ImportError:
+                pass
+            else:
+                image = subrequest(image_url)
+                self.assertEqual(image.headers['content-type'], 'image/png', "%s is not an image"%image_url)
 
 
     def test_add_bad_custom_field(self):

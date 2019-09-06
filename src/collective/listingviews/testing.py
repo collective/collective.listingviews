@@ -13,17 +13,23 @@ from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD, 
 from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
 from Products.CMFCore.utils import getToolByName
 from lxml import etree
-from plone.namedfile.file import NamedBlobImage
+
+IMG = base64.decodestring("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
 
 def dummy_image(filename=u'image.png'):
     # filename = os.path.join(os.path.dirname(__file__), filename)
     # with open(filename, 'rb') as f:
     #     image_data = f.read()
 
-    return NamedBlobImage(
-        data=base64.decodestring("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="),
-        filename=filename
-    )
+    try:
+        from plone.namedfile.file import NamedBlobImage
+    except ImportError:
+        pass
+    else:
+        return NamedBlobImage(
+            data=IMG,
+            filename=filename
+        )
 
 class CollectiveListingviews(PloneSandboxLayer):
 
@@ -38,10 +44,10 @@ class CollectiveListingviews(PloneSandboxLayer):
         except ImportError:
             # plone 4
             pass
-        import plone.namedfile
-        self.loadZCML(package=plone.namedfile)
-        import plone.app.imaging
-        self.loadZCML(package=plone.app.imaging)
+        # import plone.namedfile
+        # self.loadZCML(package=plone.namedfile)
+        # import plone.app.imaging
+        # self.loadZCML(package=plone.app.imaging)
 
         # Load ZCML for this package
         import collective.listingviews
@@ -79,7 +85,7 @@ class CollectiveListingviews(PloneSandboxLayer):
 
         portal.folder1.invokeFactory('News Item', 'item3', title=u"item3")
         if hasattr(portal.folder1.item3, 'setImage'):
-            portal.folder1.item3.setImage(dummy_image().data)
+            portal.folder1.item3.setImage(IMG)
         else:
             portal.folder1.item3.image = dummy_image()
         workflowTool.doActionFor(portal.folder1.item3, 'publish')
@@ -87,7 +93,7 @@ class CollectiveListingviews(PloneSandboxLayer):
 
         portal.folder1.invokeFactory('Image', 'item4', title=u"item4")
         if hasattr(portal.folder1.item4, 'setImage'):
-            portal.folder1.item4.setImage(dummy_image().data)
+            portal.folder1.item4.setImage(IMG)
         else:
             portal.folder1.item4.image = dummy_image()
 #        workflowTool.doActionFor(portal.folder1.item4, 'publish')
@@ -218,30 +224,8 @@ class CollectiveListingviewsTiles(CollectiveListingviews):
         # from plone.app.standardtiles import embed
         # embed.requests.get = RequestsGetMock
 
+class Z3CFormBrowser(Browser):
 
-class BrowserFunctionalTesting(FunctionalTesting):
-
-    def setUpEnvironment(self, portal):
-        super(BrowserFunctionalTesting, self).setUpEnvironment(portal)
-        #portal = self['portal']
-        self['portal'] = portal
-
-        browser = Browser(portal)
-        browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
-        self['manager'] = browser
-
-        browser.handleErrors = False
-        portal.error_log._ignored_exceptions = ()
-
-        def raising(self, info):
-            import traceback
-            traceback.print_tb(info[2])
-            print info[1]
-
-        from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
-        SiteErrorLog.raising = raising
-
-        browser.open(portal.absolute_url())
 
     def getFormFromControl(self, control):
         browser = control.browser
@@ -331,9 +315,6 @@ class BrowserFunctionalTesting(FunctionalTesting):
             insert_input(main_control, '%s:list'%name, options[label], index)
             index += 1
 
-        #import pdb;
-        #pdb.set_trace()
-
     def setRelatedItem(self, browser, label, path):
         name = etree.HTML(browser.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
         name = name.replace("-",".")
@@ -347,6 +328,30 @@ class BrowserFunctionalTesting(FunctionalTesting):
         else:
             item = getSite().restrictedTraverse(path)
             control.value = IUUID(item)
+
+
+class BrowserFunctionalTesting(FunctionalTesting):
+
+    def setUpEnvironment(self, portal):
+        super(BrowserFunctionalTesting, self).setUpEnvironment(portal)
+        #portal = self['portal']
+        self['portal'] = portal
+
+        browser = Z3CFormBrowser(portal)
+        browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
+        self['manager'] = browser
+
+        browser.handleErrors = False
+        portal.error_log._ignored_exceptions = ()
+
+        def raising(self, info):
+            import traceback
+            traceback.print_tb(info[2])
+            print info[1]
+
+        from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
+        SiteErrorLog.raising = raising
+
 
     def errorlog(self):
         from Products.CMFCore.utils import getToolByName
