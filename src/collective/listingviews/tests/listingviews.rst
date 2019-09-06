@@ -127,7 +127,7 @@ and finally we'll enable the view for all content types
 >>> browser.getControl('Id').value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
 >>> layer.setInAndOut(browser, ['Title'], index=1)
->>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (Virtual)'], index=3)
+>>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
 >>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
@@ -199,14 +199,14 @@ Note the html is in exactly the same order as we specifed in our view definition
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field field-lead_image-tag_image">lead_image</dt>
-                              <dd class="listing-field field-lead_image-tag_image"><a href="http://nohost/plone/folder1/item3"><img src="http://nohost/plone/folder1/item3/@@images/image" alt="item3".../></a></dd>
+                              <dt class="listing-field field-lead_image-img_mini">Lead Image</dt>
+                              <dd class="listing-field field-lead_image-img_mini"><a href="http://nohost/plone/folder1/item3"><a href="http://nohost/plone/folder1/item3"><img src="http://nohost/plone/folder1/item3/@@images/image/mini" alt="..." /></a></dd>
 ...
 
 >>> print browser.contents
 <...
-                              <dt class="listing-field field-lead_image-tag_image">lead_image</dt>
-                              <dd class="listing-field field-lead_image-tag_image"><a href="http://nohost/plone/folder1/item4"><img src="http://nohost/plone/folder1/item4/@@images/image" alt="item4".../></a></dd>
+                              <dt class="listing-field field-lead_image-img_mini">Lead Image</dt>
+                              <dd class="listing-field field-lead_image-img_mini"><a href="http://nohost/plone/folder1/item4"><a href="http://nohost/plone/folder1/item4"><img src="http://nohost/plone/folder1/item4/@@images/image/mini" alt="..." /></a></dd>
 ...
 
 >>> print browser.contents

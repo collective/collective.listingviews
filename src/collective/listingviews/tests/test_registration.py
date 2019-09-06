@@ -3,6 +3,7 @@ from AccessControl.security import newInteraction
 from Products.CMFCore.utils import getToolByName
 from plone.app.testing import login, TEST_USER_NAME, SITE_OWNER_NAME, setRoles, TEST_USER_ID
 #from plone.z3cform.tests import TestRequest
+from plone.subrequest import subrequest
 from zope.browsermenu.interfaces import IBrowserMenu
 from zope.component import getUtility, queryAdapter, getAdapters, getSiteManager, getGlobalSiteManager
 from zope.globalrequest import getRequest, setRequest
@@ -40,7 +41,7 @@ class TestRegistration(unittest.TestCase):
 
         #directlyProvides(getRequest(), IDefaultBrowserLayer)
         for dummy in ['ACTUAL_URL', 'URL']:
-            request.form.setdefault(dummy, 'dummy')
+            request.form.setdefault(dummy, self.portal.absolute_url())
 
         # Not sure why this is needed but single test to test menu items checkpermission needs this
         try:
@@ -208,38 +209,38 @@ class TestRegistration(unittest.TestCase):
         self.assertRegexpMatches(body, 'hello world', 'Custom field not found')
 
 
-    def test_add_virtual_field(self):
+    def test_lead_image_scales(self):
 
-        view = addView(self.portal, dict(
+        filters = [f.value for f in
+                   getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')(self.portal) if
+                   ':img_' in f.value]
+        self.assertItemsSubset(
+            ['lead_image:img_mini:tolink', 'lead_image:img_thumb:tolink', 'lead_image:img_large:tolink', 'lead_image:img_listing:tolink',
+             'lead_image:img_tile:tolink', 'lead_image:img_preview:tolink', 'lead_image:img_icon:tolink', 'lead_image:img_image:tolink'],
+            filters,
+        )
+
+        data = dict(
             id="myview",
             name="My View",
             item_fields=[],
-            listing_fields=["lead_image:tag_image"],
+            listing_fields=[],
             restricted_to_types=[]
-        ))
-        fudgeRequest()
-        body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
-        regexp = '(.*)<dd class="listing-field field-lead_image-tag_image">(.*)<img src="http://nohost/plone/(.*)" alt="(.*)"/>(.*)</dd>(.*)'
-        self.assertRegexpMatches(body, regexp, 'Virtual field not found')
+        )
+        view = addView(self.portal, data)
 
-    def test_image_filter(self):
-
-        filters =['tag_image','tag_mini', 'tag_large', 'tag_thumb', 'tag_listing', 'tag_icon', 'tag_preview', 'tag_tile']
         for filter in filters:
-            view = addView(self.portal, dict(
-                id="myview",
-                name="My View",
-                item_fields=[],
-                listing_fields=["lead_image:%s" % filter],
-                restricted_to_types=[]
-            ))
-            fudgeRequest()
-            body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
-            regexp = '(.*)<dd class="listing-field field-lead_image-tag_image">(.*)<img src="http://nohost/plone/(.*)" alt="(.*)"/>(.*)</dd>(.*)'
-            res = re.match(regexp,body, re.DOTALL | re.MULTILINE)
+            size = re.match("lead_image:img_(.*):tolink", filter).group(1)
+            data['listing_fields'] = ["%s" % filter]
+            updateView(self.portal, "myview", data)
+            body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
+            regexp = '(.*)<dd class="listing-field ([^"]*)"><a href="[^"]*"><img src="(http://nohost/plone/[^"]*)" alt="([^"]*)"/></a></dd>(.*)'
+            res = re.match(regexp, body, re.DOTALL | re.MULTILINE)
+            self.assertIsNotNone(res, "Images not found in page\n%s"%body)
             image_url = str(res.group(3))
-            image = self.portal.unrestrictedTraverse(image_url)
-            self.assertIsNotNone(image, 'Image not found')
+            image = subrequest(image_url)
+            self.assertEqual(image.headers['content-type'], 'image/png', "%s is not an image"%image_url)
+            self.assertIn(size, image_url)
 
 
     def test_add_bad_custom_field(self):

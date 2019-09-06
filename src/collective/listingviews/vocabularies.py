@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from plone.namedfile.interfaces import IAvailableSizes
 from zope.interface import implements
 from collective.listingviews.interfaces import IListingCustomFieldControlPanel, IListingControlPanel
 from collective.listingviews.utils import ComplexRecordsProxy, getRegistryFields
@@ -15,9 +16,9 @@ try:
 except ImportError:
     from zope.component.hooks import getSite
 
-LEAD_IMAGE_FIELD_ID = 'lead_image:tag_image'
-LEAD_IMAGE_FIELD_NAME = 'Lead Image (Virtual)'
-VIRTUAL_FIELDS = { LEAD_IMAGE_FIELD_ID:LEAD_IMAGE_FIELD_NAME }
+# LEAD_IMAGE_FIELD_ID = 'lead_image:tag_image'
+# LEAD_IMAGE_FIELD_NAME = 'Lead Image (Virtual)'
+# VIRTUAL_FIELDS = { LEAD_IMAGE_FIELD_ID:LEAD_IMAGE_FIELD_NAME }
 
 class LVVocabulary(SimpleVocabulary):
     """
@@ -136,8 +137,17 @@ def MetadataVocabulary(context):
             #display_name = display_name.title()
             terms.append(t(display_name, name + ":"))
 
-    for id, value in VIRTUAL_FIELDS.items():
-        terms.append(t(value, id))
+    # Lead image fields.
+    getAvailableSizes = queryUtility(IAvailableSizes)
+    # if getAvailableSizes is None:
+    #     return self._sizes
+    sizes = getAvailableSizes()
+
+    for size in sizes:
+        terms.append(t(u"Lead Image (%s)" % size, "lead_image:img_%s:tolink"%size))
+    terms.append(t(u"Lead Image (Original)", "lead_image:img_image:tolink"))
+    terms.append(t(u"Lead Image (URL)", "lead_image:"))
+    # TODO: better display names
 
     # custom field
     for field in getRegistryFields().fields:

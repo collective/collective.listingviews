@@ -455,16 +455,3 @@ def getRegistryFields():
                                    prefix='collective.listingviews.customfield',
                                    key_names={'fields': 'id'})
     return proxy
-
-
-def getImageUrl(value):
-    if not value:
-        return ''
-    try:
-        from plone.app.contenttypes.behaviors.leadimage import ILeadImage
-        if ILeadImage.providedBy(value) or value.portal_type == 'Image':
-            return value.absolute_url() + '/@@images/image'
-    except ImportError:
-        if value.portal_type == 'News Item' or value.portal_type == 'Image':
-            return value.absolute_url() + '/@@images/image'
-    return ''

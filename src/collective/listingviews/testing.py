@@ -1,3 +1,5 @@
+import base64
+
 from plone.app.testing import PLONE_FIXTURE, PLONE_FUNCTIONAL_TESTING, PLONE_INTEGRATION_TESTING
 from plone.app.testing import PloneSandboxLayer, FunctionalTesting
 from plone.app.testing import IntegrationTesting
@@ -11,14 +13,14 @@ from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
 from Products.CMFCore.utils import getToolByName
 from lxml import etree
 from plone.namedfile.file import NamedBlobImage
-import os
 
 def dummy_image(filename=u'image.png'):
-    filename = os.path.join(os.path.dirname(__file__), filename)
-    with open(filename, 'rb') as f:
-        image_data = f.read()
+    # filename = os.path.join(os.path.dirname(__file__), filename)
+    # with open(filename, 'rb') as f:
+    #     image_data = f.read()
+
     return NamedBlobImage(
-        data=image_data,
+        data=base64.decodestring("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="),
         filename=filename
     )
 
@@ -35,6 +37,10 @@ class CollectiveListingviews(PloneSandboxLayer):
         except ImportError:
             # plone 4
             pass
+        import plone.namedfile
+        self.loadZCML(package=plone.namedfile)
+        import plone.app.imaging
+        self.loadZCML(package=plone.app.imaging)
 
         # Load ZCML for this package
         import collective.listingviews
@@ -58,6 +64,7 @@ class CollectiveListingviews(PloneSandboxLayer):
         workflowTool = getToolByName(portal, 'portal_workflow')
 
         portal.invokeFactory('Folder', 'folder1', title=u"folder1")
+        workflowTool.doActionFor(portal.folder1, 'publish')
         portal.folder1.invokeFactory('Document', 'item1', title=u"item1")
         workflowTool.doActionFor(portal.folder1.item1, 'publish')
         portal.folder1.reindexObject()
@@ -70,11 +77,19 @@ class CollectiveListingviews(PloneSandboxLayer):
         portal.folder1.item2.reindexObject()
 
         portal.folder1.invokeFactory('News Item', 'item3', title=u"item3")
-        portal.folder1.item3.image = dummy_image()
+        if hasattr(portal.folder1.item3, 'setImage'):
+            portal.folder1.item3.setImage(dummy_image().data)
+        else:
+            portal.folder1.item3.image = dummy_image()
+        workflowTool.doActionFor(portal.folder1.item3, 'publish')
         portal.folder1.item3.reindexObject()
 
         portal.folder1.invokeFactory('Image', 'item4', title=u"item4")
-        portal.folder1.item4.image = dummy_image()
+        if hasattr(portal.folder1.item4, 'setImage'):
+            portal.folder1.item4.setImage(dummy_image().data)
+        else:
+            portal.folder1.item4.image = dummy_image()
+#        workflowTool.doActionFor(portal.folder1.item4, 'publish')
         portal.folder1.item4.reindexObject()
 
         try:
