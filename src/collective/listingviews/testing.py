@@ -5,6 +5,7 @@ from plone.app.testing import PloneSandboxLayer, FunctionalTesting
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import applyProfile
 from plone.uuid.interfaces import IUUID
+from zope.component.hooks import getSite
 from zope.configuration import xmlconfig
 from plone.testing.z2 import Browser
 from zope.testbrowser.browser import controlFactory, ItemControl
@@ -218,11 +219,12 @@ class CollectiveListingviewsTiles(CollectiveListingviews):
         # embed.requests.get = RequestsGetMock
 
 
-class BrowserIntegrationTesting(IntegrationTesting):
+class BrowserFunctionalTesting(FunctionalTesting):
 
     def setUpEnvironment(self, portal):
-        super(BrowserIntegrationTesting, self).setUpEnvironment(portal)
+        super(BrowserFunctionalTesting, self).setUpEnvironment(portal)
         #portal = self['portal']
+        self['portal'] = portal
 
         browser = Browser(portal)
         browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
@@ -343,7 +345,7 @@ class BrowserIntegrationTesting(IntegrationTesting):
             form = self.getFormFromControl(control)
             form.mech_form.new_control('text', name, {'value': "/"+path})
         else:
-            item = self['portal'].restrictedTraverse(path)
+            item = getSite().restrictedTraverse(path)
             control.value = IUUID(item)
 
     def errorlog(self):
@@ -356,11 +358,11 @@ class BrowserIntegrationTesting(IntegrationTesting):
 
 COLLECTIVE_LISTINGVIEWS_FIXTURE = CollectiveListingviews()
 COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING = \
-    BrowserIntegrationTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
+    IntegrationTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
                             name="CollectiveListingviews:Integration")
 
 COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING = \
-    FunctionalTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
+    BrowserFunctionalTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
                             name="CollectiveListingviews:Functional")
 
 # FIXTURE = CollectiveListingviews()
@@ -378,7 +380,7 @@ try:
 
     TILES_FIXTURE = CollectiveListingviewsTiles()
     TILES_INTEGRATION_TESTING = \
-        BrowserIntegrationTesting(bases=(TILES_FIXTURE,),
+        BrowserFunctionalTesting(bases=(TILES_FIXTURE,),
                                   name="CollectiveListingviewsTiles:Integration")
 except ImportError:
     TILES_INTEGRATION_TESTING = None

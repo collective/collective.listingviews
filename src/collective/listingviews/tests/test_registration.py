@@ -22,7 +22,7 @@ PLONE5 = plone_version >= "5"
 
 class TestRegistration(unittest.TestCase):
 
-    layer = COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
+    layer = COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING
 
     def setUp(self):
         self.portal = self.layer['portal']

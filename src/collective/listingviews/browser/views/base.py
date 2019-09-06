@@ -59,7 +59,7 @@ class BaseListingInformationRetriever(BrowserView):
         self.filters = dict(
             localshort = lambda item, value: plone_util.toLocalizedTime(value, long_format=0),
             locallong = lambda item, value: plone_util.toLocalizedTime(value, long_format=1),
-            tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value),
+            tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value) if value else '',
         )
 
         # Image filters. Can take a url and turn it into an image
@@ -95,8 +95,6 @@ class BaseListingInformationRetriever(BrowserView):
         self.listing_field_filters = self.retrieve_fields(self.view_setting.listing_fields)
 
     def retrieve_fields(self, fields):
-        field_expr = []
-
 
         def get_filtered(func, filters):
             def filtered(item):
@@ -107,6 +105,7 @@ class BaseListingInformationRetriever(BrowserView):
                 return res
             return filtered
 
+        field_expr = []
         for field in fields:
             if ":" not in field:
                 raise InvalidListingViewField( "No valid field: %s (No colon)" % field )
