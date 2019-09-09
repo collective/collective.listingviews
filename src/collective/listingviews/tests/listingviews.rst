@@ -34,7 +34,7 @@ A TAL Expression like the following will work.
 <...Add...
 
 >>> browser.getControl('Add').click()
->>> browser.getControl('Id').value = "pubdate"
+>>> browser.getControl('Id', index=0).value = "pubdate"
 >>> browser.getControl('Title').value = "Local Publication Date"
 >>> browser.getControl('TAL expression').value = tal
 >>> browser.getControl('Additional CSS classes').value = ""
@@ -122,7 +122,7 @@ for each of the content items
 
 and finally we'll enable the view for all content types
 
->>> browser.getControl('Id').value = "pubnews"
+>>> browser.getControl('Id', index=0).value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
 >>> layer.setInAndOut(browser, ['Title'], index=1)
 >>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
@@ -247,7 +247,7 @@ Finally we only want this to be applied to a Page content type
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing View').click()
 >>> browser.getControl('Add').click()
->>> browser.getControl('Id').value = "pubnewsitem"
+>>> browser.getControl('Id', index=0).value = "pubnewsitem"
 >>> browser.getControl('Title', index=0).value = "Publication Info"
 >>> layer.setInAndOut(browser, ['Local Publication Date (Custom)'], index=0)
 >>> layer.setInAndOut(browser, ['Page'])
