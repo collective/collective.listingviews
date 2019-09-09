@@ -5,7 +5,7 @@ from zope.interface import implements
 import inspect
 from collective.listingviews.browser.views.base import BaseListingInformationRetriever
 from collective.listingviews.interfaces import IListingAdapter
-from collective.listingviews.utils import getListingNameFromView, AdapterWhoKnowsItsName
+from collective.listingviews.utils import getListingNameFromView
 
 
 class QueryBuilderListingViewAdapter(BaseListingInformationRetriever):
@@ -22,8 +22,12 @@ class QueryBuilderListingViewAdapter(BaseListingInformationRetriever):
 
 
 
-class ContentListingTileView(AdapterWhoKnowsItsName, BrowserView):
+class ContentListingTileView(BrowserView):
     index = ViewPageTemplateFile("contentlisting_tile.pt")
+
+    def __init__(self, context, request, name):
+        super(ContentListingTileView, self).__init__(context, request)
+        self.__adapter_name__ = name
 
     def render(self):
         return self.index()

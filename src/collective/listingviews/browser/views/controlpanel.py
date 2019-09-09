@@ -23,7 +23,8 @@ from zope.browser.interfaces import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest, IBrowserPublisher
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from Products.CMFCore.interfaces import IFolderish, IContentish
-from collective.listingviews.utils import ComplexRecordsProxy, getViewName, getRegistryViews, getRegistryFields
+from collective.listingviews.utils import ComplexRecordsProxy, getViewName, getRegistryViews, getRegistryFields, \
+    NamedAdapterFactory
 from five.customerize.zpt import TTWViewTemplate
 from collective.listingviews.browser.views.listing_view import ListingView
 from Products.CMFCore.utils import getToolByName
@@ -117,7 +118,7 @@ def syncViews(portal ):
     adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((IContentish, IDefaultBrowserLayer), IBrowserView) if n.startswith('collective.listingviews.')])
     def addView(name, _):
         # TODO: should really only be registered against the types that were chosen or their Interfaces
-        lsm.registerAdapter(ListingView,
+        lsm.registerAdapter(NamedAdapterFactory(name, ListingView),
                            required=(IContentish, IBrowserRequest),
                            provided=IBrowserView,
                            name=name)
@@ -162,7 +163,7 @@ def syncViews(portal ):
 
     adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((Interface, IContentListingTileLayer), IBrowserView) if n.startswith('collective.listingviews.')])
     def add_tile(name, view):
-        lsm.registerAdapter(ContentListingTileView,
+        lsm.registerAdapter(NamedAdapterFactory(name, ContentListingTileView),
                            required=(Interface, IContentListingTileLayer),
                            provided=IBrowserView,
                            name=name)

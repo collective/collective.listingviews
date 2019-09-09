@@ -3,7 +3,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five import BrowserView
 from zope.component import getMultiAdapter
 from zope.interface import implements
-from collective.listingviews.utils import getListingNameFromView, AdapterWhoKnowsItsName
+from collective.listingviews.utils import getListingNameFromView
 
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout
@@ -14,18 +14,15 @@ except:
     IFacetedSearchMode = None
 
 
-class ListingView(AdapterWhoKnowsItsName, BrowserView):
+class ListingView(BrowserView):
     index = ViewPageTemplateFile("templates/layout.pt")
 
     security = ClassSecurityInfo()
     security.declareObjectProtected(Permissions.view)
 
-    def render(self):
-        return self.index()
-
-    security.declareProtected(Permissions.view, '__call__')
-    def __call__(self):
-        """ Render the view """
+    def __init__(self, context, request, name):
+        super(ListingView, self).__init__(context, request)
+        self.__adapter_name__ = name
 
         self.listing_view_adapter = getMultiAdapter((self.context, self.request), name='listing_view_adapter')
 
@@ -36,6 +33,14 @@ class ListingView(AdapterWhoKnowsItsName, BrowserView):
         else:
             view_name = getListingNameFromView(self.__adapter_name__)
             self.listing_view_adapter.set_listing_view(view_name)
+
+    def render(self):
+        return self.index()
+
+    security.declareProtected(Permissions.view, '__call__')
+    def __call__(self):
+        """ Render the view """
+
 
         return self.render()
 

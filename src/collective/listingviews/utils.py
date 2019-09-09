@@ -457,13 +457,23 @@ def getRegistryFields():
                                    prefix='collective.listingviews.customfield',
                                    key_names={'fields': 'id'})
     return proxy
+#
+# class AdapterWhoKnowsItsName(object):
+#
+#     def __init__(self, *args, **kwargs):
+#         super(AdapterWhoKnowsItsName, self).__init__(*args, **kwargs)
+#         for frame, file, lineno, name, line, _ in inspect.stack():
+#             # HACK
+#             if 'zope/interface/adapter.py' in file and name == 'queryMultiAdapter':
+#                 self.__adapter_name__ = inspect.getargvalues(frame).locals['name']
+#
 
-class AdapterWhoKnowsItsName(object):
+class NamedAdapterFactory(object):
+    """ Useful when registering mutiple named views dynamically so view knows it's own name """
 
-    def __init__(self, *args, **kwargs):
-        super(AdapterWhoKnowsItsName, self).__init__(*args, **kwargs)
-        for frame, file, lineno, name, line, _ in inspect.stack():
-            # HACK
-            if 'zope/interface/adapter.py' in file and name == 'queryMultiAdapter':
-                self.__adapter_name__ = inspect.getargvalues(frame).locals['name']
-
+    def __init__(self, name, factory):
+        self.name = name
+        self.factory = factory
+    def __call__(self, *args):
+        args += (self.name,)
+        return self.factory(*args)

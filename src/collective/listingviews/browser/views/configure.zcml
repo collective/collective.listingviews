@@ -48,12 +48,14 @@
         />
 
     <!-- to get macros for portlets -->
+<!--
     <browser:page
         for="*"
         name="listing_view_macros"
         class=".listing_view.ListingView"
         allowed_attributes="macros"
         permission="zope2.View" />
+-->
 
 <!-- called from layout.pt to retrieve lists of items from context -->
   <browser:page
