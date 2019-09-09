@@ -1,4 +1,3 @@
-import inspect
 
 import Missing
 from DateTime import DateTime
@@ -34,13 +33,6 @@ except ImportError:
 
 class InvalidListingViewField(Expression):
     pass
-
-def getAdapterName():
-    for frame, file, lineno, name, line, _ in inspect.stack():
-        # HACK
-        if 'zope/interface/adapter.py' in file and name == 'queryMultiAdapter':
-            return inspect.getargvalues(frame).locals['name']
-
 
 
 

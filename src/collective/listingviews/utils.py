@@ -1,3 +1,5 @@
+import inspect
+
 from zope.component import getMultiAdapter, getUtility
 #from settings import ListingSettings
 
@@ -455,3 +457,13 @@ def getRegistryFields():
                                    prefix='collective.listingviews.customfield',
                                    key_names={'fields': 'id'})
     return proxy
+
+class AdapterWhoKnowsItsName(object):
+
+    def __init__(self, *args, **kwargs):
+        super(AdapterWhoKnowsItsName, self).__init__(*args, **kwargs)
+        for frame, file, lineno, name, line, _ in inspect.stack():
+            # HACK
+            if 'zope/interface/adapter.py' in file and name == 'queryMultiAdapter':
+                self.__adapter_name__ = inspect.getargvalues(frame).locals['name']
+
