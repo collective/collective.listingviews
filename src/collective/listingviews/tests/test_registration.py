@@ -141,8 +141,8 @@ class TestRegistration(unittest.TestCase):
                                'ModificationDate:locallong',
                                'ModificationDate:localshort',
                                'location:',
-                               'getId:',
-                               'getId:tolink',
+                               'id:',
+                               'id:tolink',
                                'getObjSize:',
                                'start:locallong',
                                'start:localshort',
@@ -197,6 +197,79 @@ class TestRegistration(unittest.TestCase):
     # TODO: other fields
 
     # TODO: other content types
+
+    def test_folder_id(self):
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["id:tolink"],
+            restricted_to_types=[]
+        ))
+        body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
+        self.assertRegexpMatches(body, '<a href="http://nohost/plone/folder1/item1">item1</a>', )
+        self.assertRegexpMatches(body, '<a href="http://nohost/plone/folder1/item2">item2</a>', )
+
+    # TODO: need to have a way to get UID for 4.1 as the index doesn't exist there
+    # def test_folder_UID(self):
+    #
+    #     view = addView(self.portal, dict(
+    #         id="myview",
+    #         name="My View",
+    #         item_fields=[],
+    #         listing_fields=["UID:"],
+    #         restricted_to_types=[]
+    #     ))
+    #     body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
+    #     self.assertRegexpMatches(body, '<dd class="listing-field field-UID">.{32}</dd>', )
+
+    def test_collection_tags(self):
+        self.portal.folder1.item1.setSubject(['tag1','tag2'])
+        self.portal.folder1.item1.reindexObject()
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["Subject:"],
+            restricted_to_types=[]
+        ))
+        body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
+        # TODO: might need a better way to display?
+        self.assertRegexpMatches(body, """<dd class="listing-field field-Subject">\('tag1', 'tag2'\)</dd>""", )
+        self.assertRegexpMatches(body, '<dd class="listing-field field-Subject">\(\)</dd>', )
+
+
+    def test_collection_size(self):
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["getObjSize:"],
+            restricted_to_types=[]
+        ))
+        body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
+        # On 4.1 its kB. On 5.x its KB
+        self.assertRegexpMatches(body, '(?i)<dd class="listing-field field-getObjSize">0 KB</dd>', )
+        # TODO: add tests for items with size like images
+
+    def test_collection_portal_type(self):
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["portal_type:"],
+            restricted_to_types=[]
+        ))
+        body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
+        self.assertRegexpMatches(body, '<dd class="listing-field field-portal_type">Document</dd>', )
+        if PLONE41:
+            self.assertRegexpMatches(body, '<dd class="listing-field field-portal_type">Topic</dd>', )
+        else:
+            self.assertRegexpMatches(body, '<dd class="listing-field field-portal_type">Collection</dd>', )
 
     def test_add_custom_field(self):
 
@@ -319,3 +392,14 @@ class TestRegistration(unittest.TestCase):
         body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'Jan 01, 2001', )
 
+    # def test_portal_listing(self):
+    #
+    #     view = addView(self.portal, dict(
+    #         id="myview",
+    #         name="My View",
+    #         item_fields=[],
+    #         listing_fields=["portal_type:"],
+    #         restricted_to_types=[]
+    #     ))
+    #     body = self.portal.unrestrictedTraverse("@@"+view)()
+    #     self.assertRegexpMatches(body, '<dd class="listing-field field-portal_type">Folder</dd>', )
