@@ -80,7 +80,7 @@ def ListingViewVocabulary(context):
     return SimpleVocabulary(terms)
 
 # TODO: Need to handle that date metadata changed names before 4->5 EffectiveDate -> effective. upgrade step?
-BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'id', 'Date', 'listCreators','getRemoteUrl', 'UID', 'modified','created', 'effective', 'expires']
+BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'Date', 'listCreators','getRemoteUrl', "UID", 'modified','created', 'effective', 'expires']
 # TODO: should work out dynamically based on index type
 DATE_INDEXES=['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate', 'modified','created', 'effective', 'expires', 'last_comment_date']
 
@@ -114,17 +114,24 @@ def MetadataVocabulary(context):
     else:
         metadataDisplay = {}
 
+    seen = {}
+
     for name, display_name in metadataDisplay.items():
         if name in BLACKLIST:
             continue
+        # handle names that changed between plone versions
+        name = dict(getId="id", Type="portal_type").get(name, name)
+        if name in seen:
+            continue
+
         display_name = unicode(display_name.replace('_', ' ').title())
         if name in DATE_INDEXES:
             display_name = dict(created=u"Creation", expires=u"Expiration", modified=u"Modification").get(name, display_name)
             display_name = display_name.replace(' Date','').replace('date','').capitalize()+' Date'
             for format,format_name in [('localshort', 'Date'),('locallong','Date & Time')]:
                 terms.append(t("%s (%s)"%(display_name, format_name), "%s:%s"% (name, format), ))
-        elif name in ['Title', 'getId']:
-            display_name = dict(getId=u"Short Name").get(name, display_name)
+        elif name in ['Title', 'id']:
+            display_name = dict(id=u"Short Name").get(name, display_name)
             terms.append(t(display_name, name + ":", ))
             for format,format_name in [('tolink', 'Link')]:
                 terms.append(t("%s (%s)" % (display_name, format_name),
@@ -137,9 +144,11 @@ def MetadataVocabulary(context):
                                 Type=u"Portal Type",
                                 getObjSize=u"Size",
                                 getIcon=u"Icon",
+                                UID=u"UID",
                                 ).get(name, display_name)
             #display_name = display_name.title()
             terms.append(t(display_name, name + ":"))
+        seen[name] = display_name
 
     # Lead image fields.
     # if getAvailableSizes is None:
