@@ -252,7 +252,8 @@ class TestRegistration(unittest.TestCase):
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         # On 4.1 its kB. On 5.x its KB
         self.assertRegexpMatches(body, '(?i)<dd class="listing-field field-getObjSize">0 KB</dd>', )
-        # TODO: add tests for items with size like images
+        # should be image
+        self.assertRegexpMatches(body, '(?i)<dd class="listing-field field-getObjSize">1 KB</dd>', )
 
     def test_collection_portal_type(self):
 
