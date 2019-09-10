@@ -71,7 +71,7 @@ def ListingViewVocabulary(context):
     return SimpleVocabulary(terms)
 
 # TODO: Need to handle that date metadata changed names before 4->5 EffectiveDate -> effective. upgrade step?
-BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'Date', 'listCreators','getRemoteUrl', 'getId', 'modified','created', 'effective', 'expires']
+BLACKLIST=['cmf_uid', 'in_response_to', 'sync_uid', 'Date', 'listCreators','getRemoteUrl', "UID", 'modified','created', 'effective', 'expires']
 # TODO: should work out dynamically based on index type
 DATE_INDEXES=['end', 'EffectiveDate', 'start', 'ExpirationDate', 'ModificationDate', 'CreationDate', 'modified','created', 'effective', 'expires', 'last_comment_date']
 
@@ -105,9 +105,16 @@ def MetadataVocabulary(context):
     else:
         metadataDisplay = {}
 
+    seen = {}
+
     for name, display_name in metadataDisplay.items():
         if name in BLACKLIST:
             continue
+        # handle names that changed between plone versions
+        name = dict(getId="id", Type="portal_type").get(name, name)
+        if name in seen:
+            continue
+
         display_name = unicode(display_name.replace('_', ' ').title())
         if name in DATE_INDEXES:
             display_name = dict(created=u"Creation", expires=u"Expiration", modified=u"Modification").get(name, display_name)
@@ -132,6 +139,7 @@ def MetadataVocabulary(context):
                                 ).get(name, display_name)
             #display_name = display_name.title()
             terms.append(t(display_name, name + ":"))
+        seen[name] = display_name
 
     # custom field
     for field in getRegistryFields().fields:
