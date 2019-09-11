@@ -1,5 +1,6 @@
 import inspect
 
+import Persistence
 from zope.component import getMultiAdapter, getUtility
 #from settings import ListingSettings
 
@@ -468,7 +469,7 @@ def getRegistryFields():
 #                 self.__adapter_name__ = inspect.getargvalues(frame).locals['name']
 #
 
-class NamedAdapterFactory(object):
+class NamedAdapterFactory(Persistence.Persistent):
     """ Useful when registering mutiple named views dynamically so view knows it's own name """
 
     def __init__(self, name, factory):
