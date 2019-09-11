@@ -69,9 +69,6 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         to wake up all the objects.
         """
         items = self.context.getFolderContents()
-        # path = self.context.getPhysicalPath()
-        # path = "/".join(path)
-        # items = self.context.portal_catalog(path={"query": path, "depth": 1})
 
         if self.listing_view_batch_size:
             items = Batch(items,

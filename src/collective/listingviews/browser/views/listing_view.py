@@ -40,8 +40,6 @@ class ListingView(BrowserView):
     security.declareProtected(Permissions.view, '__call__')
     def __call__(self):
         """ Render the view """
-
-
         return self.render()
 
     @property
