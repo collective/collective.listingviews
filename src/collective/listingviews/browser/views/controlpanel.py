@@ -153,7 +153,7 @@ def syncViews(portal ):
                 fti.manage_changeProperties(view_methods=fti.view_methods + (name,))
 
     def del_fti(name, fti):
-        fti.manage_changeProperties(view_methods=(m for m in fti.view_methods if m != name))
+        fti.manage_changeProperties(view_methods=tuple(m for m in fti.view_methods if m != name))
 
     sync_dicts(views, ftis, add_fti, del_fti)
 
