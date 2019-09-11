@@ -11,6 +11,8 @@
         directory="profiles/default"
         description='Extension profile for the "collective.listingviews" Plone product.'
         provides="Products.GenericSetup.interfaces.EXTENSION"
+        pre_handler="collective.listingviews.setuphandlers.run_before"
+        post_handler="collective.listingviews.setuphandlers.run_after"
         />
     
     <genericsetup:registerProfile
@@ -19,7 +21,9 @@
         directory="profiles/uninstall"
         description="Removes collective.listingviews."
         provides="Products.GenericSetup.interfaces.EXTENSION"
-        />
+        pre_handler="collective.listingviews.setuphandlers.run_before_uninstall"
+        post_handler="collective.listingviews.setuphandlers.run_after_uninstall"
+         />
 
         
 </configure>
