@@ -130,7 +130,7 @@ def syncViews(portal ):
                            required=(IContentish, IListingViewsBrowserLayer),
                            provided=IBrowserView,
                            name=name)
-    def removeView(name, factory):
+    def removeView(name, _):
         assert lsm.unregisterAdapter(required=(IContentish, IListingViewsBrowserLayer),
                              provided=IBrowserView,
                              name=name)

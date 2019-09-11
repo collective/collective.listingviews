@@ -7,23 +7,38 @@
 
     <genericsetup:registerProfile
         name="default"
-        title="Listing Views"
+        title="collective.listingviews"
         directory="profiles/default"
         description='Extension profile for the "collective.listingviews" Plone product.'
         provides="Products.GenericSetup.interfaces.EXTENSION"
-        pre_handler="collective.listingviews.setuphandlers.run_before"
-        post_handler="collective.listingviews.setuphandlers.run_after"
         />
-    
+
+
+    <genericsetup:importStep
+      name="collective.listingviews-install"
+      title="install import step"
+      description="Import step run during installing listing views"
+      handler=".setuphandlers.run_after">
+    </genericsetup:importStep>
+
     <genericsetup:registerProfile
         name="uninstall"
-        title="collective.listingviews Uninstall Profile"
+        title="collective.listingviews"
         directory="profiles/uninstall"
-        description="Removes collective.listingviews."
+        description="Uninstall Collective Listing Views"
         provides="Products.GenericSetup.interfaces.EXTENSION"
-        pre_handler="collective.listingviews.setuphandlers.run_before_uninstall"
-        post_handler="collective.listingviews.setuphandlers.run_after_uninstall"
          />
 
-        
+    <genericsetup:importStep
+      name="collective.listingviews-uninstall"
+      title="Listing Views"
+      description="Import step run during uninstalling listing views"
+      handler=".setuphandlers.uninstall">
+    </genericsetup:importStep>
+
+<!--
+    <utility
+      factory=".setuphandlers.HiddenProfiles"
+      name="collective.listingviews-hiddenprofiles" />
+-->
 </configure>

@@ -8,12 +8,13 @@ from plone.app.testing import login, TEST_USER_NAME, SITE_OWNER_NAME, setRoles, 
 from zope.browsermenu.interfaces import IBrowserMenu
 from zope.component import getUtility, queryAdapter, getAdapters, getSiteManager, getGlobalSiteManager
 from zope.globalrequest import getRequest, setRequest
+from zope.interface import directlyProvides
 from zope.publisher.browser import TestRequest
 from zope.schema.interfaces import IVocabularyFactory
 import re
 from zope.security._definitions import thread_local
 from collective.listingviews.browser.views.controlpanel import addView, updateView
-from collective.listingviews.interfaces import CustomFieldDefinition
+from collective.listingviews.interfaces import CustomFieldDefinition, IListingViewsBrowserLayer
 from collective.listingviews.testing import \
     COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING, COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING
 from collective.listingviews.utils import getRegistryFields, getRegistryViews
@@ -39,9 +40,9 @@ class TestRegistration(unittest.TestCase):
             request = getRequest()
         if request is None:
             request = TestRequest()
+        directlyProvides(request, IListingViewsBrowserLayer)
         setRequest(request)
 
-        #directlyProvides(getRequest(), IDefaultBrowserLayer)
         for dummy in ['ACTUAL_URL', 'URL']:
             request.form.setdefault(dummy, self.portal.absolute_url())
 
