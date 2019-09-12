@@ -250,7 +250,7 @@ class ListingViewEditForm(crud.EditForm):
     handlers = crud.EditForm.handlers.copy()
     editsubform_factory = ListingViewDefinitionEditForm
 
-class ListingViewAddForm(crud.AddForm, AutoExtensibleForm):
+class ListingViewAddForm(AutoExtensibleForm, crud.AddForm,):
     @property
     def schema(self):
         schema =  self.context.add_schema
@@ -258,6 +258,7 @@ class ListingViewAddForm(crud.AddForm, AutoExtensibleForm):
 
     @property
     def fields(self):
+        # TODO: better to handle this as a "All Types" item to select since new types can be added later
         fields = field.Fields(self.context.add_schema)
         #Override to select all types
         fields['restricted_to_types'].field.default = all_types()
@@ -281,7 +282,7 @@ class ListingViewSchemaListing(crud.CrudForm):
 
     update_schema = field.Fields(IListingDefinition).select('name')
     view_schema = field.Fields(IListingDefinition).select('id')
-    add_schema = IListingDefinition
+    add_schema = field.Fields(IListingDefinition).select('id', 'name')
     addform_factory = ListingViewAddForm
 #    editform_factory = ListingViewEditForm
 

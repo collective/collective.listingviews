@@ -1,3 +1,5 @@
+from plone.app.z3cform.widget import SelectFieldWidget, SelectWidget
+from plone.supermodel import model
 from zope.interface import Interface, Attribute
 from zope import schema
 from zope.interface import implements
@@ -5,7 +7,7 @@ from z3c.form.object import registerFactoryAdapter, FactoryAdapter
 from collective.listingviews import LVMessageFactory as _
 from validation import validate_id, validate_class, validate_tal
 try:
-    from plone.autoform import directives as form
+    from plone.autoform import directives as form, directives
 except ImportError:
     from plone.directives import form
 try:
@@ -47,38 +49,57 @@ class IListingDefinition(Interface):
                             required=False,
                             description=_(u"Name as it will appear in the display menu to editors"))
 
-    # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
-#    form.widget(item_fields=ChosenMultiFieldWidget)
-    item_fields = schema.List(title=_(u"Item Fields"),
-                              description=_(
-                                  u"Display the following fields at of current content item. Sort to change order."),
-                              required=False,
-                              default=[],
-                              value_type=schema.Choice(
-                                              vocabulary="collective.listingviews.MetadataVocabulary",
-                              )
-    )
 
-#    form.widget(listing_fields=ChosenMultiFieldWidget)
-    listing_fields = schema.List(title=_(u"Listing Fields"),
-                                 description=_(
-                                     u"Folders/Collections and other listable items will list contents displaying these fields for each"),
-                                 required=False,
-                                 default=[],
-                                 value_type=schema.Choice(
-                                                 vocabulary="collective.listingviews.MetadataVocabulary",
-                                 )
-    )
-
-    #    form.widget(restricted_to_types=AutocompleteMultiSelectionFieldWidget)
+    form.widget('restricted_to_types', SelectWidget)
     restricted_to_types = schema.List(title=_(u"Enabled on Types"),
-                                      description=_(u"Show in display menu or make portlet visible only for these types"),
+                                      description=_(
+                                          u"Show in display menu or make portlet visible only for these types"),
                                       required=False,
                                       default=[],
                                       value_type=schema.Choice(
                                           vocabulary="plone.app.vocabularies.ReallyUserFriendlyTypes"
                                       ),
-    )
+                                      )
+    model.fieldset('sectionA',
+        label=_(u"Section A: Item"),
+        fields=['item_fields',
+                ]
+        )
+
+
+    # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
+    form.widget('item_fields', SelectWidget)
+    item_fields = schema.List(title=_(u"Item"),
+                              description=_(
+                                  u"What informaton to display about this folder/collection/item"),
+                              required=False,
+                              default=[],
+                              value_type=schema.Choice(
+                                  vocabulary="collective.listingviews.MetadataVocabulary",
+                              )
+                              )
+
+    model.fieldset('sectionB',
+        label=_(u"Section B: Contents"),
+        fields=['display_count', 'listing_fields', 'batch_size'
+                ]
+        )
+
+    display_count = schema.Bool(title=_(u"Total"),
+                                description=_(u"Display a count of the total number of items"),
+                                required=False,
+                                default=False)
+
+    form.widget('listing_fields', SelectWidget)
+    listing_fields = schema.List(title=_(u"Contents"),
+                                 description=_(
+                                     u"What information to list about the collection/folder contents"),
+                                 required=False,
+                                 default=[],
+                                 value_type=schema.Choice(
+                                     vocabulary="collective.listingviews.MetadataVocabulary",
+                                 )
+                                 )
 
     batch_size = schema.Int(
         title=_(u"label_batch_size", default=u"Batch Size"),
@@ -89,15 +110,17 @@ class IListingDefinition(Interface):
         default=10,
         required=True)
 
+    model.fieldset('advanced',
+        label=_(u"Advanced"),
+        fields=['portlet_more_text', 'css_class',
+                ]
+        )
+
     portlet_more_text = schema.ASCIILine(title=_(u"Portlet Read More Text"), required=False)
 
     css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
                                  required=False,
                                  constraint=validate_class)
-
-    display_count = schema.Bool(title=_(u"Display a count of the number of items"),
-                                required=False,
-                                default=False)
 
 
 #class IListingSettings(Interface):
