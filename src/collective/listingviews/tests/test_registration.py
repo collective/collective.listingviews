@@ -392,7 +392,54 @@ class TestRegistration(unittest.TestCase):
         body = self.portal.folder1.unrestrictedTraverse("@@"+view)()
         self.assertRegexpMatches(body, 'Jan 01, 2001', )
 
-    def test_display_menu(self):
+    def test_restrict_views(self):
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["EffectiveDate:localshort"],
+            restricted_to_types=['Folder']
+        ))
+        def canaccess(obj):
+            try:
+                obj.unrestrictedTraverse("@@" + view)()
+            except AttributeError:
+                return False
+            else:
+                return True
+
+        self.assertTrue(canaccess(self.portal.folder1))
+        self.assertFalse(canaccess(self.portal.folder1.collection1))
+        self.assertFalse(canaccess(self.portal.folder1.item1))
+
+        view = updateView(self.portal,
+                         'myview',
+                          dict(
+                              id="myview",
+                              name="My View",
+                              item_fields=[],
+                              listing_fields=["EffectiveDate:localshort"],
+                              restricted_to_types=['Document']
+                          ))
+        self.assertFalse(canaccess(self.portal.folder1))
+        self.assertFalse(canaccess(self.portal.folder1.collection1))
+        self.assertTrue(canaccess(self.portal.folder1.item1))
+
+        view = updateView(self.portal,
+                         'myview',
+                          dict(
+                              id="myview",
+                              name="My View",
+                              item_fields=[],
+                              listing_fields=["EffectiveDate:localshort"],
+                              restricted_to_types=['Collection']
+                          ))
+        self.assertFalse(canaccess(self.portal.folder1))
+        self.assertTrue(canaccess(self.portal.folder1.collection1))
+        self.assertFalse(canaccess(self.portal.folder1.item1))
+
+
+    def test_restrict_displaymenu(self):
         menu = getUtility(IBrowserMenu, 'plone_displayviews')
         listmenu = lambda obj: [m['title'] for m in menu.getMenuItems(obj, getRequest())]
         view = addView(self.portal, dict(
@@ -432,6 +479,8 @@ class TestRegistration(unittest.TestCase):
         self.assertNotIn('My View', listmenu(self.portal.folder1))
         self.assertIn('My View', listmenu(self.portal.folder1.collection1))
         self.assertNotIn('My View', listmenu(self.portal.folder1.item1))
+
+
 
     # def test_portal_listing(self):
     #
