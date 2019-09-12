@@ -202,14 +202,6 @@ class BaseListingInformationRetriever(BrowserView):
 
     def metadata_field(self, field_name):
 
-        #filter_func = self.filters.get(filter_name, None)
-
-        # key = "%s:%s" % (field_name, filter_name)
-        # if key in self.metadata_display:
-        #     field = self.metadata_display[key]
-        # else:
-        #     raise InvalidListingViewField("Field no longer exists '%s'" % field_name)
-
         #TODO need better function to make valid css class
         css_class = "field-%s" % (field_name)
 
@@ -267,14 +259,14 @@ class BaseListingInformationRetriever(BrowserView):
     def lead_image_field(self):
 
         def getImageUrl(item):
-            # TODO: should be able to do this without waking up the object
-            if ILeadImage is not None and ILeadImage.providedBy(item.getObject()):
+            if item.portal_type in ['Image', 'News Item']:
                 url = item.getURL() + "/image"
-            elif item.portal_type == 'Image':
+            elif ILeadImage is not None and ILeadImage.providedBy(item.getObject()):
+                # TODO: should be able to do this without waking up the object
                 url = item.getURL() + "/image"
-            elif item.portal_type == 'News Item':
-                url = item.getURL() + "/image"
+                # TODO: lead image has a caption which should be able to be added
             else:
+                # TODO: handle other kinds of default image such as folder with images?
                 url = ''
             return {'title': 'Lead Image', 'css_class': 'field-lead_image', 'value': url, 'is_custom': False, 'item':item}
         return getImageUrl
