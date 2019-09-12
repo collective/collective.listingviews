@@ -71,6 +71,12 @@ class ContentListingTileTests(TestCase):
     def test_contentlisting_tile_availbleviews(self):
         vocab = getUtility(IVocabularyFactory, name="Available Listing Views")(self.portal)
         self.assertIn("My View", [i.title for i in vocab] )
+        self.assertListEqual([u'Listing view', u'My View', u'Summary view', u'Tabular view'], [i.title for i in vocab] )
+        self.assertListEqual([u'listing_view',
+                              u"collective.listingviews.myview",
+                              u'summary_view',
+                              u'tabular_view'],
+                             [i.value for i in vocab] )
 
 
     def test_uninstall_tile(self):
@@ -96,4 +102,3 @@ class ContentListingTileTests(TestCase):
             pass
         else:
             self.assertTrue(False, "Tile can still be rendered")
-
