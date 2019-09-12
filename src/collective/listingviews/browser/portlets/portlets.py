@@ -17,6 +17,7 @@ from Acquisition import aq_inner
 from plone.app.uuid.utils import uuidToObject
 
 from collective.listingviews import plone_version
+from collective.listingviews.utils import getViewName
 
 if plone_version >= "5":
     from plone.app.z3cform.widget import RelatedItemsFieldWidget
@@ -156,8 +157,8 @@ class ListingRenderer(base.Renderer):
         if not container:
             return
 
-        self.adapter = getMultiAdapter((container, self.request), name=u'listing_view_adapter')
-        self.adapter.set_listing_view(self.data.listing_choice)
+        self.listingview = getMultiAdapter((container, self.request), name=getViewName(self.data.listing_choice))
+        self.adapter = self.listingview.listing_view_adapter
 
         #TODO this commented code needs to go back into the adapters
 #        if IATTopic.providedBy(container) or IBaseFolder.providedBy(container) or (PLONE_42 and ICollection.providedBy(container)):

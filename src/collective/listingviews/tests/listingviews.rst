@@ -27,7 +27,7 @@ A TAL Expression like the following will work.
 - Finally the TAL Expression that is evaluated when showing the field. ``item`` is the catalog brain.
   ``object`` or ``here`` is the context object. Below is the TAL we are going to use.
 
->>> browser = layer['manager']
+>>> browser = managerBrowser(layer)
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
 >>> print browser.contents
@@ -75,6 +75,8 @@ End Date (Date)
 ...
 Expiration Date (Date & Time)
 Expiration Date (Date)
+...
+Lead Image
 ...
 Local Publication Date (Custom)
 Location
@@ -124,9 +126,9 @@ and finally we'll enable the view for all content types
 
 >>> browser.getControl('Id', index=0).value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
->>> layer.setInAndOut(browser, ['Title'], index=1)
->>> layer.setInAndOut(browser, ['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)'], index=3)
->>> layer.setInAndOut(browser, browser.getControl('Page').control.displayOptions, index=0 )
+>>> browser.setInAndOut(['Title'], index=1)
+>>> browser.setInAndOut(['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
+>>> browser.setInAndOut(browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 
 We can manage our existing listing views including a link to edit the view we just created.
@@ -185,26 +187,38 @@ Note the html is in exactly the same order as we specifed in our view definition
 
 >>> print browser.contents
 <...
-    <dt class="listing-field field-Title">Title</dt>
-    <dd class="listing-field field-Title">item1</dd>
+                              <dt class="listing-field field-Title">Title</dt>
+                              <dd class="listing-field field-Title">item1</dd>
 ...
 
 >>> print browser.contents
 <...
-    <dt class="listing-field field-Title-tolink">Title (Link)</dt>
-    <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
+                              <dt class="listing-field field-Title-tolink">Title</dt>
+                              <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
 ...
 
 >>> print browser.contents
 <...
-    <dt class="listing-field field-...-localshort">Effective...Date (Date)</dt>
-    <dd class="listing-field field-...-localshort">Jan 01, 2001</dd>
+...<dt class="listing-field field-lead_image-img_mini-tolink">Lead Image</dt>
+...<dd class="listing-field field-lead_image-img_mini-tolink"><a href="http://nohost/plone/folder1/item3"><img src="http://nohost/plone/folder1/item3/@@images/image/mini" alt="item3" /></a></dd>
 ...
 
 >>> print browser.contents
 <...
-    <dt class="listing-field pubdate">Local Publication Date</dt>
-    <dd class="listing-field pubdate">01/01/2001</dd>
+...<dt class="listing-field field-lead_image-img_mini-tolink">Lead Image</dt>
+...<dd class="listing-field field-lead_image-img_mini-tolink"><a href="http://nohost/plone/folder1/item4"><img src="http://nohost/plone/folder1/item4/@@images/image/mini" alt="item4" /></a></dd>
+...
+
+>>> print browser.contents
+<...
+...<dt class="listing-field field-EffectiveDate-localshort">EffectiveDate</dt>
+...<dd class="listing-field field-EffectiveDate-localshort">Jan 01, 2001</dd>
+...
+
+>>> print browser.contents
+<...
+...<dt class="listing-field pubdate">Local Publication Date</dt>...
+...<dd class="listing-field pubdate">01/01/2001</dd>...
 ...
 
 
@@ -249,8 +263,8 @@ Finally we only want this to be applied to a Page content type
 >>> browser.getControl('Add').click()
 >>> browser.getControl('Id', index=0).value = "pubnewsitem"
 >>> browser.getControl('Title', index=0).value = "Publication Info"
->>> layer.setInAndOut(browser, ['Local Publication Date (Custom)'], index=0)
->>> layer.setInAndOut(browser, ['Page'])
+>>> browser.setInAndOut(['Local Publication Date (Custom)'], index=0)
+>>> browser.setInAndOut(['Page'])
 >>> browser.getControl('Add').click()
 
 
@@ -269,7 +283,7 @@ viewing this content type. (e.g. ``Site Setup > Types > News Item > Manage Portl
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getControl('ListingView Portlet', index=1).click()
->>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
+>>> browser.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Publication Info'
 >>> browser.getControl('Listing views').value = ['pubnewsitem']
 >>> browser.getControl('Save').click()
@@ -358,7 +372,7 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getLink('Publication Info').click()
->>> layer.setRelatedItem(browser, "Target", "folder1/item1")
+>>> browser.setRelatedItem("Target", "folder1/item1")
 
 >>> browser.getControl('Save').click()
 
@@ -435,7 +449,7 @@ name for ``collection1`` in the ``Target`` field.
 
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getControl('ListingView Portlet', index=1).click()
->>> layer.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
+>>> browser.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
 >>> browser.getControl('Portlet header').value = 'Collection Portlet'
 >>> 'News with publication' in browser.getControl('Listing views').displayOptions
 True
@@ -445,7 +459,7 @@ True
 
 #>>> if not plone5: browser.getControl('News with publication').click()
 
->>> layer.setRelatedItem(browser, 'Target', 'folder1/collection1')
+>>> browser.setRelatedItem('Target', 'folder1/collection1')
 
 >>> browser.getControl('Save').click()
 

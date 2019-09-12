@@ -49,10 +49,10 @@ custom portlets and mosaic tiles. Compatible with Plone 4.1-5.2.
 
 For example you could
 
-- create a news listing which displays the first sentence and publish date of each news item
+- create a news listing which displays the first sentence and publish date of each news item and lead image
 - create a footer portlet for each page which displays the last updated date of the current content
 - create a portlet which grabs a random image from a folder
-- create a listing of folders which contain pdfs of different languages and display links to each version of the pdf.
+- folder listing of downloads with size and mimetype icon
 
 This plugin is very flexible and can be used to:
 
@@ -123,28 +123,27 @@ Initial development was funded by `PretaWeb`_.
 
 We have some ideas on where this could go:
 
-- Nicer GS import/export. Currently uses plone.app.registry.
+- Mimetype icon
+- moments support for relative dates
+- Support storing configuration in YAML inside the theme instead of plone.app.registry.
+- Allow a custom field to be a formatter that can be applied to other fields. ie takes a value
+  and turns it into a different value such as an image url to a url tag, or a date to a localised date.
+- Pre-calculate custom fields, i.e. add them to catalog metadata.
+- Support table base html template for more useful listings without diazo
+- Support tags as links to site search
 - Safe HTML filtering for all fields. Currently not implemented.
-- Preview/export as ZPT. This provides a way to learn ZPT and a base to start
-  from when more complex views are needed.
+- Export as a theme fragment for more advanded listings.
 - Debug custom fields. Allow selection of content to test fields quickly.
 - Migration of views. Provide a way to make bulk changes in content from one
   listingview to another listingview. This would allow a new "template" to
   be created and tested and then switched in production.
 - Support customisation of batching settings.
-- Allow GET requests so that the list can act as a custom search listing
-  page.
 - Support grouping (or you can use collective.fieldcollapsing)
 - Support hierarchical listing. Allow navigation portlets, sitemaps with
   additional fields. Maybe different kind of views?  Maybe allow views to be
   used as fields within other views?
 - Support AJAX batching and infinite lists (auto-load next when scrolled
   down).
-- Reuse TAL on different fields. The TAL becomes a formatter function
-  instead of a field; e.g. convert date or turn Title into link.  Functions
-  let you select with fields they apply to, or apply to whole item (i.e.
-  custom field).
-- Pre-calculate custom fields, i.e. add them to catalog metadata.
 
 .. _plone.app.contentlistingtile: https://github.com/plone/plone.app.contentlistingtile
 .. _plone.app.collection: https://github.com/plone/plone.app.collection

@@ -1,5 +1,10 @@
 from collections import OrderedDict
 
+try:
+    from plone.namedfile.interfaces import IAvailableSizes
+    getAllowedSizes = lambda: queryUtility(IAvailableSizes)()
+except ImportError:
+    from plone.app.imaging.utils import getAllowedSizes
 from zope.interface import implements
 from collective.listingviews.interfaces import IListingCustomFieldControlPanel, IListingControlPanel
 from collective.listingviews.utils import ComplexRecordsProxy, getRegistryFields
@@ -14,6 +19,10 @@ try:
     from zope.app.component.hooks import getSite
 except ImportError:
     from zope.component.hooks import getSite
+
+# LEAD_IMAGE_FIELD_ID = 'lead_image:tag_image'
+# LEAD_IMAGE_FIELD_NAME = 'Lead Image (Virtual)'
+# VIRTUAL_FIELDS = { LEAD_IMAGE_FIELD_ID:LEAD_IMAGE_FIELD_NAME }
 
 class LVVocabulary(SimpleVocabulary):
     """
@@ -140,6 +149,17 @@ def MetadataVocabulary(context):
             #display_name = display_name.title()
             terms.append(t(display_name, name + ":"))
         seen[name] = display_name
+
+    # Lead image fields.
+    # if getAvailableSizes is None:
+    #     return self._sizes
+    sizes = getAllowedSizes()
+
+    for size in sizes:
+        terms.append(t(u"Lead Image (%s)" % size, "lead_image:img_%s:tolink"%size))
+    terms.append(t(u"Lead Image (Original)", "lead_image:img_image:tolink"))
+    terms.append(t(u"Lead Image (URL)", "lead_image:"))
+    # TODO: better display names
 
     # custom field
     for field in getRegistryFields().fields:

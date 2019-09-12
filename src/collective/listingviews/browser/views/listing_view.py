@@ -3,9 +3,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five import BrowserView
 from zope.component import getMultiAdapter
 from zope.interface import implements
-from collective.listingviews.browser.views.base import getAdapterName
 from collective.listingviews.utils import getListingNameFromView
-
 
 try:
     from eea.facetednavigation.layout.interfaces import IFacetedLayout
@@ -22,20 +20,19 @@ class ListingView(BrowserView):
     security = ClassSecurityInfo()
     security.declareObjectProtected(Permissions.view)
 
-    def __init__(self, context, request):
+    def __init__(self, context, request, name):
         super(ListingView, self).__init__(context, request)
-        self.listing_view_adapter = getMultiAdapter((context,request), name='listing_view_adapter')
+        self.__adapter_name__ = name
+
+        self.listing_view_adapter = getMultiAdapter((self.context, self.request), name='listing_view_adapter')
 
         if IFacetedLayout is not None and \
-            (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
+                (IFacetedSearchMode.providedBy(self.context) or IFacetedNavigable.providedBy(self.context)):
             # Case: It's being used from facetednavigation
             self.set_listing_view(getListingNameFromView(IFacetedLayout(self.context).layout))
         else:
-            view_name = getAdapterName()
-            self.listing_view_adapter.set_listing_view(getListingNameFromView(view_name))
-            # # Case: It's being used from a normal display menu view
-            # view_name = request.getURL().split('/')[-1]
-            # self.set_listing_view(getListingNameFromView(view_name))
+            view_name = getListingNameFromView(self.__adapter_name__)
+            self.listing_view_adapter.set_listing_view(view_name)
 
     def render(self):
         return self.index()

@@ -12,6 +12,14 @@ Changelog
   [instification]
 - fix typos and update 'Working Examples'
   [Kaif Khan]
+- uninstalls properly
+  [Dylan Jay]
+- views now use a layer
+  [Dylan Jay]
+- Lead image field
+  [Quang]
+- Renaming a view now updates display menu etc
+  [Dylan Jay]
 
 
 1.0.1 (2019-01-17)
