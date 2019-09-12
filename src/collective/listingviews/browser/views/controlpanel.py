@@ -162,14 +162,21 @@ def syncViews(portal ):
     if stlisting_views is None:
         return
 
+    changed = False
     def add_lv(name, view):
-        stlisting_views[name] = unicode(view.name)
+        stlisting_views[unicode(name)] = unicode(view.name)
+        changed = True
     def del_lv(name, title):
-        del stlisting_views[name]
+        if name.startswith("collective.listingviews."):
+            del stlisting_views[unicode(name)]
+            changed = True
     def mod_lv(name, view, lvtitle):
         if lvtitle != unicode(view.name):
-            stlisting_views[name] = unicode(view.name)
+            stlisting_views[unicode(name)] = unicode(view.name)
+            changed = True
     sync_dicts(views, stlisting_views, add_lv, del_lv, mod_lv)
+    if changed:
+        getUtility(IRegistry)['plone.app.standardtiles.listing_views'] = stlisting_views
 
     # TODO: make sure this is only in our layer
     adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((Interface, IContentListingTileLayer), IBrowserView) if n.startswith('collective.listingviews.')])
