@@ -1,8 +1,11 @@
+import base64
+
 from plone.app.testing import PLONE_FIXTURE, PLONE_FUNCTIONAL_TESTING, PLONE_INTEGRATION_TESTING
 from plone.app.testing import PloneSandboxLayer, FunctionalTesting
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import applyProfile
 from plone.uuid.interfaces import IUUID
+from zope.component.hooks import getSite
 from zope.configuration import xmlconfig
 from plone.testing.z2 import Browser
 from zope.testbrowser.browser import controlFactory, ItemControl
@@ -11,6 +14,22 @@ from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
 from Products.CMFCore.utils import getToolByName
 from lxml import etree
 
+IMG = base64.decodestring("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
+
+def dummy_image(filename=u'image.png'):
+    # filename = os.path.join(os.path.dirname(__file__), filename)
+    # with open(filename, 'rb') as f:
+    #     image_data = f.read()
+
+    try:
+        from plone.namedfile.file import NamedBlobImage
+    except ImportError:
+        pass
+    else:
+        return NamedBlobImage(
+            data=IMG,
+            filename=filename
+        )
 
 class CollectiveListingviews(PloneSandboxLayer):
 
@@ -25,6 +44,10 @@ class CollectiveListingviews(PloneSandboxLayer):
         except ImportError:
             # plone 4
             pass
+        # import plone.namedfile
+        # self.loadZCML(package=plone.namedfile)
+        # import plone.app.imaging
+        # self.loadZCML(package=plone.app.imaging)
 
         # Load ZCML for this package
         import collective.listingviews
@@ -48,6 +71,7 @@ class CollectiveListingviews(PloneSandboxLayer):
         workflowTool = getToolByName(portal, 'portal_workflow')
 
         portal.invokeFactory('Folder', 'folder1', title=u"folder1")
+        workflowTool.doActionFor(portal.folder1, 'publish')
         portal.folder1.invokeFactory('Document', 'item1', title=u"item1")
         workflowTool.doActionFor(portal.folder1.item1, 'publish')
         portal.folder1.reindexObject()
@@ -58,6 +82,22 @@ class CollectiveListingviews(PloneSandboxLayer):
         workflowTool.doActionFor(portal.folder1.item2, 'publish')
         portal.folder1.item2.setEffectiveDate('12/31/2000')
         portal.folder1.item2.reindexObject()
+
+        portal.folder1.invokeFactory('News Item', 'item3', title=u"item3")
+        if hasattr(portal.folder1.item3, 'setImage'):
+            portal.folder1.item3.setImage(IMG)
+        else:
+            portal.folder1.item3.image = dummy_image()
+        workflowTool.doActionFor(portal.folder1.item3, 'publish')
+        portal.folder1.item3.reindexObject()
+
+        portal.folder1.invokeFactory('Image', 'item4', title=u"item4")
+        if hasattr(portal.folder1.item4, 'setImage'):
+            portal.folder1.item4.setImage(IMG)
+        else:
+            portal.folder1.item4.image = dummy_image()
+#        workflowTool.doActionFor(portal.folder1.item4, 'publish')
+        portal.folder1.item4.reindexObject()
 
         try:
             portal.folder1.invokeFactory('Collection', 'collection1', title=u"collection1")
@@ -184,29 +224,8 @@ class CollectiveListingviewsTiles(CollectiveListingviews):
         # from plone.app.standardtiles import embed
         # embed.requests.get = RequestsGetMock
 
+class Z3CFormBrowser(Browser):
 
-class BrowserIntegrationTesting(IntegrationTesting):
-
-    def setUpEnvironment(self, portal):
-        super(BrowserIntegrationTesting, self).setUpEnvironment(portal)
-        #portal = self['portal']
-
-        browser = Browser(portal)
-        browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
-        self['manager'] = browser
-
-        browser.handleErrors = False
-        portal.error_log._ignored_exceptions = ()
-
-        def raising(self, info):
-            import traceback
-            traceback.print_tb(info[2])
-            print info[1]
-
-        from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
-        SiteErrorLog.raising = raising
-
-        browser.open(portal.absolute_url())
 
     def getFormFromControl(self, control):
         browser = control.browser
@@ -259,8 +278,8 @@ class BrowserIntegrationTesting(IntegrationTesting):
         return None
 
 
-    def setInAndOut(self, browser, labels, index=None):
-        main_control = browser.getControl(labels[0], index=index).control
+    def setInAndOut(self, labels, index=None):
+        main_control = self.getControl(labels[0], index=index).control
         #parents = self.getControlParents(main_control)
         #form = self.getFormFromControl(main_control)
         #import pdb; pdb.set_trace()
@@ -296,34 +315,64 @@ class BrowserIntegrationTesting(IntegrationTesting):
             insert_input(main_control, '%s:list'%name, options[label], index)
             index += 1
 
-        #import pdb;
-        #pdb.set_trace()
-
-    def setRelatedItem(self, browser, label, path):
-        name = etree.HTML(browser.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
+    def setRelatedItem(self, label, path):
+        name = etree.HTML(self.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
         name = name.replace("-",".")
         try:
-            control = browser.getControl(name=name)
+            control = self.getControl(name=name)
         except:
             # Older style widget
-            control = browser.getControl(name=name+".query.query")
+            control = self.getControl(name=name+".query.query")
             form = self.getFormFromControl(control)
             form.mech_form.new_control('text', name, {'value': "/"+path})
         else:
-            item = self['portal'].restrictedTraverse(path)
+            item = getSite().restrictedTraverse(path)
             control.value = IUUID(item)
 
-    def errorlog(self):
-        from Products.CMFCore.utils import getToolByName
-        portal = self['portal']
-        errorLog = getToolByName(portal, 'error_log')
-        print errorLog.getLogEntries()[-1]['tb_text']
+def managerBrowser(layer):
+    browser = Z3CFormBrowser(layer['app'])
+    browser.addHeader('Authorization', 'Basic %s:%s' % (SITE_OWNER_NAME, SITE_OWNER_PASSWORD))
+
+    browser.handleErrors = False
+    portal = layer['portal']
+    portal.error_log._ignored_exceptions = ()
+
+    def raising(self, info):
+        import traceback
+        traceback.print_tb(info[2])
+        print info[1]
+
+    from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
+    SiteErrorLog.raising = raising
+    browser.open(portal.absolute_url())
+    return browser
+#     # def errorlog(self):
+#     #     from Products.CMFCore.utils import getToolByName
+#     #     portal = self['portal']
+#     #     errorLog = getToolByName(portal, 'error_log')
+#     #     print errorLog.getLogEntries()[-1]['tb_text']
+
+#
+# class BrowserFunctionalTesting(FunctionalTesting):
+#
+#     def setUpEnvironment(self, portal):
+#         super(BrowserFunctionalTesting, self).setUpEnvironment(portal)
+#         #portal = self['portal']
+#         self['portal'] = portal
+#
+#
+#
+#     # def errorlog(self):
+#     #     from Products.CMFCore.utils import getToolByName
+#     #     portal = self['portal']
+#     #     errorLog = getToolByName(portal, 'error_log')
+#     #     print errorLog.getLogEntries()[-1]['tb_text']
 
 
 
 COLLECTIVE_LISTINGVIEWS_FIXTURE = CollectiveListingviews()
 COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING = \
-    BrowserIntegrationTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
+    IntegrationTesting(bases=(COLLECTIVE_LISTINGVIEWS_FIXTURE, ),
                             name="CollectiveListingviews:Integration")
 
 COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING = \
@@ -345,7 +394,7 @@ try:
 
     TILES_FIXTURE = CollectiveListingviewsTiles()
     TILES_INTEGRATION_TESTING = \
-        BrowserIntegrationTesting(bases=(TILES_FIXTURE,),
+        FunctionalTesting(bases=(TILES_FIXTURE,),
                                   name="CollectiveListingviewsTiles:Integration")
 except ImportError:
     TILES_INTEGRATION_TESTING = None

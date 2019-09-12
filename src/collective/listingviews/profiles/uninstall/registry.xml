@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<registry>
+
+  <!--
+  <records remove="True" prefix="collective.listingviews" interface='collective.listingviews.interfaces.IListingControlPanel'/>
+-->
+
+</registry>

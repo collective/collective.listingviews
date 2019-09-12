@@ -12,7 +12,7 @@ from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
                                                 IListingControlPanel, IListingCustomFieldControlPanel,
-                                                ICustomFieldDefinition, ListingDefinition)
+                                                ICustomFieldDefinition, ListingDefinition, IListingViewsBrowserLayer)
 from zope.interface import implements, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
@@ -23,7 +23,8 @@ from zope.browser.interfaces import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest, IBrowserPublisher
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from Products.CMFCore.interfaces import IFolderish, IContentish
-from collective.listingviews.utils import ComplexRecordsProxy, getViewName, getRegistryViews, getRegistryFields
+from collective.listingviews.utils import ComplexRecordsProxy, getViewName, getRegistryViews, getRegistryFields, \
+    NamedAdapterFactory
 from five.customerize.zpt import TTWViewTemplate
 from collective.listingviews.browser.views.listing_view import ListingView
 from Products.CMFCore.utils import getToolByName
@@ -83,7 +84,6 @@ def updateView(portal, old_id, data):
     views = getRegistryViews().views
     views[views.indexof(old_id)] = record
     # assume view is already added
-    _registerMenuItems()
     syncViews(portal)
     return getViewName(record.id)
 
@@ -113,19 +113,30 @@ def syncViews(portal ):
 
     _registerMenuItems()
 
+
+    # remove adapters registered in previous versions without the layer
+    adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((IContentish, IBrowserRequest), IBrowserView) if n.startswith('collective.listingviews.')])
+    def removeView(name, factory):
+        assert lsm.unregisterAdapter(required=(IContentish, IBrowserRequest),
+                             provided=IBrowserView,
+                             name=name)
+    sync_dicts(dict(), adapters, None, removeView)
+
     # browser views
-    adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((IContentish, IDefaultBrowserLayer), IBrowserView) if n.startswith('collective.listingviews.')])
+    adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((IContentish, IListingViewsBrowserLayer), IBrowserView) if n.startswith('collective.listingviews.')])
     def addView(name, _):
         # TODO: should really only be registered against the types that were chosen or their Interfaces
-        lsm.registerAdapter(ListingView,
-                           required=(IContentish, IBrowserRequest),
+        lsm.registerAdapter(NamedAdapterFactory(name, ListingView),
+                           required=(IContentish, IListingViewsBrowserLayer),
                            provided=IBrowserView,
                            name=name)
     def removeView(name, _):
-        lsm.unregisterAdapter(required=(IContentish, IBrowserRequest),
+        assert lsm.unregisterAdapter(required=(IContentish, IListingViewsBrowserLayer),
                              provided=IBrowserView,
                              name=name)
+
     sync_dicts(views, adapters, addView, removeView)
+
 
     # fti
     portal_types = getToolByName(portal, "portal_types")
@@ -142,7 +153,7 @@ def syncViews(portal ):
                 fti.manage_changeProperties(view_methods=fti.view_methods + (name,))
 
     def del_fti(name, fti):
-        fti.manage_changeProperties(view_methods=(m for m in fti.view_methods if m != name))
+        fti.manage_changeProperties(view_methods=tuple(m for m in fti.view_methods if m != name))
 
     sync_dicts(views, ftis, add_fti, del_fti)
 
@@ -167,14 +178,15 @@ def syncViews(portal ):
     if changed:
         getUtility(IRegistry)['plone.app.standardtiles.listing_views'] = stlisting_views
 
+    # TODO: make sure this is only in our layer
     adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((Interface, IContentListingTileLayer), IBrowserView) if n.startswith('collective.listingviews.')])
     def add_tile(name, view):
-        lsm.registerAdapter(ContentListingTileView,
+        lsm.registerAdapter(NamedAdapterFactory(name, ContentListingTileView),
                            required=(Interface, IContentListingTileLayer),
                            provided=IBrowserView,
                            name=name)
     def del_tile(name, _):
-        lsm.unregisterAdapter(ContentListingTileView,
+        assert lsm.unregisterAdapter(
                            required=(Interface, IContentListingTileLayer),
                            provided=IBrowserView,
                            name=name)
@@ -192,13 +204,12 @@ def _registerMenuItems():
 
     views = OrderedDict([(getViewName(view.id), view) for view in getRegistryViews().views if view.id and view.name])
 
-    #lsm = getSiteManager(context)
     gsm = getGlobalSiteManager()
     menu = getUtility(IBrowserMenu, 'plone_displayviews')
-    adapters = dict([(n,f) for n,f in gsm.adapters.lookupAll((IContentish, IDefaultBrowserLayer), menu.getMenuItemType()) if n.startswith('collective.listingviews.')])
+    adapters = dict([(n,f) for n,f in gsm.adapters.lookupAll((IContentish, IListingViewsBrowserLayer), menu.getMenuItemType()) if n.startswith('collective.listingviews.')])
     def del_submenu(name, _):
         gsm.unregisterAdapter(
-            required=(IContentish, IDefaultBrowserLayer),
+            required=(IContentish, IListingViewsBrowserLayer),
             provided=menu.getMenuItemType(),
             name=name,
         )
@@ -219,7 +230,7 @@ def _registerMenuItems():
 
         gsm.registerAdapter(
             factory,
-            required=(IContentish, IDefaultBrowserLayer),
+            required=(IContentish, IListingViewsBrowserLayer),
             provided=menu.getMenuItemType(),
             name=name,
         )
@@ -230,9 +241,6 @@ def _registerMenuItems():
             add_submenu(name, view)
     sync_dicts(views, adapters, add_submenu, del_submenu, mod_submenu)
 
-
-        #assert menu.getMenuItemByAction(IFolderish, self.request, view_name)
-        # pp [x for x in gsm.registeredAdapters() if x.provided == menu.getMenuItemType()]
 
 
 # plone.z3cform.crud based implementation

@@ -4,6 +4,8 @@ from zope.interface import Interface, Attribute
 from zope import schema
 from zope.interface import implements
 from z3c.form.object import registerFactoryAdapter, FactoryAdapter
+from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+
 from collective.listingviews import LVMessageFactory as _
 from validation import validate_id, validate_class, validate_tal
 try:
@@ -221,3 +223,6 @@ class IListingAdapter(Interface):
         """
         Return true if current object is a container, such as folder, or collection
         """
+
+class IListingViewsBrowserLayer(IDefaultBrowserLayer):
+    """Marker interface that defines a browser layer."""

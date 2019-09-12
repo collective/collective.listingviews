@@ -1,3 +1,6 @@
+import inspect
+
+import Persistence
 from zope.component import getMultiAdapter, getUtility
 #from settings import ListingSettings
 
@@ -11,7 +14,6 @@ from plone.registry.record import Record
 from zope import schema
 import re
 from collective.listingviews.interfaces import IListingControlPanel, IListingCustomFieldControlPanel
-
 _marker = object()
 
 
@@ -456,3 +458,23 @@ def getRegistryFields():
                                    prefix='collective.listingviews.customfield',
                                    key_names={'fields': 'id'})
     return proxy
+#
+# class AdapterWhoKnowsItsName(object):
+#
+#     def __init__(self, *args, **kwargs):
+#         super(AdapterWhoKnowsItsName, self).__init__(*args, **kwargs)
+#         for frame, file, lineno, name, line, _ in inspect.stack():
+#             # HACK
+#             if 'zope/interface/adapter.py' in file and name == 'queryMultiAdapter':
+#                 self.__adapter_name__ = inspect.getargvalues(frame).locals['name']
+#
+
+class NamedAdapterFactory(Persistence.Persistent):
+    """ Useful when registering mutiple named views dynamically so view knows it's own name """
+
+    def __init__(self, name, factory):
+        self.name = name
+        self.factory = factory
+    def __call__(self, *args):
+        args += (self.name,)
+        return self.factory(*args)

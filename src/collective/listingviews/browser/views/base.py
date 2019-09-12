@@ -1,7 +1,11 @@
-import inspect
 
 import Missing
 from DateTime import DateTime
+try:
+    from plone.namedfile.interfaces import IAvailableSizes
+    getAllowedSizes = lambda: queryUtility(IAvailableSizes)()
+except ImportError:
+    from plone.app.imaging.utils import getAllowedSizes
 from zope.schema.interfaces import IVocabularyFactory
 from collective.listingviews import LVMessageFactory as _
 try:
@@ -15,22 +19,20 @@ from collective.listingviews.interfaces import IListingAdapter
 from collective.listingviews.utils import getListingNameFromView, getRegistryViews, getRegistryFields
 
 from zope.interface import implements
-from zope.component import getMultiAdapter, getUtility
+from zope.component import getMultiAdapter, getUtility, queryUtility
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, getExprContext
 from plone.uuid.interfaces import IUUID
 from Products.Five import BrowserView
 from plone.memoize.instance import memoize
+try:
+    from plone.app.contenttypes.behaviors.leadimage import ILeadImage
+except ImportError:
+    ILeadImage = None
 
 
 class InvalidListingViewField(Expression):
     pass
-
-def getAdapterName():
-    for frame, file, lineno, name, line, _ in inspect.stack():
-        # HACK
-        if 'zope/interface/adapter.py' in file and name == 'queryMultiAdapter':
-            return inspect.getargvalues(frame).locals['name']
 
 
 
@@ -45,7 +47,6 @@ class BaseListingInformationRetriever(BrowserView):
         self.context = context
         self.request = request
 
-        #self.metadata_display = dict(getToolByName(context, 'portal_atct').getMetadataDisplay().items())
         vocab = getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')(context)
         self.metadata_display = {item.value: item.title for item in vocab}
         #TODO item.title here is the title for the filter on it. We want the one before the filter was added
@@ -54,9 +55,26 @@ class BaseListingInformationRetriever(BrowserView):
         self.filters = dict(
             localshort = lambda item, value: plone_util.toLocalizedTime(value, long_format=0),
             locallong = lambda item, value: plone_util.toLocalizedTime(value, long_format=1),
-            tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value)
+            tolink = lambda item, value: '<a href="%s">%s</a>'%(item.getURL(), value) if value else '',
         )
 
+        # Image filters. Can take a url and turn it into an image
+        def get_tag_for_size(size):
+            def get_tag(item, url):
+                if not url:
+                    return ''
+                # HACK: Assume url is item/image_field
+                try:
+                    url, image_field = url.strip('/').rsplit('/', 1)
+                except ValueError:
+                    return ''
+                if size != 'image':
+                    return '<img src="{}/@@images/{}/{}" alt="{}" />'.format(url, image_field, size, item.Title)
+                else:
+                    return '<img src="{}/@@images/{}" alt="{}" />'.format(url, image_field, item.Title)
+            return get_tag
+        for size in list(getAllowedSizes().keys())+['image']:
+            self.filters['img_{}'.format(size)] = get_tag_for_size(size)
 
     def set_listing_view(self, view_name):
         self.listing_name = view_name
@@ -73,27 +91,37 @@ class BaseListingInformationRetriever(BrowserView):
         self.listing_field_filters = self.retrieve_fields(self.view_setting.listing_fields)
 
     def retrieve_fields(self, fields):
-        field_filters = []
         if fields is None:
             fields = []
 
+        def get_filtered(func, filters):
+            def filtered(item):
+                res = func(item)
+                for filter, filter_func in filters:
+                    res['value'] = filter_func(res['item'], res['value'])
+                    res['css_class'] += "-%s" % filter
+                return res
+            return filtered
+
+        field_expr = []
         for field in fields:
             if ":" not in field:
                 raise InvalidListingViewField( "No valid field: %s (No colon)" % field )
 
-            subfield = field.split(":")
-
-            if len(subfield) is not 2:
-                raise InvalidListingViewField( "No valid field: %s (Too many colons)" % field )
-
-            field, func = subfield
-
-            if func and not field:
-                # custom field name is ":customname"
-                field_filters.append(self.custom_field(field_name=func))
+            filters = field.split(":")
+            field = filters.pop(0)
+            if not field:
+                value_func = self.custom_field(field_name=filters.pop(0))
+            elif field == 'lead_image':
+                value_func = self.lead_image_field()
             else:
-                field_filters.append(self.metadata_field(field, func))
-        return field_filters
+                value_func = self.metadata_field(field)
+            try:
+                filters = [(filter,self.filters[filter]) for filter in filters if filter]
+            except KeyError:
+                raise InvalidListingViewField("Filter not found: %s " % filter)
+            field_expr.append(value_func if not filters else get_filtered(value_func, filters))
+        return field_expr
 
     @property
     @memoize
@@ -174,21 +202,10 @@ class BaseListingInformationRetriever(BrowserView):
         for func in retrieve_fields:
             yield func(item)
 
-    def metadata_field(self, field_name, filter_name):
-
-        filter_func = self.filters.get(filter_name, None)
-
-        key = "%s:%s" % (field_name, filter_name)
-        if key in self.metadata_display:
-            field = self.metadata_display[key]
-        else:
-            raise InvalidListingViewField("Field no longer exists '%s'" % field_name)
+    def metadata_field(self, field_name):
 
         #TODO need better function to make valid css class
-        if not filter_name:
-            css_class = "field-%s" % (field_name)
-        else:
-            css_class = "field-%s-%s" % (field_name, filter_name)
+        css_class = "field-%s" % (field_name)
 
         def value(item):
             attr_value = getattr(item, field_name, None)
@@ -201,12 +218,9 @@ class BaseListingInformationRetriever(BrowserView):
                 value = attr_value()
             else:
                 value = attr_value
-            if filter_func is None:
-                return value
-            else:
-                return filter_func(item, value)
+            return {'title': field_name, 'css_class': css_class, 'value': value, 'is_custom': False, 'item':item}
 
-        return lambda item: {'title': field, 'css_class': css_class, 'value': value(item), 'is_custom': False}
+        return value
 
     def custom_field(self, field_name):
         fields = [f for f in getRegistryFields().fields if f.id == field_name]
@@ -241,8 +255,23 @@ class BaseListingInformationRetriever(BrowserView):
                 if not portal_membership.checkPermission('Manage portal', self.context):
                     return None
                 val = 'The custom field expression has an error: %s.' % expression.text
-            return {'title': field.name, 'css_class': css_class, 'value': val, 'is_custom': True}
+            return {'title': field.name, 'css_class': css_class, 'value': val, 'is_custom': True, 'item':item}
         return value
+
+    def lead_image_field(self):
+
+        def getImageUrl(item):
+            if item.portal_type in ['Image', 'News Item']:
+                url = item.getURL() + "/image"
+            elif ILeadImage is not None and ILeadImage.providedBy(item.getObject()):
+                # TODO: should be able to do this without waking up the object
+                url = item.getURL() + "/image"
+                # TODO: lead image has a caption which should be able to be added
+            else:
+                # TODO: handle other kinds of default image such as folder with images?
+                url = ''
+            return {'title': 'Lead Image', 'css_class': 'field-lead_image', 'value': url, 'is_custom': False, 'item':item}
+        return getImageUrl
 
     @property
     def display_count(self):

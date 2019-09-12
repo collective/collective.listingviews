@@ -8,12 +8,13 @@ from plone.app.testing import login, TEST_USER_NAME, SITE_OWNER_NAME, setRoles, 
 from zope.browsermenu.interfaces import IBrowserMenu
 from zope.component import getUtility, queryAdapter, getAdapters, getSiteManager, getGlobalSiteManager
 from zope.globalrequest import getRequest, setRequest
+from zope.interface import directlyProvides
 from zope.publisher.browser import TestRequest
 from zope.schema.interfaces import IVocabularyFactory
+import re
 from zope.security._definitions import thread_local
-
 from collective.listingviews.browser.views.controlpanel import addView, updateView
-from collective.listingviews.interfaces import CustomFieldDefinition
+from collective.listingviews.interfaces import CustomFieldDefinition, IListingViewsBrowserLayer
 from collective.listingviews.testing import \
     COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING, COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING
 from collective.listingviews.utils import getRegistryFields, getRegistryViews
@@ -24,7 +25,7 @@ PLONE41 = plone_version < "4.2"
 
 class TestRegistration(unittest.TestCase):
 
-    layer = COLLECTIVE_LISTINGVIEWS_INTEGRATION_TESTING
+    layer = COLLECTIVE_LISTINGVIEWS_FUNCTIONAL_TESTING
 
     def setUp(self):
         self.portal = self.layer['portal']
@@ -39,11 +40,11 @@ class TestRegistration(unittest.TestCase):
             request = getRequest()
         if request is None:
             request = TestRequest()
+        directlyProvides(request, IListingViewsBrowserLayer)
         setRequest(request)
 
-        #directlyProvides(getRequest(), IDefaultBrowserLayer)
         for dummy in ['ACTUAL_URL', 'URL']:
-            request.form.setdefault(dummy, 'dummy')
+            request.form.setdefault(dummy, self.portal.absolute_url())
 
         # Not sure why this is needed but single test to test menu items checkpermission needs this
         try:
@@ -63,11 +64,11 @@ class TestRegistration(unittest.TestCase):
         for i in items:
             self.assertIn(i, all_items)
 
-    def assertRegexpMatches(self, text, match):
+    def assertRegexpMatches(self, text, match, *args):
         #TODO maybe some nicer html cleaning up
         #text = ' '.join([line.strip() for line in text.split('\n')])
         text = re.sub(r"\s\s+", " ", text)
-        return super(TestRegistration, self).assertRegexpMatches(text, match)
+        return super(TestRegistration, self).assertRegexpMatches(text, match, *args)
 
 
 
@@ -96,7 +97,6 @@ class TestRegistration(unittest.TestCase):
                                'Document'],
                                [t.value for t in vocabulary]
                                )
-
 
     def test_fields_vocabulary(self):
         factory = getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')
@@ -253,7 +253,8 @@ class TestRegistration(unittest.TestCase):
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
         # On 4.1 its kB. On 5.x its KB
         self.assertRegexpMatches(body, '(?i)<dd class="listing-field field-getObjSize">0 KB</dd>', )
-        # TODO: add tests for items with size like images
+        # should be image
+        self.assertRegexpMatches(body, '(?i)<dd class="listing-field field-getObjSize">1 KB</dd>', )
 
     def test_collection_portal_type(self):
 
@@ -288,7 +289,47 @@ class TestRegistration(unittest.TestCase):
             restricted_to_types=[]
         ))
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@"+view)()
-        self.assertRegexpMatches(body, 'hello world', )
+        self.assertRegexpMatches(body, 'hello world', 'Custom field not found')
+
+
+    def test_lead_image_scales(self):
+
+        filters = [f.value for f in
+                   getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')(self.portal) if
+                   ':img_' in f.value]
+        self.assertItemsSubset(
+            ['lead_image:img_mini:tolink', 'lead_image:img_thumb:tolink', 'lead_image:img_large:tolink', 'lead_image:img_listing:tolink',
+             'lead_image:img_tile:tolink', 'lead_image:img_preview:tolink', 'lead_image:img_icon:tolink', 'lead_image:img_image:tolink'],
+            filters,
+        )
+
+        data = dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=[],
+            restricted_to_types=[]
+        )
+        view = addView(self.portal, data)
+
+        for filter in filters:
+            size = re.match("lead_image:img_(.*):tolink", filter).group(1)
+            data['listing_fields'] = ["%s" % filter]
+            updateView(self.portal, "myview", data)
+            body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
+            regexp = '(.*)<dd class="listing-field ([^"]*)"><a href="[^"]*"><img src="(http://nohost/plone/[^"]*)" alt="([^"]*)" /></a></dd>(.*)'
+            res = re.match(regexp, body, re.DOTALL | re.MULTILINE)
+            self.assertIsNotNone(res, "Images not found in page\n%s"%body)
+            image_url = str(res.group(3))
+            self.assertIn(size, image_url)
+            try:
+                from plone.subrequest import subrequest
+            except ImportError:
+                pass
+            else:
+                image = subrequest(image_url)
+                self.assertEqual(image.headers['content-type'], 'image/png', "%s is not an image"%image_url)
+
 
     def test_add_bad_custom_field(self):
 
@@ -343,12 +384,12 @@ class TestRegistration(unittest.TestCase):
         ))
 
         # If plone > 4.1 the folder is included in the collection.
-        count = PLONE41 and 3 or 4
+        count = PLONE41 and 5 or 6
         body = self.portal.folder1.collection1.unrestrictedTraverse("@@" + view)()
         self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">%s</strong> items matching your search terms.\s?</span>' % count)
 
         body = self.portal.folder1.unrestrictedTraverse("@@" + view)()
-        self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">3</strong> items matching your search terms.\s?</span>')
+        self.assertRegexpMatches(body, '<span class="listing-results-count">\s?<strong class="listing-results-number">5</strong> items matching your search terms.\s?</span>')
 
         # TODO: what should it do on an item?
         # TODO test on tiles and portlets

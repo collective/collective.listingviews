@@ -14,7 +14,7 @@
   <include file="profiles.zcml" />
 
   <!-- -*- extra stuff goes here -*- -->
-
+    <include package="plone.browserlayer" />
 
   <utility
         provides="zope.schema.interfaces.IVocabularyFactory"

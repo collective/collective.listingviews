@@ -6,7 +6,7 @@
          batch adapter/retrieve_listing_items;
          fields adapter/retrieve_context_item;
          class_name python: adapter.listing_style_class;
-         macros nocall:context/@@listing_view_macros/macros;
+         macros nocall:view/listingview/macros;
          ">
 
 <div tal:omit-tag="not:view/data/omit_border"

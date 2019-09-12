@@ -68,9 +68,7 @@ class BasicListingInformationRetriever(BaseListingInformationRetriever):
         are a large number of fields in the view. No need
         to wake up all the objects.
         """
-        path = self.context.getPhysicalPath()
-        path = "/".join(path)
-        items = self.context.portal_catalog(path={"query": path, "depth": 1})
+        items = self.context.getFolderContents()
 
         if self.listing_view_batch_size:
             items = Batch(items,
