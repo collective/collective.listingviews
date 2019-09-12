@@ -256,13 +256,13 @@ class ListingViewAddForm(AutoExtensibleForm, crud.AddForm,):
         schema =  self.context.add_schema
         return schema
 
-    @property
-    def fields(self):
-        # TODO: better to handle this as a "All Types" item to select since new types can be added later
-        fields = field.Fields(self.context.add_schema)
-        #Override to select all types
-        fields['restricted_to_types'].field.default = all_types()
-        return fields
+    # @property
+    # def fields(self):
+    #     # TODO: better to handle this as a "All Types" item to select since new types can be added later
+    #     fields = field.Fields(self.context.add_schema)
+    #     #Override to select all types
+    #     fields['restricted_to_types'].field.default = all_types()
+    #     return fields
 
     # fixes bug with OrderedSelect widget which turns crud-add.form into crud.add.form
     prefix = 'crud.add.form.'
@@ -283,6 +283,7 @@ class ListingViewSchemaListing(crud.CrudForm):
     update_schema = field.Fields(IListingDefinition).select('name')
     view_schema = field.Fields(IListingDefinition).select('id')
     add_schema = field.Fields(IListingDefinition).select('id', 'name')
+    add_schema = IListingDefinition
     addform_factory = ListingViewAddForm
 #    editform_factory = ListingViewEditForm
 
@@ -354,9 +355,9 @@ class ListingViewControlPanel(SimpleItem):
         self.id = None
         self.Title = lambda: _(u'Listing Views')
 
-        #TODO: find out why this view does a write on read
-        if IDisableCSRFProtection is not None:
-            alsoProvides(request, IDisableCSRFProtection)
+        # #TODO: find out why this view does a write on read
+        # if IDisableCSRFProtection is not None:
+        #     alsoProvides(request, IDisableCSRFProtection)
 
 
     def publishTraverse(self, request, name):

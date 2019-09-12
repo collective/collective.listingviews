@@ -74,6 +74,8 @@ class BaseListingInformationRetriever(BrowserView):
 
     def retrieve_fields(self, fields):
         field_filters = []
+        if fields is None:
+            fields = []
 
         for field in fields:
             if ":" not in field:
