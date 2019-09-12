@@ -480,6 +480,7 @@ class TestRegistration(unittest.TestCase):
         self.assertIn('My View', listmenu(self.portal.folder1.collection1))
         self.assertNotIn('My View', listmenu(self.portal.folder1.item1))
 
+    # TODO: add tests for portlets disappearing for restricted types
 
 
     # def test_portal_listing(self):
