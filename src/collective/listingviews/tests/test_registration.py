@@ -483,14 +483,14 @@ class TestRegistration(unittest.TestCase):
     # TODO: add tests for portlets disappearing for restricted types
 
 
-    # def test_portal_listing(self):
-    #
-    #     view = addView(self.portal, dict(
-    #         id="myview",
-    #         name="My View",
-    #         item_fields=[],
-    #         listing_fields=["portal_type:"],
-    #         restricted_to_types=[]
-    #     ))
-    #     body = self.portal.unrestrictedTraverse("@@"+view)()
-    #     self.assertRegexpMatches(body, '<dd class="listing-field field-portal_type">Folder</dd>', )
+    def test_portal_listing(self):
+
+        view = addView(self.portal, dict(
+            id="myview",
+            name="My View",
+            item_fields=[],
+            listing_fields=["portal_type:"],
+            restricted_to_types=[]
+        ))
+        body = self.portal.unrestrictedTraverse("@@"+view)()
+        self.assertRegexpMatches(body, '<dd class="listing-field field-portal_type">Folder</dd>', )
