@@ -98,9 +98,16 @@ Total number of comments
 By default the view will be enabled for all content types.
 
 In this case we'll create a view called ``News with publication``.
+
+>>> browser.getControl('Id', index=0).value = "pubnews"
+>>> browser.getControl('Title', index=0).value = "News with publication"
+
+
 For the context object we'll show
 
  - ``Title``
+
+>>> browser.setInAndOut(['Title'], index=1)
 
 for each of the content items
 
@@ -109,12 +116,10 @@ for each of the content items
  - ``Effective Date``
  - ``Local Publication Date``
 
+>>> browser.setInAndOut(['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
+
 and finally we'll enable the view for all content types
 
->>> browser.getControl('Id', index=0).value = "pubnews"
->>> browser.getControl('Title', index=0).value = "News with publication"
->>> browser.setInAndOut(['Title'], index=1)
->>> browser.setInAndOut(['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
 >>> browser.setInAndOut(['All Types'], index=0 )
 >>> browser.getControl('Add').click()
 

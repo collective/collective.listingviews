@@ -306,9 +306,9 @@ class Z3CFormBrowser(Browser):
                 form.fields.setdefault(name, []).append(field)
                 form.field_order.append((name, field))
 
-        if hasattr(main_control, 'value'):
-            main_control.value = [options[label] for label in labels]
-        else:
+        try:
+            self.getControl(name=main_name).value = [options[label] for label in labels]
+        except LookupError:
             index = 0
             for label in labels:
                 value = None
