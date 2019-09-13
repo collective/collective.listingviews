@@ -282,9 +282,8 @@ class Z3CFormBrowser(Browser):
         main_control = self.getControl(labels[0], index=index).control
         #parents = self.getControlParents(main_control)
         #form = self.getFormFromControl(main_control)
-        #import pdb; pdb.set_trace()
 
-        name = main_control.name.rstrip('.to').rstrip('.from')
+        main_name = main_control.name.rstrip('.to').rstrip('.from')
         def get_label(control):
             if hasattr(control, 'labels'):
                 return control.labels[0]
@@ -307,13 +306,16 @@ class Z3CFormBrowser(Browser):
                 form.fields.setdefault(name, []).append(field)
                 form.field_order.append((name, field))
 
-        index = 0
-        for label in labels:
-            value = None
-            if label not in options:
-                raise Exception("No item found with label '%s' in %s" % (label, options.keys()))
-            insert_input(main_control, '%s:list'%name, options[label], index)
-            index += 1
+        if hasattr(main_control, 'value'):
+            main_control.value = [options[label] for label in labels]
+        else:
+            index = 0
+            for label in labels:
+                value = None
+                if label not in options:
+                    raise Exception("No item found with label '%s' in %s" % (label, options.keys()))
+                insert_input(main_control, '%s:list'%main_name, options[label], index)
+                index += 1
 
     def setRelatedItem(self, label, path):
         name = etree.HTML(self.contents).xpath("//label[.//text()[contains(.,'%s')]]/@for" % label)[0]
