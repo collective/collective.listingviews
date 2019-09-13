@@ -288,9 +288,9 @@ class ListingViewSchemaListing(crud.CrudForm):
             return _(u'Click the "Add" button to begin creating '
                      u' a new listing view.')
 
-    update_schema = field.Fields(IListingDefinition).select('name')
-    view_schema = field.Fields(IListingDefinition).select('id')
-    add_schema = field.Fields(IListingDefinition).select('id', 'name')
+    #update_schema = field.Fields(IListingDefinition).select('name')
+    view_schema = field.Fields(IListingDefinition).select('id', 'item_fields','listing_fields')
+    #add_schema = field.Fields(IListingDefinition).select('id', 'name')
     add_schema = IListingDefinition
     addform_factory = ListingViewAddForm
 #    editform_factory = ListingViewEditForm

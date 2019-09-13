@@ -1,4 +1,9 @@
-from plone.app.z3cform.widget import SelectFieldWidget, SelectWidget
+
+try:
+    from plone.app.z3cform.widget import SelectWidget
+except ImportError:
+    SelectWidget = None
+
 from plone.supermodel import model
 from zope.interface import Interface, Attribute
 from zope import schema
@@ -52,7 +57,7 @@ class IListingDefinition(Interface):
                             description=_(u"Name as it will appear in the display menu to editors"))
 
 
-    form.widget('restricted_to_types', SelectWidget)
+    if SelectWidget: form.widget('restricted_to_types', SelectWidget)
     restricted_to_types = schema.List(title=_(u"Enabled on Types"),
                                       description=_(
                                           u"Show in display menu or make portlet visible only for these types"),
@@ -70,7 +75,7 @@ class IListingDefinition(Interface):
 
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
-    form.widget('item_fields', SelectWidget)
+    if SelectWidget: form.widget('item_fields', SelectWidget)
     item_fields = schema.List(title=_(u"Item"),
                               description=_(
                                   u"What informaton to display about this folder/collection/item"),
@@ -92,7 +97,7 @@ class IListingDefinition(Interface):
                                 required=False,
                                 default=False)
 
-    form.widget('listing_fields', SelectWidget)
+    if SelectWidget: form.widget('listing_fields', SelectWidget)
     listing_fields = schema.List(title=_(u"Contents"),
                                  description=_(
                                      u"What information to list about the collection/folder contents"),
