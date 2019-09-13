@@ -23,6 +23,9 @@ except ImportError:
     from zope.component.hooks import getSite
 
 
+ALL_TYPES = '__alltypes__'
+
+
 class ICustomFieldDefinition(Interface):
     id = schema.ASCIILine(title=(u"Id"),
                           required=True,
@@ -62,9 +65,9 @@ class IListingDefinition(Interface):
                                       description=_(
                                           u"Show in display menu or make portlet visible only for these types"),
                                       required=False,
-                                      default=[],
+                                      default=[ALL_TYPES],
                                       value_type=schema.Choice(
-                                          vocabulary="plone.app.vocabularies.ReallyUserFriendlyTypes"
+                                          vocabulary="collective.listingviews.ContentTypeVocabulary"
                                       ),
                                       )
     model.fieldset('sectionA',

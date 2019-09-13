@@ -12,7 +12,8 @@ from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
                                                 IListingControlPanel, IListingCustomFieldControlPanel,
-                                                ICustomFieldDefinition, ListingDefinition, IListingViewsBrowserLayer)
+                                                ICustomFieldDefinition, ListingDefinition, IListingViewsBrowserLayer,
+                                                ALL_TYPES)
 from zope.interface import implements, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
@@ -143,7 +144,8 @@ def syncViews(portal ):
 
     ftis = dict([(name,fti) for fti in portal_types.listTypeInfo() for name in getattr(fti, 'view_methods', []) if name.startswith('collective.listingviews.')])
     def add_fti(name, view):
-        for type_ in view.restricted_to_types:
+        types = all_types() if ALL_TYPES in view.restricted_to_types else view.restricted_to_types
+        for type_ in types:
             fti = portal_types.getTypeInfo(type_)
             if getattr(fti, 'view_methods', None) is None:
                 # raise Exception("No dynamic view enabled for %s"%type_)

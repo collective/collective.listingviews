@@ -1,12 +1,14 @@
 from collections import OrderedDict
 
+from ZODB.POSException import ConflictError
+
 try:
     from plone.namedfile.interfaces import IAvailableSizes
     getAllowedSizes = lambda: queryUtility(IAvailableSizes)()
 except ImportError:
     from plone.app.imaging.utils import getAllowedSizes
 from zope.interface import implements
-from collective.listingviews.interfaces import IListingCustomFieldControlPanel, IListingControlPanel
+from collective.listingviews.interfaces import IListingCustomFieldControlPanel, IListingControlPanel, ALL_TYPES
 from collective.listingviews.utils import ComplexRecordsProxy, getRegistryFields
 from z3c.formwidget.query.interfaces import IQuerySource
 from zope.schema.interfaces import IContextSourceBinder, IVocabularyFactory
@@ -14,7 +16,7 @@ from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import queryUtility, getUtility, ComponentLookupError
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
-
+from collective.listingviews import LVMessageFactory as _
 try:
     from zope.app.component.hooks import getSite
 except ImportError:
@@ -23,6 +25,7 @@ except ImportError:
 # LEAD_IMAGE_FIELD_ID = 'lead_image:tag_image'
 # LEAD_IMAGE_FIELD_NAME = 'Lead Image (Virtual)'
 # VIRTUAL_FIELDS = { LEAD_IMAGE_FIELD_ID:LEAD_IMAGE_FIELD_NAME }
+
 
 class LVVocabulary(SimpleVocabulary):
     """
@@ -57,16 +60,27 @@ def ContentTypeVocabulary(context):
     """
     # http://developer.plone.org/content/types.html
     portal = getSite()
-    site_properties = getToolByName(portal, "portal_properties").site_properties
-    not_searched = site_properties.getProperty('types_not_searched', [])
+    # site_properties = getToolByName(portal, "portal_properties").site_properties
+    # not_searched = site_properties.getProperty('types_not_searched', [])
+    #
+    # portal_types = getToolByName(portal, "portal_types")
+    # types = portal_types.listContentTypes()
+    #
+    # # Get list of content type ids which are not filtered out
+    # prepared_types = [t for t in types if t not in not_searched]
+    # terms = [SimpleVocabulary.createTerm(id, None, portal_types[id].title) for id in prepared_types]
+    # return SimpleVocabulary(terms)
 
-    portal_types = getToolByName(portal, "portal_types")
-    types = portal_types.listContentTypes()
+    vocab = getUtility(IVocabularyFactory, name="plone.app.vocabularies.ReallyUserFriendlyTypes")
+    all = SimpleVocabulary.createTerm(ALL_TYPES, None, _(u"All Types"))
+    return SimpleVocabulary([all] + list(vocab(portal)))
 
-    # Get list of content type ids which are not filtered out
-    prepared_types = [t for t in types if t not in not_searched]
-    terms = [SimpleVocabulary.createTerm(id, None, portal_types[id].title) for id in prepared_types]
-    return SimpleVocabulary(terms)
+def all_types():
+
+    portal = getSite()
+    vocab = getUtility(IVocabularyFactory, name="plone.app.vocabularies.ReallyUserFriendlyTypes")
+    return [term.value for term in vocab(portal)]
+
 
 
 def ListingViewVocabulary(context):
@@ -190,9 +204,3 @@ class MetadataSourceBinder(object):
 
      def __call__(self, context):
          return VocabularySource(MetadataVocabulary(context))
-
-def all_types():
-
-    portal = getSite()
-    vocab = getUtility(IVocabularyFactory, name="plone.app.vocabularies.ReallyUserFriendlyTypes")
-    return [term.value for term in vocab(portal)]
