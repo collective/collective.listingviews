@@ -49,37 +49,42 @@ class ICustomFieldDefinition(Interface):
 
 
 class IListingDefinition(Interface):
+    name = schema.ASCIILine(title=_(u"Title"),
+                            required=False,
+                            description=_(u"Selectable in Display Menu, Content Listing Tile and Listing View Portlet"))
+
     id = schema.ASCIILine(title=_(u"Id"),
                           required=True,
                           description=_(
-                              u"Unique id of your listing (will appear as css class). It must contains only alphanumeric or underscore, starting with alpha"),
+                              u"Unique id and css class"),
                           constraint=validate_id)
 
-    name = schema.ASCIILine(title=_(u"Title"),
-                            required=False,
-                            description=_(u"Name as it will appear in the display menu to editors"))
+    css_class = schema.ASCIILine(title=_(u"CSS classes"),
+                                 description=_(u"In addition to id which is used as a class"),
+                                 required=False,
+                                 constraint=validate_class)
 
+    model.fieldset('sectionA',
+                   label=_(u"Section A: Item"),
+                   fields=['restricted_to_types', 'item_fields',
+                           ]
+                   )
 
     if SelectWidget: form.widget('restricted_to_types', SelectWidget)
     restricted_to_types = schema.List(title=_(u"Enabled on Types"),
                                       description=_(
-                                          u"Show in display menu or make portlet visible only for these types"),
+                                          u"Hide portlet, tile or display menu except for these types"),
                                       required=False,
                                       default=[ALL_TYPES],
                                       value_type=schema.Choice(
                                           vocabulary="collective.listingviews.ContentTypeVocabulary"
                                       ),
                                       )
-    model.fieldset('sectionA',
-        label=_(u"Section A: Item"),
-        fields=['item_fields',
-                ]
-        )
 
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
     if SelectWidget: form.widget('item_fields', SelectWidget)
-    item_fields = schema.List(title=_(u"Item"),
+    item_fields = schema.List(title=_(u"Fields of Item"),
                               description=_(
                                   u"What informaton to display about this folder/collection/item"),
                               required=False,
@@ -91,7 +96,7 @@ class IListingDefinition(Interface):
 
     model.fieldset('sectionB',
         label=_(u"Section B: Contents"),
-        fields=['display_count', 'listing_fields', 'batch_size'
+        fields=['display_count', 'listing_fields', 'batch_size', 'portlet_more_text'
                 ]
         )
 
@@ -101,7 +106,7 @@ class IListingDefinition(Interface):
                                 default=False)
 
     if SelectWidget: form.widget('listing_fields', SelectWidget)
-    listing_fields = schema.List(title=_(u"Contents"),
+    listing_fields = schema.List(title=_(u"Fields of Contents"),
                                  description=_(
                                      u"What information to list about the collection/folder contents"),
                                  required=False,
@@ -112,7 +117,7 @@ class IListingDefinition(Interface):
                                  )
 
     batch_size = schema.Int(
-        title=_(u"label_batch_size", default=u"Batch Size"),
+        title=_(u"label_batch_size", default=u"Batch Size/Limit"),
         description=_(u"description_batch_size",
                       default=u"The amount of items shown in one page. "
                               u"Enter zero if you want to disable view batching."
@@ -120,17 +125,12 @@ class IListingDefinition(Interface):
         default=10,
         required=True)
 
-    model.fieldset('advanced',
-        label=_(u"Advanced"),
-        fields=['portlet_more_text', 'css_class',
-                ]
-        )
+    portlet_more_text = schema.ASCIILine(
+        title=_(u"Read More Text"),
+        description=_(u"If set, limits results and replaces batch with a link"),
+        required=False,
+    )
 
-    portlet_more_text = schema.ASCIILine(title=_(u"Portlet Read More Text"), required=False)
-
-    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
-                                 required=False,
-                                 constraint=validate_class)
 
 
 #class IListingSettings(Interface):

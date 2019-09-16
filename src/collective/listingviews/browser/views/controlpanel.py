@@ -268,13 +268,6 @@ class ListingViewAddForm(AutoExtensibleForm, crud.AddForm,):
         schema =  self.context.add_schema
         return schema
 
-    # @property
-    # def fields(self):
-    #     # TODO: better to handle this as a "All Types" item to select since new types can be added later
-    #     fields = field.Fields(self.context.add_schema)
-    #     #Override to select all types
-    #     fields['restricted_to_types'].field.default = all_types()
-    #     return fields
 
     # fixes bug with OrderedSelect widget which turns crud-add.form into crud.add.form
     prefix = 'crud.add.form.'
@@ -285,6 +278,7 @@ class ListingViewAddForm(AutoExtensibleForm, crud.AddForm,):
 
     @button.buttonAndHandler(_(u'Edit Custom Fields'), name="redirectCustomFields")
     def handle_redirectCustomFields(self, action):
+        crud.AddForm.handle_add(self, action)
         url = u"{0}/@@listingviewfields_controlpanel".format(getSite().absolute_url())
         self.request.response.redirect(url)
 
@@ -294,19 +288,12 @@ class ListingViewSchemaListing(crud.CrudForm):
 
     @lazy_property
     def description(self):
-        if self.get_items():
-            return _(u'The following custom listing views are available for '
-                     u'your site.')
-        else:
-            return _(u'Click the "Add" button to begin creating '
-                     u' a new listing view.')
+        return _(u'Views are an easy way to customise the display of metadata of items or their contents '
+                     u'via the display menu, tiles or portlets')
 
-    #update_schema = field.Fields(IListingDefinition).select('name')
     view_schema = field.Fields(IListingDefinition).select('id', 'item_fields','listing_fields')
-    #add_schema = field.Fields(IListingDefinition).select('id', 'name')
     add_schema = IListingDefinition
     addform_factory = ListingViewAddForm
-#    editform_factory = ListingViewEditForm
 
     ignoreContext = True
 
@@ -325,7 +312,6 @@ class ListingViewSchemaListing(crud.CrudForm):
         view = views.get(name)
         del views[views.indexof(name)]
         syncViews(self.context)
-        _registerMenuItems()
 
     def link(self, item, field):
         """ Generate links to the edit page for each schema.

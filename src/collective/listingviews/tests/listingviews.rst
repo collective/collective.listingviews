@@ -248,7 +248,6 @@ We'll create a new Listing View
 
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Views').click()
->>> browser.getControl('Add').click()
 
 called ``Publication Info``, .
 
