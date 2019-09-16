@@ -2,9 +2,11 @@ from collections import OrderedDict
 
 from AccessControl import Permissions
 from OFS.SimpleItem import SimpleItem
+from Products.statusmessages.interfaces import IStatusMessage
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 from plone.app.registry.browser import controlpanel
 from z3c.form.object import registerFactoryAdapter, FactoryAdapter
+from zope.component.hooks import getSite
 from zope.component.security import proxify
 from zope.security.checker import Checker, CheckerPublic
 
@@ -277,6 +279,12 @@ class ListingViewAddForm(AutoExtensibleForm, crud.AddForm,):
     # fixes bug with OrderedSelect widget which turns crud-add.form into crud.add.form
     prefix = 'crud.add.form.'
 
+
+    @button.buttonAndHandler(_(u'Edit Custom Fields'), name="redirectCustomFields")
+    def handleRedirectCustomFields(self, action):
+        url = u"{0}/@@listingviewfields_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
+
 class ListingViewSchemaListing(crud.CrudForm):
     """ The combined pigeonhole edit + add forms.
     """
@@ -347,9 +355,31 @@ class ListingViewEditForm(controlpanel.RegistryEditForm):
         id = self.context.__name__
         updateView(self.context, id, data)
 
+    @button.buttonAndHandler(_(u"Save"), name='save')
+    def handleSave(self, action):
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        self.applyChanges(data)
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes saved."),
+            "info")
+        url = u"{0}/@@listingviews_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
+
+    @button.buttonAndHandler(_(u"Cancel"), name='cancel')
+    def handleCancel(self, action):
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes canceled."),
+            "info")
+        url = u"{0}/@@listingviews_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
+
 
 class ListingViewEditFormConfiglet(controlpanel.ControlPanelFormWrapper):
     form = ListingViewEditForm
+
 
 
 class ListingViewControlPanel(SimpleItem):
@@ -429,8 +459,29 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
 #        super(ListingCustomFieldControlPanelForm, self).updateWidgets()
 #        import pdb; pdb.set_trace()
 #        self.widgets['tal_statement'].size = 100
-        
+
+    @button.buttonAndHandler(_(u"Save"), name='save')
+    def handleSave(self, action):
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        self.applyChanges(data)
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes saved."),
+            "info")
+        url = u"{0}/@@listingviews_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
+
+    @button.buttonAndHandler(_(u"Cancel"), name='cancel')
+    def handleCancel(self, action):
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes canceled."),
+            "info")
+        url = u"{0}/@@listingviews_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
 
 
 class ListingCustomFieldControlPanelView(controlpanel.ControlPanelFormWrapper):
     form = ListingCustomFieldControlPanelForm
+

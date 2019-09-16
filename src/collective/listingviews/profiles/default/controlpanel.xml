@@ -15,16 +15,4 @@
     	i18n:attributes="title">
   			<permission>Manage portal</permission>
  	</configlet>
-
-    <configlet 
-        title="Listing Custom Fields" 
-        action_id="listingviewfields" 
-        appId="collective.listingviews"
-        category="Products" 
-        condition_expr=""
-        url_expr="string:${portal_url}/@@listingviewfields_controlpanel" 
-        visible="True"
-        i18n:attributes="title">
-            <permission>Manage portal</permission>
-    </configlet>
 </object>
