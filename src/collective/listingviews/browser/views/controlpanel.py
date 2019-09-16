@@ -279,9 +279,12 @@ class ListingViewAddForm(AutoExtensibleForm, crud.AddForm,):
     # fixes bug with OrderedSelect widget which turns crud-add.form into crud.add.form
     prefix = 'crud.add.form.'
 
+    @button.buttonAndHandler(_('Add'), name='add')
+    def handle_add(self, action):
+        return crud.AddForm.handle_add(self, action)
 
     @button.buttonAndHandler(_(u'Edit Custom Fields'), name="redirectCustomFields")
-    def handleRedirectCustomFields(self, action):
+    def handle_redirectCustomFields(self, action):
         url = u"{0}/@@listingviewfields_controlpanel".format(getSite().absolute_url())
         self.request.response.redirect(url)
 

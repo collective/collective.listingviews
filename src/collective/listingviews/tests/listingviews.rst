@@ -29,7 +29,8 @@ A TAL Expression like the following will work.
 
 >>> browser = managerBrowser(layer)
 >>> browser.getLink('Site Setup').click()
->>> browser.getLink('Listing Custom Fields').click()
+>>> browser.getLink('Listing Views').click()
+>>> browser.getControl('Edit Custom Fields').click()
 >>> print browser.contents
 <...Add...
 
@@ -52,8 +53,7 @@ Now that we've created our custom field we can add a new Listing View via
 ``Site Setup > Listing View > Add``.
 
 >>> browser.getLink('Site Setup').click()
->>> browser.getLink('Listing View').click()
->>> browser.getControl('Add').click()
+>>> browser.getLink('Listing Views').click()
 
 There are two kinds of information a listing view display. Information about the context object called
 ``Item Fields`` and information about the contents or matched items called ``Listing Fields``.
@@ -247,7 +247,7 @@ We can use the same custom publication date field when viewing Page items.
 We'll create a new Listing View
 
 >>> browser.getLink('Site Setup').click()
->>> browser.getLink('Listing View').click()
+>>> browser.getLink('Listing Views').click()
 >>> browser.getControl('Add').click()
 
 called ``Publication Info``, .
