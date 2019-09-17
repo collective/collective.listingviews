@@ -3,6 +3,7 @@ from collections import OrderedDict
 from AccessControl import Permissions
 from OFS.SimpleItem import SimpleItem
 from ZPublisher.BaseRequest import DefaultPublishTraverse
+from plone import api
 from plone.app.registry.browser import controlpanel
 from z3c.form.object import registerFactoryAdapter, FactoryAdapter
 from zope.component.security import proxify
@@ -157,7 +158,7 @@ def syncViews(portal, listing_views):
     sync_dicts(views, ftis, add_fti, del_fti)
 
     # Tiles
-    stlisting_views = getUtility(IRegistry).get('plone.app.standardtiles.listing_views', None)
+    stlisting_views = api.portal.get_registry_record('plone.app.standardtiles.listing_views', default=None)
     if stlisting_views is None:
         return
 
@@ -175,9 +176,8 @@ def syncViews(portal, listing_views):
             changed = True
     sync_dicts(views, stlisting_views, add_lv, del_lv, mod_lv)
     if changed:
-        getUtility(IRegistry)['plone.app.standardtiles.listing_views'] = stlisting_views
+        api.portal.set_registry_record('plone.app.standardtiles.listing_views', stlisting_views)
 
-    # TODO: make sure this is only in our layer
     adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((Interface, IContentListingTileLayer), IBrowserView) if n.startswith('collective.listingviews.')])
     def add_tile(name, view):
         lsm.registerAdapter(NamedAdapterFactory(name, ContentListingTileView),
