@@ -76,7 +76,7 @@ def addView(portal, data):
     view = ListingDefinition(data)
     views.append(view)
     view_name = getViewName(view.id)
-    syncViews(portal)
+    syncViews(portal, views)
     return view_name
 
 def updateView(portal, old_id, data):
@@ -84,7 +84,7 @@ def updateView(portal, old_id, data):
     views = getRegistryViews().views
     views[views.indexof(old_id)] = record
     # assume view is already added
-    syncViews(portal)
+    syncViews(portal, views)
     return getViewName(record.id)
 
 
@@ -106,13 +106,12 @@ def sync_dicts(origin, target, add_func=None, del_func=None, mod_func=None):
 
 
 
-def syncViews(portal ):
+def syncViews(portal, listing_views):
     lsm = getSiteManager(portal)
-    views = OrderedDict([(getViewName(view.id), view) for view in getRegistryViews().views if view.id and view.name])
 
+    _registerMenuItems(listing_views)
 
-    _registerMenuItems()
-
+    views = OrderedDict([(getViewName(view.id), view) for view in listing_views if view.id and view.name])
 
     # remove adapters registered in previous versions without the layer
     adapters = dict([(n,f) for n,f in lsm.adapters.lookupAll((IContentish, IBrowserRequest), IBrowserView) if n.startswith('collective.listingviews.')])
@@ -195,14 +194,16 @@ def syncViews(portal ):
 # We need to register our menuitems the first time it's accessed per thread as we can't use local site manager
 # called from zope.app.publication.interfaces.IBeforeTraverseEvent
 def registerMenuItems(site, event, _handled=set()):
+    # TODO: we need a way to register the menus on ohter instances if the names change.
     if site.getPhysicalPath() not in _handled:
-        _registerMenuItems()
+        _registerMenuItems(getRegistryViews().views)
         _handled.add(site.getPhysicalPath())
 
 
-def _registerMenuItems():
 
-    views = OrderedDict([(getViewName(view.id), view) for view in getRegistryViews().views if view.id and view.name])
+def _registerMenuItems(views):
+
+    views = OrderedDict([(getViewName(view.id), view) for view in views if view.id and view.name])
 
     gsm = getGlobalSiteManager()
     menu = getUtility(IBrowserMenu, 'plone_displayviews')
@@ -309,7 +310,7 @@ class ListingViewSchemaListing(crud.CrudForm):
         views = getRegistryViews().views
         view = views.get(name)
         del views[views.indexof(name)]
-        syncViews(self.context)
+        syncViews(self.context, views)
         _registerMenuItems()
 
     def link(self, item, field):

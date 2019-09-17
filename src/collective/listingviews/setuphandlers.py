@@ -42,7 +42,7 @@ def uninstall(context):
     for i in views:
         views.pop()
     assert len(getRegistryViews().views) == 0
-    syncViews(context.getSite())
+    syncViews(context.getSite(), [])
 
     # TODO: might need to do more to get rid of old registrations
     #  see - https://github.com/plone/plone.multilingualbehavior/blob/master/plone/multilingualbehavior/setuphandlers.py
@@ -56,4 +56,6 @@ def resync_views(context, logger=None):
         # Called as upgrade step: define our own logger.
         logger = logging.getLogger('collective.listingviews')
     logger.log("Registering all views")
-    syncViews(context.getSite())
+    syncViews(context.getSite(), [])
+    syncViews(context.getSite(), getRegistryViews().views)
+
