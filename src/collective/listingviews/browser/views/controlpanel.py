@@ -3,7 +3,6 @@ from collections import OrderedDict
 from AccessControl import Permissions
 from OFS.SimpleItem import SimpleItem
 from ZPublisher.BaseRequest import DefaultPublishTraverse
-from plone import api
 from plone.app.registry.browser import controlpanel
 from z3c.form.object import registerFactoryAdapter, FactoryAdapter
 from zope.component.security import proxify
@@ -53,6 +52,11 @@ try:
     MOSAIC = True
 except ImportError:
     MOSAIC = False
+try:
+    from plone import api
+except ImportError
+    api = None
+
 
 class ProxyView(object):
     """Class to create simple proxy views."""
@@ -158,8 +162,9 @@ def syncViews(portal, listing_views):
     sync_dicts(views, ftis, add_fti, del_fti)
 
     # Tiles
-    stlisting_views = api.portal.get_registry_record('plone.app.standardtiles.listing_views', default=None)
+    stlisting_views = api.portal.get_registry_record('plone.app.standardtiles.listing_views', default=None) if api else None
     if stlisting_views is None:
+        # No tiles so skip the rest of the registrations as they are all tiles
         return
 
     changed = False
