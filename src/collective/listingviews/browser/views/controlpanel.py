@@ -54,7 +54,7 @@ except ImportError:
     MOSAIC = False
 try:
     from plone import api
-except ImportError
+except ImportError:
     api = None
 
 
