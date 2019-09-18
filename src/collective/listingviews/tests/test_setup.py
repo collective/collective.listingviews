@@ -116,6 +116,19 @@ class TestSetup(unittest.TestCase):
         self.assertListEqual([], fields)
 
 
+    def test_uninstall_controlpanel(self):
+        controlpanel = self.portal['portal_controlpanel']
+        actions = [
+            a.getAction(self)['id'] for a in controlpanel.listActions()]
+        self.assertIn('listingviewfields', actions)
+        self.assertIn('listingviews', actions)
+
+        self.installer.uninstall_product('collective.listingviews')
+        actions = [
+            a.getAction(self)['id'] for a in controlpanel.listActions()]
+        self.assertNotIn('listingviewfields', actions)
+        self.assertNotIn('listingviews', actions)
+
 
 def getRoles(portal, user_id):
     userFolder = portal['acl_users']

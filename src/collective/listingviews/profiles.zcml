@@ -36,6 +36,27 @@
       handler=".setuphandlers.uninstall">
     </genericsetup:importStep>
 
+
+
+    <genericsetup:upgradeSteps
+        source="1.0"
+        destination="1100"
+        profile="collective.listingviews:default">
+
+
+      <genericsetup:upgradeDepends
+          title="Apply the browserlayer we now use to protect our views on this site"
+          import_steps="browserlayer"
+          />
+      <genericsetup:upgradeStep
+          title="Resync vuews"
+          description="Changed how views are registered with NamedAdapterFactory and browser layer"
+          handler=".setuphandlers.resync_views"
+          />
+
+    </genericsetup:upgradeSteps>
+
+
 <!--
     <utility
       factory=".setuphandlers.HiddenProfiles"

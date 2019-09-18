@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<object name="portal_controlpanel"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain="collective.listingviews"
+    purge="False">
+
+	<configlet
+      remove="True"
+		title="Listing View"
+		action_id="listingviews"
+		appId="collective.listingviews"
+    	category="Products"
+    	visible="False"
+    	i18n:attributes="title">
+  			<permission>Manage portal</permission>
+ 	</configlet>
+
+    <configlet
+      remove="True"
+        title="Listing Custom Fields"
+        action_id="listingviewfields"
+        appId="collective.listingviews"
+        category="Products"
+        condition_expr=""
+        url_expr="string:${portal_url}/@@listingviewfields_controlpanel"
+        visible="False"
+        i18n:attributes="title">
+            <permission>Manage portal</permission>
+    </configlet>
+
+
+</object>
