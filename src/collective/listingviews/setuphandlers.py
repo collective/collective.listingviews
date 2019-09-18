@@ -1,3 +1,6 @@
+import logging
+
+from Products.CMFCore.utils import getToolByName
 from zope.component.hooks import getSite
 
 from collective.listingviews.browser.views.controlpanel import syncViews
@@ -6,6 +9,7 @@ from collective.listingviews.utils import getRegistryViews, getRegistryFields
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
 
+PROFILE_ID = 'profile-collective.listingviews:default'
 
 @implementer(INonInstallable)
 class HiddenProfiles(object):
@@ -38,7 +42,7 @@ def uninstall(context):
     for i in views:
         views.pop()
     assert len(getRegistryViews().views) == 0
-    syncViews(context.getSite())
+    syncViews(context.getSite(), [])
 
     # TODO: might need to do more to get rid of old registrations
     #  see - https://github.com/plone/plone.multilingualbehavior/blob/master/plone/multilingualbehavior/setuphandlers.py
@@ -46,3 +50,12 @@ def uninstall(context):
 
 def run_after_uninstall(context):
     pass
+
+def resync_views(context, logger=None):
+    if logger is None:
+        # Called as upgrade step: define our own logger.
+        logger = logging.getLogger('collective.listingviews')
+    logger.info("Re-registering all views")
+    syncViews(getSite(), [])
+    syncViews(getSite(), getRegistryViews().views)
+
