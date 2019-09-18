@@ -55,7 +55,7 @@ def resync_views(context, logger=None):
     if logger is None:
         # Called as upgrade step: define our own logger.
         logger = logging.getLogger('collective.listingviews')
-    logger.log("Registering all views")
-    syncViews(context.getSite(), [])
-    syncViews(context.getSite(), getRegistryViews().views)
+    logger.info("Re-registering all views")
+    syncViews(getSite(), [])
+    syncViews(getSite(), getRegistryViews().views)
 
