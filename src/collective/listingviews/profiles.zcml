@@ -43,6 +43,16 @@
         destination="1100"
         profile="collective.listingviews:default">
 
+      <genericsetup:upgradeDepends
+          title="Get rid of the 2 different control panels"
+          import_steps="controlpanel"
+          import_profile="collective.listingviews:uninstall"
+          />
+
+      <genericsetup:upgradeDepends
+          title="Put the single control panel back in"
+          import_steps="controlpanel"
+          />
 
       <genericsetup:upgradeDepends
           title="Apply the browserlayer we now use to protect our views on this site"

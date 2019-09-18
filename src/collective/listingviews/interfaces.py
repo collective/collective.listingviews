@@ -1,3 +1,10 @@
+
+try:
+    from plone.app.z3cform.widget import SelectWidget
+except ImportError:
+    SelectWidget = None
+
+from plone.supermodel import model
 from zope.interface import Interface, Attribute
 from zope import schema
 from zope.interface import implements
@@ -7,13 +14,16 @@ from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from collective.listingviews import LVMessageFactory as _
 from validation import validate_id, validate_class, validate_tal
 try:
-    from plone.autoform import directives as form
+    from plone.autoform import directives as form, directives
 except ImportError:
     from plone.directives import form
 try:
     from zope.app.component.hooks import getSite
 except ImportError:
     from zope.component.hooks import getSite
+
+
+ALL_TYPES = '__alltypes__'
 
 
 class ICustomFieldDefinition(Interface):
@@ -39,51 +49,75 @@ class ICustomFieldDefinition(Interface):
 
 
 class IListingDefinition(Interface):
+    name = schema.ASCIILine(title=_(u"Title"),
+                            required=False,
+                            description=_(u"Selectable in Display Menu, Content Listing Tile and Listing View Portlet"))
+
     id = schema.ASCIILine(title=_(u"Id"),
                           required=True,
                           description=_(
-                              u"Unique id of your listing (will appear as css class). It must contains only alphanumeric or underscore, starting with alpha"),
+                              u"Unique id and css class"),
                           constraint=validate_id)
 
-    name = schema.ASCIILine(title=_(u"Title"),
-                            required=False,
-                            description=_(u"Name as it will appear in the display menu to editors"))
+    css_class = schema.ASCIILine(title=_(u"CSS classes"),
+                                 description=_(u"In addition to id which is used as a class"),
+                                 required=False,
+                                 constraint=validate_class)
+
+    model.fieldset('sectionA',
+                   label=_(u"Section A: Item"),
+                   fields=['restricted_to_types', 'item_fields',
+                           ]
+                   )
+
+    if SelectWidget: form.widget('restricted_to_types', SelectWidget)
+    restricted_to_types = schema.List(title=_(u"Enabled on Types"),
+                                      description=_(
+                                          u"Hide portlet, tile or display menu except for these types"),
+                                      required=False,
+                                      default=[ALL_TYPES],
+                                      value_type=schema.Choice(
+                                          vocabulary="collective.listingviews.ContentTypeVocabulary"
+                                      ),
+                                      )
+
 
     # http://plone.org/products/dexterity/documentation/manual/developer-manual/advanced/vocabularies/
-#    form.widget(item_fields=ChosenMultiFieldWidget)
-    item_fields = schema.List(title=_(u"Item Fields"),
+    if SelectWidget: form.widget('item_fields', SelectWidget)
+    item_fields = schema.List(title=_(u"Fields of Item"),
                               description=_(
-                                  u"Display the following fields at of current content item. Sort to change order."),
+                                  u"What informaton to display about this folder/collection/item"),
                               required=False,
                               default=[],
                               value_type=schema.Choice(
-                                              vocabulary="collective.listingviews.MetadataVocabulary",
+                                  vocabulary="collective.listingviews.MetadataVocabulary",
                               )
-    )
+                              )
 
-#    form.widget(listing_fields=ChosenMultiFieldWidget)
-    listing_fields = schema.List(title=_(u"Listing Fields"),
+    model.fieldset('sectionB',
+        label=_(u"Section B: Contents"),
+        fields=['display_count', 'listing_fields', 'batch_size', 'portlet_more_text'
+                ]
+        )
+
+    display_count = schema.Bool(title=_(u"Total"),
+                                description=_(u"Display a count of the total number of items"),
+                                required=False,
+                                default=False)
+
+    if SelectWidget: form.widget('listing_fields', SelectWidget)
+    listing_fields = schema.List(title=_(u"Fields of Contents"),
                                  description=_(
-                                     u"Folders/Collections and other listable items will list contents displaying these fields for each"),
+                                     u"What information to list about the collection/folder contents"),
                                  required=False,
                                  default=[],
                                  value_type=schema.Choice(
-                                                 vocabulary="collective.listingviews.MetadataVocabulary",
+                                     vocabulary="collective.listingviews.MetadataVocabulary",
                                  )
-    )
-
-    #    form.widget(restricted_to_types=AutocompleteMultiSelectionFieldWidget)
-    restricted_to_types = schema.List(title=_(u"Enabled on Types"),
-                                      description=_(u"Show in display menu or make portlet visible only for these types"),
-                                      required=False,
-                                      default=[],
-                                      value_type=schema.Choice(
-                                          vocabulary="plone.app.vocabularies.ReallyUserFriendlyTypes"
-                                      ),
-    )
+                                 )
 
     batch_size = schema.Int(
-        title=_(u"label_batch_size", default=u"Batch Size"),
+        title=_(u"label_batch_size", default=u"Batch Size/Limit"),
         description=_(u"description_batch_size",
                       default=u"The amount of items shown in one page. "
                               u"Enter zero if you want to disable view batching."
@@ -91,15 +125,12 @@ class IListingDefinition(Interface):
         default=10,
         required=True)
 
-    portlet_more_text = schema.ASCIILine(title=_(u"Portlet Read More Text"), required=False)
+    portlet_more_text = schema.ASCIILine(
+        title=_(u"Read More Text"),
+        description=_(u"If set, limits results and replaces batch with a link"),
+        required=False,
+    )
 
-    css_class = schema.ASCIILine(title=_(u"Additional CSS classes"),
-                                 required=False,
-                                 constraint=validate_class)
-
-    display_count = schema.Bool(title=_(u"Display a count of the number of items"),
-                                required=False,
-                                default=False)
 
 
 #class IListingSettings(Interface):

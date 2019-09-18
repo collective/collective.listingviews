@@ -20,6 +20,10 @@ Changelog
   [Quang]
 - Renaming a view now updates display menu etc
   [Dylan Jay]
+- Use select2 and improve layout for 5.x
+  [Dylan Jay]
+- "All Types" option so new types will be included
+  [Dylan Jay]
 
 
 1.0.1 (2019-01-17)

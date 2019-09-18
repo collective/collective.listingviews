@@ -2,9 +2,11 @@ from collections import OrderedDict
 
 from AccessControl import Permissions
 from OFS.SimpleItem import SimpleItem
+from Products.statusmessages.interfaces import IStatusMessage
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 from plone.app.registry.browser import controlpanel
 from z3c.form.object import registerFactoryAdapter, FactoryAdapter
+from zope.component.hooks import getSite
 from zope.component.security import proxify
 from zope.security.checker import Checker, CheckerPublic
 
@@ -12,7 +14,8 @@ from collective.listingviews import LVMessageFactory as _
 from collective.listingviews.browser.tiles.contentlisting_tile import ContentListingTileView
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
                                                 IListingControlPanel, IListingCustomFieldControlPanel,
-                                                ICustomFieldDefinition, ListingDefinition, IListingViewsBrowserLayer)
+                                                ICustomFieldDefinition, ListingDefinition, IListingViewsBrowserLayer,
+                                                ALL_TYPES)
 from zope.interface import implements, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
@@ -147,7 +150,8 @@ def syncViews(portal, listing_views):
 
     ftis = dict([(name,fti) for fti in portal_types.listTypeInfo() for name in getattr(fti, 'view_methods', []) if name.startswith('collective.listingviews.')])
     def add_fti(name, view):
-        for type_ in view.restricted_to_types:
+        types = all_types() if ALL_TYPES in view.restricted_to_types else view.restricted_to_types
+        for type_ in types:
             fti = portal_types.getTypeInfo(type_)
             if getattr(fti, 'view_methods', None) is None:
                 # raise Exception("No dynamic view enabled for %s"%type_)
@@ -264,21 +268,25 @@ class ListingViewEditForm(crud.EditForm):
     handlers = crud.EditForm.handlers.copy()
     editsubform_factory = ListingViewDefinitionEditForm
 
-class ListingViewAddForm(crud.AddForm, AutoExtensibleForm):
+class ListingViewAddForm(AutoExtensibleForm, crud.AddForm,):
     @property
     def schema(self):
         schema =  self.context.add_schema
         return schema
 
-    @property
-    def fields(self):
-        fields = field.Fields(self.context.add_schema)
-        #Override to select all types
-        fields['restricted_to_types'].field.default = all_types()
-        return fields
 
     # fixes bug with OrderedSelect widget which turns crud-add.form into crud.add.form
     prefix = 'crud.add.form.'
+
+    @button.buttonAndHandler(_('Add'), name='add')
+    def handle_add(self, action):
+        return crud.AddForm.handle_add(self, action)
+
+    @button.buttonAndHandler(_(u'Edit Custom Fields'), name="redirectCustomFields")
+    def handle_redirectCustomFields(self, action):
+        crud.AddForm.handle_add(self, action)
+        url = u"{0}/@@listingviewfields_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
 
 class ListingViewSchemaListing(crud.CrudForm):
     """ The combined pigeonhole edit + add forms.
@@ -286,18 +294,12 @@ class ListingViewSchemaListing(crud.CrudForm):
 
     @lazy_property
     def description(self):
-        if self.get_items():
-            return _(u'The following custom listing views are available for '
-                     u'your site.')
-        else:
-            return _(u'Click the "Add" button to begin creating '
-                     u' a new listing view.')
+        return _(u'Views are an easy way to customise the display of metadata of items or their contents '
+                     u'via the display menu, tiles or portlets')
 
-    update_schema = field.Fields(IListingDefinition).select('name')
-    view_schema = field.Fields(IListingDefinition).select('id')
+    view_schema = field.Fields(IListingDefinition).select('id', 'item_fields','listing_fields')
     add_schema = IListingDefinition
     addform_factory = ListingViewAddForm
-#    editform_factory = ListingViewEditForm
 
     ignoreContext = True
 
@@ -316,7 +318,6 @@ class ListingViewSchemaListing(crud.CrudForm):
         view = views.get(name)
         del views[views.indexof(name)]
         syncViews(self.context, views)
-        _registerMenuItems()
 
     def link(self, item, field):
         """ Generate links to the edit page for each schema.
@@ -349,9 +350,31 @@ class ListingViewEditForm(controlpanel.RegistryEditForm):
         id = self.context.__name__
         updateView(self.context, id, data)
 
+    @button.buttonAndHandler(_(u"Save"), name='save')
+    def handleSave(self, action):
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        self.applyChanges(data)
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes saved."),
+            "info")
+        url = u"{0}/@@listingviews_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
+
+    @button.buttonAndHandler(_(u"Cancel"), name='cancel')
+    def handleCancel(self, action):
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes canceled."),
+            "info")
+        url = u"{0}/@@listingviews_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
+
 
 class ListingViewEditFormConfiglet(controlpanel.ControlPanelFormWrapper):
     form = ListingViewEditForm
+
 
 
 class ListingViewControlPanel(SimpleItem):
@@ -367,9 +390,9 @@ class ListingViewControlPanel(SimpleItem):
         self.id = None
         self.Title = lambda: _(u'Listing Views')
 
-        #TODO: find out why this view does a write on read
-        if IDisableCSRFProtection is not None:
-            alsoProvides(request, IDisableCSRFProtection)
+        # #TODO: find out why this view does a write on read
+        # if IDisableCSRFProtection is not None:
+        #     alsoProvides(request, IDisableCSRFProtection)
 
 
     def publishTraverse(self, request, name):
@@ -431,8 +454,29 @@ class ListingCustomFieldControlPanelForm(controlpanel.RegistryEditForm):
 #        super(ListingCustomFieldControlPanelForm, self).updateWidgets()
 #        import pdb; pdb.set_trace()
 #        self.widgets['tal_statement'].size = 100
-        
+
+    @button.buttonAndHandler(_(u"Save"), name='save')
+    def handleSave(self, action):
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        self.applyChanges(data)
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes saved."),
+            "info")
+        url = u"{0}/@@listingviews_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
+
+    @button.buttonAndHandler(_(u"Cancel"), name='cancel')
+    def handleCancel(self, action):
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes canceled."),
+            "info")
+        url = u"{0}/@@listingviews_controlpanel".format(getSite().absolute_url())
+        self.request.response.redirect(url)
 
 
 class ListingCustomFieldControlPanelView(controlpanel.ControlPanelFormWrapper):
     form = ListingCustomFieldControlPanelForm
+

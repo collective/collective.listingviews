@@ -29,7 +29,8 @@ A TAL Expression like the following will work.
 
 >>> browser = managerBrowser(layer)
 >>> browser.getLink('Site Setup').click()
->>> browser.getLink('Listing Custom Fields').click()
+>>> browser.getLink('Listing Views').click()
+>>> browser.getControl('Edit Custom Fields').click()
 >>> print browser.contents
 <...Add...
 
@@ -52,8 +53,7 @@ Now that we've created our custom field we can add a new Listing View via
 ``Site Setup > Listing View > Add``.
 
 >>> browser.getLink('Site Setup').click()
->>> browser.getLink('Listing View').click()
->>> browser.getControl('Add').click()
+>>> browser.getLink('Listing Views').click()
 
 There are two kinds of information a listing view display. Information about the context object called
 ``Item Fields`` and information about the contents or matched items called ``Listing Fields``.
@@ -95,25 +95,19 @@ Title
 Title (Link)
 Total number of comments
 
-By default the view will be enabled for standard content types. These are
-
->>> options = browser.getControl('Page').control.displayOptions
->>> options = [o for o in options if 'old-style' not in o]
->>> print '\n'.join( options )
-Collection
-Comment
-Event
-File
-Folder
-Image
-Link
-News Item
-Page
+By default the view will be enabled for all content types.
 
 In this case we'll create a view called ``News with publication``.
+
+>>> browser.getControl('Id', index=0).value = "pubnews"
+>>> browser.getControl('Title', index=0).value = "News with publication"
+
+
 For the context object we'll show
 
  - ``Title``
+
+>>> browser.setInAndOut(['Title'], index=1)
 
 for each of the content items
 
@@ -122,13 +116,11 @@ for each of the content items
  - ``Effective Date``
  - ``Local Publication Date``
 
+>>> browser.setInAndOut(['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
+
 and finally we'll enable the view for all content types
 
->>> browser.getControl('Id', index=0).value = "pubnews"
->>> browser.getControl('Title', index=0).value = "News with publication"
->>> browser.setInAndOut(['Title'], index=1)
->>> browser.setInAndOut(['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
->>> browser.setInAndOut(browser.getControl('Page').control.displayOptions, index=0 )
+>>> browser.setInAndOut(['All Types'], index=0 )
 >>> browser.getControl('Add').click()
 
 We can manage our existing listing views including a link to edit the view we just created.
@@ -253,18 +245,23 @@ Adding publication date to a Page using a portlet
 We can use the same custom publication date field when viewing Page items.
 
 We'll create a new Listing View
-called ``Publication Info``, .
-add ``Local Publication Date`` to the 'item' fields, rather than the listing fields.
-
-Finally we only want this to be applied to a Page content type
 
 >>> browser.getLink('Site Setup').click()
->>> browser.getLink('Listing View').click()
->>> browser.getControl('Add').click()
+>>> browser.getLink('Listing Views').click()
+
+called ``Publication Info``, .
+
 >>> browser.getControl('Id', index=0).value = "pubnewsitem"
 >>> browser.getControl('Title', index=0).value = "Publication Info"
+
+add ``Local Publication Date`` to the 'item' fields, rather than the listing fields.
+
 >>> browser.setInAndOut(['Local Publication Date (Custom)'], index=0)
+
+Finally we only want this to be applied only when viewing a Page content type
+
 >>> browser.setInAndOut(['Page'])
+
 >>> browser.getControl('Add').click()
 
 
@@ -272,20 +269,26 @@ Go to your  folder where all the pages are located
 and
 
 1. Add a ``ListingView Portlet`` portlet to the left side using ``Manage porlets``.
-2. Enter ``Publication Info`` as the Portlet header.
-3. Select ``Publication Info`` as the ``Listing views``.
-4. Leave ``Target`` target blank as you want portlet to show information of the current item. Click ``Save``.
-
-Alternatively you can also add the portlet as a Content Type portlet which also ensures it will only be shown only when
-viewing this content type. (e.g. ``Site Setup > Types > News Item > Manage Portlets assigned to this content type``).
 
 >>> browser.getLink('Home').click()
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('Manage portlets').click()
 >>> browser.getControl('ListingView Portlet', index=1).click()
 >>> browser.getFormFromControl(browser.getControl('ListingView Portlet', index=1)).submit()
+
+2. Enter ``Publication Info`` as the Portlet header.
+
 >>> browser.getControl('Portlet header').value = 'Publication Info'
+
+3. Select ``Publication Info`` as the ``Listing views``.
+
 >>> browser.getControl('Listing views').value = ['pubnewsitem']
+
+4. Leave ``Target`` target blank as you want portlet to show information of the current item. Click ``Save``.
+
+Alternatively you can also add the portlet as a Content Type portlet which also ensures it will only be shown only when
+viewing this content type. (e.g. ``Site Setup > Types > News Item > Manage Portlets assigned to this content type``).
+
 >>> browser.getControl('Save').click()
 
 

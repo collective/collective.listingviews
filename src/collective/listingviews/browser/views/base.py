@@ -15,7 +15,7 @@ except ImportError:
     IFacetedLayout = None
     IFacetedNavigable = None
     IFacetedSearchMode = None
-from collective.listingviews.interfaces import IListingAdapter
+from collective.listingviews.interfaces import IListingAdapter, ALL_TYPES
 from collective.listingviews.utils import getListingNameFromView, getRegistryViews, getRegistryFields
 
 from zope.interface import implements
@@ -91,6 +91,8 @@ class BaseListingInformationRetriever(BrowserView):
         self.listing_field_filters = self.retrieve_fields(self.view_setting.listing_fields)
 
     def retrieve_fields(self, fields):
+        if fields is None:
+            fields = []
 
         def get_filtered(func, filters):
             def filtered(item):
@@ -171,7 +173,10 @@ class BaseListingInformationRetriever(BrowserView):
         :return: True if the the context is valid for this listing view
         """
         types = self.view_setting.restricted_to_types
-        return self.context.getPortalTypeName() in types
+        if ALL_TYPES in types:
+            return True
+        else:
+            return self.context.getPortalTypeName() in types
 
     # BrowserView helper method
     def get_UID(self):
