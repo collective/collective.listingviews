@@ -1,8 +1,8 @@
 from zope.browser.interfaces import IBrowserView
 from zope.component import adapts, getMultiAdapter, ComponentLookupError
-from zope.interface import implements
+from zope.interface import implementer
 from Products.CMFCore.utils import getToolByName
-from basic import BasicListingInformationRetriever
+from .basic import BasicListingInformationRetriever
 from collective.listingviews.interfaces import IListingAdapter
 from plone.memoize.instance import memoize
 from Products.CMFPlone.PloneBatch import Batch
@@ -11,8 +11,8 @@ try:
 except ImportError:
     pass
 
+@implementer(IListingAdapter)
 class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
-    implements(IListingAdapter)
 
     @property
     @memoize
@@ -25,9 +25,9 @@ class BasicTopicListingInformationRetriever(BasicListingInformationRetriever):
         return self.context.queryCatalog(REQUEST=self.request,batch=True,b_size=self.listing_view_batch_size)
 
 
+implementer(IListingAdapter)
 class ContentTypesCollectionListingInformationRetriever(
                             BasicTopicListingInformationRetriever):
-    implements(IListingAdapter)
 
     @property
     @memoize
@@ -48,9 +48,9 @@ class ContentTypesCollectionListingInformationRetriever(
         results = view.results()
         return results
 
+@implementer(IListingAdapter)
 class AppCollectionListingInformationRetriever(
     BasicTopicListingInformationRetriever):
-    implements(IListingAdapter)
 
     @property
     @memoize

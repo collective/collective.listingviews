@@ -13,7 +13,7 @@ from collective.listingviews.browser.tiles.contentlisting_tile import ContentLis
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
                                                 IListingControlPanel, IListingCustomFieldControlPanel,
                                                 ICustomFieldDefinition, ListingDefinition, IListingViewsBrowserLayer)
-from zope.interface import implements, alsoProvides, Interface
+from zope.interface import implementer, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
 from zope.component import adapts, getUtility, getAdapters
@@ -355,11 +355,11 @@ class ListingViewEditFormConfiglet(controlpanel.ControlPanelFormWrapper):
     form = ListingViewEditForm
 
 
+@implementer(IBrowserPublisher)
 class ListingViewControlPanel(SimpleItem):
     """ This class represents the Pigeonhole configlet, and allows us to traverse
         through it to (a wrapper of) a particular schema.
     """
-    implements(IBrowserPublisher)
 
     def __init__(self, context, request):
         super(ListingViewControlPanel, self).__init__(context, request)
@@ -387,10 +387,10 @@ class ListingViewControlPanel(SimpleItem):
         """
         return self, ('@@contents',)
 
+@implementer(IBrowserPublisher)
 class ListingViewEditContext(SimpleItem):
     # Implementing IBrowserPublisher tells the Zope 2 publish traverser to pay attention
     # to the publishTraverse and browserDefault methods.
-    implements(IBrowserPublisher)
 
 
     def __init__(self, context, request, name=u'schema', title=None):

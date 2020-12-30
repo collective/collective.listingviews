@@ -5,7 +5,7 @@ try:
     getAllowedSizes = lambda: queryUtility(IAvailableSizes)()
 except ImportError:
     from plone.app.imaging.utils import getAllowedSizes
-from zope.interface import implements
+from zope.interface import implementer
 from collective.listingviews.interfaces import IListingCustomFieldControlPanel, IListingControlPanel
 from collective.listingviews.utils import ComplexRecordsProxy, getRegistryFields
 from z3c.formwidget.query.interfaces import IQuerySource
@@ -124,7 +124,7 @@ def MetadataVocabulary(context):
         if name in seen:
             continue
 
-        display_name = unicode(display_name.replace('_', ' ').title())
+        display_name = display_name.replace('_', ' ').title()
         if name in DATE_INDEXES:
             display_name = dict(created=u"Creation", expires=u"Expiration", modified=u"Modification").get(name, display_name)
             display_name = display_name.replace(' Date','').replace('date','').capitalize()+' Date'
@@ -166,8 +166,8 @@ def MetadataVocabulary(context):
         terms.append(t("%s (Custom)" % field.name, ':' + field.id))
     return SimpleVocabulary(terms)
 
+@implementer(IQuerySource)
 class VocabularySource(object):
-     implements(IQuerySource)
      def __init__(self, vocabulary):
          self.vocabulary = vocabulary
      def __contains__(self, item):
@@ -185,8 +185,8 @@ class VocabularySource(object):
                  for v in self
           if query_string.lower() in v.value.lower()]
 
+@implementer(IContextSourceBinder)
 class MetadataSourceBinder(object):
-     implements(IContextSourceBinder)
 
      def __call__(self, context):
          return VocabularySource(MetadataVocabulary(context))

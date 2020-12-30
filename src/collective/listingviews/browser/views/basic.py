@@ -1,10 +1,10 @@
 from collective.listingviews.interfaces import \
     IListingAdapter
 from Products.CMFCore.utils import getToolByName
-from zope.interface import implements
+from zope.interface import implementer
 from zope.component import getMultiAdapter
 from zope.component import adapts
-from base import BaseListingInformationRetriever
+from .base import BaseListingInformationRetriever
 from collective.listingviews import LVMessageFactory as _
 from zope.component import queryUtility
 from plone.registry.interfaces import IRegistry
@@ -12,8 +12,8 @@ from plone.memoize.instance import memoize
 from Products.CMFPlone.PloneBatch import Batch
 
 
+@implementer(IListingAdapter)
 class BasicListingInformationRetriever(BaseListingInformationRetriever):
-    implements(IListingAdapter)
 
     @property
     def item_fields(self):

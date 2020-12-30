@@ -1,11 +1,11 @@
 from zope.interface import Interface, Attribute
 from zope import schema
-from zope.interface import implements
+from zope.interface import implementer
 from z3c.form.object import registerFactoryAdapter, FactoryAdapter
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 
 from collective.listingviews import LVMessageFactory as _
-from validation import validate_id, validate_class, validate_tal
+from .validation import validate_id, validate_class, validate_tal
 try:
     from plone.autoform import directives as form
 except ImportError:
@@ -141,8 +141,8 @@ class IListingCustomFieldControlPanel(Interface):
     )
 
 
+@implementer(IListingDefinition)
 class ListingDefinition(object):
-    implements(IListingDefinition)
 
     def __init__(self, data={}):
         for key,value in data.items():
@@ -153,8 +153,8 @@ class ListingDefinitionFactory(FactoryAdapter):
     factory = ListingDefinition
 
 
+@implementer(ICustomFieldDefinition)
 class CustomFieldDefinition(object):
-    implements(ICustomFieldDefinition)
 
     def __init__(self, data={}):
         for key,value in data.items():

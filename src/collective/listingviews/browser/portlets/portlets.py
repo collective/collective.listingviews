@@ -4,7 +4,7 @@ import logging
 from ZODB.POSException import ConflictError
 from zope import schema
 from zope.component import getMultiAdapter
-from zope.interface import implements
+from zope.interface import implementer
 from plone.app.portlets.portlets import base
 from plone.autoform.directives import widget
 from plone.portlets.interfaces import IPortletDataProvider
@@ -94,13 +94,13 @@ class IListingPortlet(IPortletDataProvider):
         default=False)
 
 
+@implementer(IListingPortlet)
 class ListingAssignment(base.Assignment):
     """Portlet assignment.
 
     This is what is actually managed through the portlets UI and associated
     with columns.
     """
-    implements(IListingPortlet)
 
     header = _(u"title_listing_portlet", default=u"Listing view portlet")
     listing_choice = u""
