@@ -210,7 +210,7 @@ class BaseListingInformationRetriever(BrowserView):
 
             if attr_value == None or attr_value == Missing.Value:
                 value = None
-            elif isinstance(attr_value, basestring):
+            elif isinstance(attr_value, bytes):
                 value = attr_value.decode("utf-8")
             elif callable(attr_value):
                 value = attr_value()
