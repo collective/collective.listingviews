@@ -309,9 +309,10 @@ class ListingViewSchemaListing(crud.CrudForm):
     def add(self, data):
         addView(self.context, data)
 
-    def remove(self, (name, item)):
+    def remove(self, name_item):
         """ Remove a schema.
         """
+        name, item = name_item
         views = getRegistryViews().views
         view = views.get(name)
         del views[views.indexof(name)]
