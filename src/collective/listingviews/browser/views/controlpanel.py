@@ -154,7 +154,10 @@ def syncViews(portal, listing_views):
                 # TODO we need to warn user that only portlets will work for this type
                 continue
             if name not in fti.view_methods:
-                fti.manage_changeProperties(view_methods=fti.view_methods + (name,))
+                if isinstance(fti.view_methods, list):
+                    fti.manage_changeProperties(view_methods=fti.view_methods + [name])
+                else:
+                    fti.manage_changeProperties(view_methods=fti.view_methods + (name,))
 
     def del_fti(name, fti):
         fti.manage_changeProperties(view_methods=tuple(m for m in fti.view_methods if m != name))
