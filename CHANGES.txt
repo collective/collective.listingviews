@@ -20,6 +20,8 @@ Changelog
   [Quang]
 - Renaming a view now updates display menu etc
   [Dylan Jay]
+- Fixed adding a new listsing view through the control panel when `view_methods` is a list not a tuple
+  [JeffersonBledsoe]
 
 
 1.0.1 (2019-01-17)
