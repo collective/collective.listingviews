@@ -60,7 +60,7 @@ jobs:
         run: |
           sed -ie "s#test-5.0.x.cfg#test-${{ matrix.plone-version }}.x.cfg#" buildout.cfg
           pip install -r requirements.txt
-          buildout -Nc test-${{ PLONE_VERSION }}.x.cfg
+          buildout -Nc test-${{ matrix.plone-version }}.x.cfg
       - name: test
         run: |
           bin/test --all
