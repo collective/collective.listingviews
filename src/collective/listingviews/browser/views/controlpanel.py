@@ -38,6 +38,7 @@ from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.form import AutoObjectSubForm, AutoFields, AutoExtensibleForm
 from z3c.form import field, form, button
 from zope.cachedescriptors.property import Lazy as lazy_property
+from Products.CMFPlone.utils import safe_unicode
 
 from collective.listingviews.vocabularies import all_types
 
@@ -172,15 +173,15 @@ def syncViews(portal, listing_views):
 
     changed = False
     def add_lv(name, view):
-        stlisting_views[unicode(name)] = unicode(view.name)
+        stlisting_views[safe_unicode(name)] = safe_unicode(view.name)
         changed = True
     def del_lv(name, title):
         if name.startswith("collective.listingviews."):
-            del stlisting_views[unicode(name)]
+            del stlisting_views[safe_unicode(name)]
             changed = True
     def mod_lv(name, view, lvtitle):
-        if lvtitle != unicode(view.name):
-            stlisting_views[unicode(name)] = unicode(view.name)
+        if lvtitle != safe_unicode(view.name):
+            stlisting_views[safe_unicode(name)] = safe_unicode(view.name)
             changed = True
     sync_dicts(views, stlisting_views, add_lv, del_lv, mod_lv)
     if changed:

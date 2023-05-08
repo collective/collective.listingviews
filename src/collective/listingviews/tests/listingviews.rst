@@ -30,7 +30,7 @@ A TAL Expression like the following will work.
 >>> browser = managerBrowser(layer)
 >>> browser.getLink('Site Setup').click()
 >>> browser.getLink('Listing Custom Fields').click()
->>> print browser.contents
+>>> print(browser.contents)
 <...Add...
 
 >>> browser.getControl('Add').click()
@@ -39,7 +39,7 @@ A TAL Expression like the following will work.
 >>> browser.getControl('TAL expression').value = tal
 >>> browser.getControl('Additional CSS classes').value = ""
 >>> browser.getControl('Save').click()
->>> print browser.contents
+>>> print(browser.contents)
 <...
 ...Changes saved...
 ...
@@ -166,7 +166,7 @@ We have
 Note the html is in exactly the same order as we specifed in our view definition
 
 
->>> print browser.contents
+>>> print(browser.contents)
 <...
       <div class="listing-item-fields">
         <dl class="pubnews-item item-fields">
@@ -176,7 +176,7 @@ Note the html is in exactly the same order as we specifed in our view definition
       </div>
 ...
 
->>> print browser.contents
+>>> print(browser.contents)
 <...
       <ul class="pubnews-listing listing-items-view">
           <li class="listing-item">
@@ -187,37 +187,37 @@ Note the html is in exactly the same order as we specifed in our view definition
       </ul>
 ...
 
->>> print browser.contents
+>>> print(browser.contents)
 <...
                               <dt class="listing-field field-Title">Title</dt>
                               <dd class="listing-field field-Title">item1</dd>
 ...
 
->>> print browser.contents
+>>> print(browser.contents)
 <...
                               <dt class="listing-field field-Title-tolink">Title</dt>
                               <dd class="listing-field field-Title-tolink"><a href="http://nohost/plone/folder1/item1">item1</a></dd>
 ...
 
->>> print browser.contents
+>>> print(browser.contents)
 <...
 ...<dt class="listing-field field-lead_image-img_mini-tolink">Lead Image</dt>
 ...<dd class="listing-field field-lead_image-img_mini-tolink"><a href="http://nohost/plone/folder1/item3"><img src="http://nohost/plone/folder1/item3/@@images/image/mini" alt="item3" /></a></dd>
 ...
 
->>> print browser.contents
+>>> print(browser.contents)
 <...
 ...<dt class="listing-field field-lead_image-img_mini-tolink">Lead Image</dt>
 ...<dd class="listing-field field-lead_image-img_mini-tolink"><a href="http://nohost/plone/folder1/item4"><img src="http://nohost/plone/folder1/item4/@@images/image/mini" alt="item4" /></a></dd>
 ...
 
->>> print browser.contents
+>>> print(browser.contents)
 <...
 ...<dt class="listing-field field-EffectiveDate-localshort">EffectiveDate</dt>
 ...<dd class="listing-field field-EffectiveDate-localshort">Jan 01, 2001</dd>
 ...
 
->>> print browser.contents
+>>> print(browser.contents)
 <...
 ...<dt class="listing-field pubdate">Local Publication Date</dt>...
 ...<dd class="listing-field pubdate">01/01/2001</dd>...
@@ -300,13 +300,13 @@ We can see
 
 >>> browser.getLink('folder1').click()
 >>> browser.getLink('item1').click()
->>> print browser.contents
+>>> print(browser.contents)
 <...
     <dl class="portlet portletListing portlet-listing-publication-info">
     ...
     </dl>
 ...
->>> print browser.contents
+>>> print(browser.contents)
 <...
     <dt class="portletHeader">
         <span class="portletTopLeft"></span>
@@ -316,7 +316,7 @@ We can see
         <span class="portletTopRight"></span>
     </dt>
 ...
->>> print browser.contents
+>>> print(browser.contents)
 <...
     <div class="listing-item-fields-portlet">
       <dl class="pubnewsitem-item item-fields">
@@ -325,7 +325,7 @@ We can see
             </dl>
     </div>
 ...
->>> print browser.contents
+>>> print(browser.contents)
 <...
     <ul class="pubnewsitem-listing listing-items-view">
     </ul>
@@ -383,7 +383,7 @@ Edit the portlet and search for ``item1`` in the ``Target`` Field.
 We will now see the portlet at the folder level
 
 >>> browser.getLink('folder1').click()
->>> print browser.contents
+>>> print(browser.contents)
 <...
   <div class="listing-item-fields-portlet">
       <dl class="pubnewsitem-item item-fields">
@@ -399,11 +399,11 @@ Listing Views for collections
 We have create a collection in our folder1 called collection1
 
 >>> browser.getLink('folder1').click()
->>> print browser.contents
+>>> print(browser.contents)
 <...collection1...>
 >>> browser.getLink('collection1').click()
 >>> assert "There are currently no items in this folder." not in browser.contents
->>> print browser.contents
+>>> print(browser.contents)
 <...item1...>
 >>> browser.getLink('item1')
 <Link text='item1' url='http://nohost/plone/folder1/item1'>
@@ -414,7 +414,7 @@ Select ``Display > 'News with publication'``.
 
 >>> browser.getLink('collection1').click()
 >>> browser.getLink('News with publication').click()
->>> print browser.contents
+>>> print(browser.contents)
 <...
     <dt class="listing-field pubdate">Local Publication Date</dt>
 ...
@@ -425,7 +425,7 @@ and our custom field
 
 >>> browser.getLink('item1')
 <Link text='item1' url='http://nohost/plone/folder1/item1'>
->>> print browser.contents
+>>> print(browser.contents)
 <...
 <dt class="listing-field pubdate">Local Publication Date</dt>
 <dd class="listing-field pubdate">01/01/2001</dd>
