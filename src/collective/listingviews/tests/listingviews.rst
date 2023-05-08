@@ -429,6 +429,9 @@ and our custom field
 <dd class="listing-field pubdate">01/01/2001</dd>
 ...
 
+We get can get caching headers set
+>>> print browser.headers
+
 Collection Portlets
 -------------------
 

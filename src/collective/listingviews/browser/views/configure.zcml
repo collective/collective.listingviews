@@ -9,7 +9,8 @@
   <include package="Products.CMFCore" />
   <include package="plone.app.registry" />
   <include package="plone.app.z3cform" />
-
+  <include package="z3c.caching" file="meta.zcml" />
+  <include package="plone.app.caching" />
 
   <!-- Control panel -->
 
@@ -85,5 +86,10 @@
       name="listing_view_adapter"
       class=".base.BaseListingInformationRetriever"
       permission="zope2.View" />
+
+  <cache:ruleset
+      for=".list_view.ListingView"
+      ruleset="plone.content.folderView"
+      />
 
 </configure>
