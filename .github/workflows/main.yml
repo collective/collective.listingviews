@@ -35,9 +35,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
+        if: ${{ matrix.python-version == '3.9' }}
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y libxml2-dev libxslt-dev python-dev
+          sudo apt-get install -y libxml2-dev libxslt-dev
+          pip install virtualenv wheel
+      - name: Install dependencies
+        if: ${{ matrix.python-version == '2.7' }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libxml2-dev libxslt-dev python2-dev
           pip install virtualenv wheel
       - name: Cache buildout
         uses: actions/cache@v2
