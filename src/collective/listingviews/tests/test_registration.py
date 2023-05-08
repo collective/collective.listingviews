@@ -102,19 +102,15 @@ class TestRegistration(unittest.TestCase):
         factory = getUtility(IVocabularyFactory, 'collective.listingviews.MetadataVocabulary')
         vocabulary = factory(self.portal)
         # TODO: backport 5.1 fields so vocab is equal on all verisons
+        titles = [t.title for t in vocabulary]
+        # Date names change in 5.2 so don't test them
         self.assertItemsSubset([u'Creator',
-                               u'Creation Date (Date & Time)',
-                               u'Creation Date (Date)',
                                u'Description',
-                               u'Effective Date (Date & Time)',
-                               u'Effective Date (Date)',
                                u'End Date (Date & Time)',
                                u'End Date (Date)',
                                u'Expiration Date (Date & Time)',
                                u'Expiration Date (Date)',
                                u'Location',
-                               u'Modification Date (Date & Time)',
-                               u'Modification Date (Date)',
                                u'Short Name',
                                u'Short Name (Link)',
                                u'Size',
@@ -125,8 +121,9 @@ class TestRegistration(unittest.TestCase):
                                u'Title',
                                u'Title (Link)',
                                u'Total number of comments'],
-            [t.title for t in vocabulary]
+            titles
             )
+
         self.assertItemsSubset(
                               ['Creator:',
                                'Description:',
