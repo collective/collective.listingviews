@@ -351,7 +351,6 @@ False
 False
 >>> browser.getLink('Publication Info')
 Traceback (most recent call last):
-...
 LinkNotFoundError
 
 
