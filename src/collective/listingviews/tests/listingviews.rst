@@ -127,7 +127,9 @@ and finally we'll enable the view for all content types
 >>> browser.getControl('Id', index=0).value = "pubnews"
 >>> browser.getControl('Title', index=0).value = "News with publication"
 >>> browser.setInAndOut(['Title'], index=1)
->>> browser.setInAndOut(['Title', 'Title (Link)', 'Effective Date (Date)', 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
+>>> fields = browser.getControl('Title', index=1).control.displayOptions
+>>> published = 'Effective Date (Date)' if 'Effective Date (Date)' in fields else 'Publication Date (Date)'
+>>> browser.setInAndOut(['Title', 'Title (Link)', published, 'Local Publication Date (Custom)','Lead Image (mini)'], index=3)
 >>> browser.setInAndOut(browser.getControl('Page').control.displayOptions, index=0 )
 >>> browser.getControl('Add').click()
 

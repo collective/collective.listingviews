@@ -1,0 +1,79 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  # Enable once
+  # formatting:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - name: Set up Python 3.7
+  #       uses: actions/setup-python@v1
+  #       with:
+  #         python-version: 3.7
+  # - name: Install Black
+  #   run: pip install black
+  # - name: Run black --check .
+  #   run: black --check .
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        plone-version:
+          - "4.3"
+          - "5.0"
+          - "5.1"
+          - "5.2"
+        python-version: ["2.7"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        if: ${{ matrix.python-version == '3.9' }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libxml2-dev libxslt-dev
+          pip install virtualenv wheel
+      - name: Install dependencies
+        if: ${{ matrix.python-version == '2.7' }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libxml2-dev libxslt-dev python2-dev
+          pip install virtualenv wheel
+      - name: Cache buildout
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/buildout-cache
+            ~/extends
+            ~/.cache/pip
+          key: ${{ runner.os }}-buildout-${{ matrix.plone-version }}-${{ matrix.python-version }}
+          restore-keys: |
+            ${{ runner.os }}-buildout-
+      - name: setup buildout cache
+        run: |
+          mkdir -p ~/buildout-cache/{eggs,downloads}
+          mkdir ~/.buildout
+          echo "[buildout]" > ~/.buildout/default.cfg
+          echo "download-cache = ~/buildout-cache/downloads" >> ~/.buildout/default.cfg
+          echo "eggs-directory = ~/buildout-cache/eggs" >> ~/.buildout/default.cfg
+      - name: buildout
+        run: |
+          sed -ie "s#test-5.0.x.cfg#test-${{ matrix.plone-version }}.x.cfg#" buildout.cfg
+          pip install -r requirements.txt
+          buildout -Nc test-${{ matrix.plone-version }}.x.cfg
+      - name: test
+        run: |
+          bin/test --all
+      - name: code-analysis
+        run: bin/code-analysis
+      - uses: actions/setup-python@v2
+        if: failure()
+        with:
+          python-version: 2.7
