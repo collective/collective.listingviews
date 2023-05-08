@@ -63,7 +63,7 @@ These fields come from either standard metadata or the custom fields we add.
 True
 
 
-#>>> print '\n'.join(sorted(browser.getControl('Title', index=1).control.displayOptions) )
+#>>> print( '\n'.join(sorted(browser.getControl('Title', index=1).control.displayOptions) ) )
 Creation Date (Date & Time)
 Creation Date (Date)
 Creator
@@ -99,7 +99,7 @@ By default the view will be enabled for standard content types. These are
 
 >>> options = browser.getControl('Page').control.displayOptions
 >>> options = [o for o in options if 'old-style' not in o]
->>> print '\n'.join( options )
+>>> print('\n'.join( options ))
 Collection
 Comment
 Event

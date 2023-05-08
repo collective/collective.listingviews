@@ -353,7 +353,7 @@ def managerBrowser(layer):
 #     #     from Products.CMFCore.utils import getToolByName
 #     #     portal = self['portal']
 #     #     errorLog = getToolByName(portal, 'error_log')
-#     #     print errorLog.getLogEntries()[-1]['tb_text']
+#     #     print( errorLog.getLogEntries()[-1]['tb_text'] )
 
 #
 # class BrowserFunctionalTesting(FunctionalTesting):
@@ -369,7 +369,7 @@ def managerBrowser(layer):
 #     #     from Products.CMFCore.utils import getToolByName
 #     #     portal = self['portal']
 #     #     errorLog = getToolByName(portal, 'error_log')
-#     #     print errorLog.getLogEntries()[-1]['tb_text']
+#     #     print( errorLog.getLogEntries()[-1]['tb_text'] )
 
 
 
