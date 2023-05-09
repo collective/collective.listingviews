@@ -16,6 +16,9 @@ from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD, 
 from plone.app.testing import SITE_OWNER_NAME, SITE_OWNER_PASSWORD
 from Products.CMFCore.utils import getToolByName
 from lxml import etree
+from plone.registry.interfaces import IRegistry
+from zope.component import getUtility
+from plone.caching.interfaces import ICacheSettings
 
 IMG = b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
 
@@ -66,6 +69,13 @@ class CollectiveListingviews(PloneSandboxLayer):
             pass
 
         portal.portal_workflow.setDefaultChain("simple_publication_workflow")
+        applyProfile(portal, "plone.app.caching:default")
+        applyProfile(portal, "plone.app.caching:with-caching-proxy")
+
+        registry = getUtility(IRegistry)        
+        cacheSettings = registry.forInterface(ICacheSettings)
+        cacheSettings.enabled = True
+
         applyProfile(portal, 'collective.listingviews:default')
 
         setRoles(portal, TEST_USER_ID, ['Manager'])
