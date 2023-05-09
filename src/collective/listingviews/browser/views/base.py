@@ -18,7 +18,7 @@ except ImportError:
 from collective.listingviews.interfaces import IListingAdapter
 from collective.listingviews.utils import getListingNameFromView, getRegistryViews, getRegistryFields
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.component import getMultiAdapter, getUtility, queryUtility
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, getExprContext
@@ -36,8 +36,8 @@ class InvalidListingViewField(Expression):
 
 
 
+@implementer(IListingAdapter)
 class BaseListingInformationRetriever(BrowserView):
-    implements(IListingAdapter)
 
     view_setting = None
     item_field_filters = []
@@ -210,7 +210,7 @@ class BaseListingInformationRetriever(BrowserView):
 
             if attr_value == None or attr_value == Missing.Value:
                 value = None
-            elif isinstance(attr_value, basestring):
+            elif isinstance(attr_value, bytes):
                 value = attr_value.decode("utf-8")
             elif callable(attr_value):
                 value = attr_value()

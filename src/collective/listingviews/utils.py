@@ -4,7 +4,7 @@ import Persistence
 from zope.component import getMultiAdapter, getUtility
 #from settings import ListingSettings
 
-from zope.interface import implements  # , alsoProvides
+from zope.interface import implementer  # , alsoProvides
 #from zope.schema import getFieldsInOrder
 #from zope.schema.interfaces import RequiredMissing
 from plone.registry.interfaces import IRecordsProxy, IRegistry
@@ -54,7 +54,7 @@ class ListMixin(object):
         raise TypeError('list objects are unhashable')
 
     def __iter__(self):
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             yield self._get_element(i)
 
     def _tuple_from_slice(self, i):
@@ -82,9 +82,9 @@ class ListMixin(object):
         if isinstance(i, slice):
             (start, end, step) = self._tuple_from_slice(i)
             if step == None:
-                indices = xrange(start, end)
+                indices = range(start, end)
             else:
-                indices = xrange(start, end, step)
+                indices = range(start, end, step)
             return self._constructor([self._get_element(i) for i in indices])
         else:
             return self._get_element(self._fix_index(i))
@@ -161,7 +161,7 @@ class ListMixin(object):
             self[:] = []
         elif other > 1:
             aux = list(self)
-            for i in xrange(other - 1):
+            for i in range(other - 1):
                 self.extend(aux)
         return self
 
@@ -179,7 +179,7 @@ class ListMixin(object):
         return ans
 
     def reverse(self):
-        for i in xrange(len(self) // 2):
+        for i in range(len(self) // 2):
             j = len(self) - 1 - i
             (self[i], self[j]) = (self[j], self[i])
 
@@ -188,7 +188,7 @@ class ListMixin(object):
             (i, j, ignore) = self._tuple_from_slice(slice(i, j))
         if j is None:
             j = len(self)
-        for k in xrange(i, j):
+        for k in range(i, j):
             if self._get_element(k) == x:
                 return k
         raise ValueError('index(x): x not in list')
@@ -204,7 +204,7 @@ class ListMixin(object):
         return ans
 
     def remove(self, x):
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             if self._get_element(i) == x:
                 del self[i]
                 return
@@ -277,11 +277,11 @@ class TestList(ListMixin):
         self.L[start:end] = [None] * new_size
 
 
+@implementer(IRecordsProxy)
 class ComplexRecordsProxy(RecordsProxy):
     """A proxy that maps an interface to a number of records, including collections of complex records
     """
 
-    implements(IRecordsProxy)
 
     def __init__(self, registry, schema, omitted=(), prefix=None, key_names={}):
         # override to set key_names which changes how lists are stored

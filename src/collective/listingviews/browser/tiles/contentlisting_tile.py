@@ -1,7 +1,7 @@
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five import BrowserView
 from zope.component import getMultiAdapter
-from zope.interface import implements
+from zope.interface import implementer
 import inspect
 from collective.listingviews.browser.views.base import BaseListingInformationRetriever
 from collective.listingviews.browser.views.listing_view import ListingView
@@ -9,8 +9,8 @@ from collective.listingviews.interfaces import IListingAdapter
 from collective.listingviews.utils import getListingNameFromView
 
 
+@implementer(IListingAdapter)
 class QueryBuilderListingViewAdapter(BaseListingInformationRetriever):
-    implements(IListingAdapter)
 
     def __init__(self, context, querybuilder, request):
         super(QueryBuilderListingViewAdapter,self).__init__(context, request)

@@ -28,6 +28,11 @@ jobs:
           - "5.1"
           - "5.2"
         python-version: ["2.7"]
+        include:
+          - plone-version: "5.2"
+            python-version: "3.9"
+          - plone-version: "6.0"
+            python-version: "3.9"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
@@ -61,13 +66,14 @@ jobs:
           mkdir -p ~/buildout-cache/{eggs,downloads}
           mkdir ~/.buildout
           echo "[buildout]" > ~/.buildout/default.cfg
-          echo "download-cache = ~/buildout-cache/downloads" >> ~/.buildout/default.cfg
-          echo "eggs-directory = ~/buildout-cache/eggs" >> ~/.buildout/default.cfg
+          echo "download-cache = $PWD/buildout-cache/downloads" >> ~/.buildout/default.cfg
+          echo "eggs-directory = $PWD/buildout-cache/eggs" >> ~/.buildout/default.cfg
       - name: buildout
         run: |
           sed -ie "s#test-5.0.x.cfg#test-${{ matrix.plone-version }}.x.cfg#" buildout.cfg
-          pip install -r requirements.txt
-          buildout -Nc test-${{ matrix.plone-version }}.x.cfg
+          # pip install -r requirements.txt
+          ./bootstrap.sh test-${{ matrix.plone-version }}.x.cfg
+          bin/buildout -Nc test-${{ matrix.plone-version }}.x.cfg
       - name: test
         run: |
           bin/test --all

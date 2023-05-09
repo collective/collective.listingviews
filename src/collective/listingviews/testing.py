@@ -1,4 +1,7 @@
-import base64
+try:
+    from base64 import b64decode
+except ImportError:
+    from base64 import decodestring as b64decode
 
 from plone.app.testing import PLONE_FIXTURE, PLONE_FUNCTIONAL_TESTING, PLONE_INTEGRATION_TESTING
 from plone.app.testing import PloneSandboxLayer, FunctionalTesting
@@ -17,7 +20,7 @@ from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 from plone.caching.interfaces import ICacheSettings
 
-IMG = base64.decodestring("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
+IMG = b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
 
 def dummy_image(filename=u'image.png'):
     # filename = os.path.join(os.path.dirname(__file__), filename)
@@ -350,7 +353,7 @@ def managerBrowser(layer):
     def raising(self, info):
         import traceback
         traceback.print_tb(info[2])
-        print info[1]
+        print(info[1])
 
     from Products.SiteErrorLog.SiteErrorLog import SiteErrorLog
     SiteErrorLog.raising = raising
@@ -360,7 +363,7 @@ def managerBrowser(layer):
 #     #     from Products.CMFCore.utils import getToolByName
 #     #     portal = self['portal']
 #     #     errorLog = getToolByName(portal, 'error_log')
-#     #     print errorLog.getLogEntries()[-1]['tb_text']
+#     #     print( errorLog.getLogEntries()[-1]['tb_text'] )
 
 #
 # class BrowserFunctionalTesting(FunctionalTesting):
@@ -376,7 +379,7 @@ def managerBrowser(layer):
 #     #     from Products.CMFCore.utils import getToolByName
 #     #     portal = self['portal']
 #     #     errorLog = getToolByName(portal, 'error_log')
-#     #     print errorLog.getLogEntries()[-1]['tb_text']
+#     #     print( errorLog.getLogEntries()[-1]['tb_text'] )
 
 
 

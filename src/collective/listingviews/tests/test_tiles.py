@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
-from urllib2 import HTTPError
+try:
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib2 import HTTPError
 
 import transaction
 from plone.app.testing import TEST_USER_NAME

@@ -13,7 +13,7 @@ from collective.listingviews.browser.tiles.contentlisting_tile import ContentLis
 from collective.listingviews.interfaces import (IListingControlSettings, IListingDefinition,
                                                 IListingControlPanel, IListingCustomFieldControlPanel,
                                                 ICustomFieldDefinition, ListingDefinition, IListingViewsBrowserLayer)
-from zope.interface import implements, alsoProvides, Interface
+from zope.interface import implementer, alsoProvides, Interface
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
 from zope.component import adapts, getUtility, getAdapters
@@ -38,6 +38,7 @@ from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.form import AutoObjectSubForm, AutoFields, AutoExtensibleForm
 from z3c.form import field, form, button
 from zope.cachedescriptors.property import Lazy as lazy_property
+from Products.CMFPlone.utils import safe_unicode
 
 from collective.listingviews.vocabularies import all_types
 
@@ -172,15 +173,15 @@ def syncViews(portal, listing_views):
 
     changed = False
     def add_lv(name, view):
-        stlisting_views[unicode(name)] = unicode(view.name)
+        stlisting_views[safe_unicode(name)] = safe_unicode(view.name)
         changed = True
     def del_lv(name, title):
         if name.startswith("collective.listingviews."):
-            del stlisting_views[unicode(name)]
+            del stlisting_views[safe_unicode(name)]
             changed = True
     def mod_lv(name, view, lvtitle):
-        if lvtitle != unicode(view.name):
-            stlisting_views[unicode(name)] = unicode(view.name)
+        if lvtitle != safe_unicode(view.name):
+            stlisting_views[safe_unicode(name)] = safe_unicode(view.name)
             changed = True
     sync_dicts(views, stlisting_views, add_lv, del_lv, mod_lv)
     if changed:
@@ -312,9 +313,10 @@ class ListingViewSchemaListing(crud.CrudForm):
     def add(self, data):
         addView(self.context, data)
 
-    def remove(self, (name, item)):
+    def remove(self, name_item):
         """ Remove a schema.
         """
+        name, item = name_item
         views = getRegistryViews().views
         view = views.get(name)
         del views[views.indexof(name)]
@@ -357,11 +359,11 @@ class ListingViewEditFormConfiglet(controlpanel.ControlPanelFormWrapper):
     form = ListingViewEditForm
 
 
+@implementer(IBrowserPublisher)
 class ListingViewControlPanel(SimpleItem):
     """ This class represents the Pigeonhole configlet, and allows us to traverse
         through it to (a wrapper of) a particular schema.
     """
-    implements(IBrowserPublisher)
 
     def __init__(self, context, request):
         super(ListingViewControlPanel, self).__init__(context, request)
@@ -389,10 +391,10 @@ class ListingViewControlPanel(SimpleItem):
         """
         return self, ('@@contents',)
 
+@implementer(IBrowserPublisher)
 class ListingViewEditContext(SimpleItem):
     # Implementing IBrowserPublisher tells the Zope 2 publish traverser to pay attention
     # to the publishTraverse and browserDefault methods.
-    implements(IBrowserPublisher)
 
 
     def __init__(self, context, request, name=u'schema', title=None):
