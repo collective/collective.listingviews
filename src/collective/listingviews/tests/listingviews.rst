@@ -431,6 +431,17 @@ and our custom field
 <dd class="listing-field pubdate">01/01/2001</dd>
 ...
 
+The view supports caching operations out of the box
+>>> print browser.headers
+Status: 200...
+Cache-Control: max-age=0, must-revalidate, private
+...
+X-Cache-Rule: plone.content...
+...
+
+It will use ```plone.content.folderView``` in 5.2 or older and ```plone.content.dynamic``` in
+newer versions of plone.
+
 Collection Portlets
 -------------------
 

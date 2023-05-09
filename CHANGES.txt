@@ -6,8 +6,8 @@ Changelog
 
 - Add support for the p.a.standardtiles listing tile.
   [Dylan Jay]
-- Fix tests for 4.1-5.2
-  [Dylan Jay]
+- Fix tests for 4.1-5.2 and github actions
+  [Dylan Jay, JeffersonBledsoe]
 - Add an option to display the result count on a listing view.
   [instification]
 - fix typos and update 'Working Examples'
@@ -22,6 +22,8 @@ Changelog
   [Dylan Jay]
 - Fixed adding a new listsing view through the control panel when `view_methods` is a list not a tuple
   [JeffersonBledsoe]
+- Supports plone.app.caching default rulesets
+  [Dylan Jay]
 
 
 1.0.1 (2019-01-17)
