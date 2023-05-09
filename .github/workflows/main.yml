@@ -72,7 +72,7 @@ jobs:
         run: |
           sed -ie "s#test-5.0.x.cfg#test-${{ matrix.plone-version }}.x.cfg#" buildout.cfg
           # pip install -r requirements.txt
-          ./bootstrap.sh est-${{ matrix.plone-version }}.x.cfg
+          ./bootstrap.sh test-${{ matrix.plone-version }}.x.cfg
           buildout -Nc test-${{ matrix.plone-version }}.x.cfg
       - name: test
         run: |
