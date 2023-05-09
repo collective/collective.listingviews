@@ -29,7 +29,6 @@ class TestRegistration(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        self.qi_tool = getToolByName(self.portal, 'portal_quickinstaller')
         self.maxDiff = 2000
 
 
