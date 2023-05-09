@@ -3,8 +3,8 @@
 Introduction
 ============
 
-.. image:: https://secure.travis-ci.org/collective/collective.listingviews.png
-    :target: http://travis-ci.org/collective/collective.listingviews
+.. image:: https://github.com/collective/collective.listingviews/actions/workflows/mail.yml/badge.svg
+    :target: https://github.com/collective/collective.listingviews/actions/workflows/mail.yml
 
 ``collective.listingviews`` allows a Plone site administrator to quickly create a new display
 view their content types, folders, collections and eea.facetednavigation. It will also let you create
