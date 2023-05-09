@@ -29,11 +29,10 @@ jobs:
           - "5.2"
         python-version: ["2.7"]
         include:
-          # Only 5.2+ runs on py3
-          - plone-version: 5.2
-            python-version: 3.9
-          - plone-version: 6.0
-            python-version: 3.9
+          - plone-version: "5.2"
+            python-version: "3.9"
+          - plone-version: "6.0"
+            python-version: "3.9"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
