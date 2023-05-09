@@ -3,6 +3,7 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:cache="http://namespaces.zope.org/cache"
     i18n_domain="collective.listingviews">
 
   <include package="plone.app.contentmenu" />
@@ -88,8 +89,16 @@
       permission="zope2.View" />
 
   <cache:ruleset
-      for=".list_view.ListingView"
+      zcml:condition="not-have plone.content.dynamic"
+      for=".listing_view.ListingView"
       ruleset="plone.content.folderView"
       />
+
+  <cache:ruleset
+      zcml:condition="have plone.content.dynamic"
+      for=".listing_view.ListingView"
+      ruleset="plone.content.dynamic"
+      />
+      
 
 </configure>
