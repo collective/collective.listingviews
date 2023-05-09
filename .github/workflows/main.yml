@@ -66,8 +66,8 @@ jobs:
           mkdir -p ~/buildout-cache/{eggs,downloads}
           mkdir ~/.buildout
           echo "[buildout]" > ~/.buildout/default.cfg
-          echo "download-cache = ~/buildout-cache/downloads" >> ~/.buildout/default.cfg
-          echo "eggs-directory = ~/buildout-cache/eggs" >> ~/.buildout/default.cfg
+          echo "download-cache = $PWD/buildout-cache/downloads" >> ~/.buildout/default.cfg
+          echo "eggs-directory = $PWD/buildout-cache/eggs" >> ~/.buildout/default.cfg
       - name: buildout
         run: |
           sed -ie "s#test-5.0.x.cfg#test-${{ matrix.plone-version }}.x.cfg#" buildout.cfg
